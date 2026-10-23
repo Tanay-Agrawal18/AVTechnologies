@@ -165,13 +165,13 @@ export default function InternTasksPage() {
                   {/* Task info */}
                   <div>
                     <h3
-                      className="font-bold text-base line-clamp-1"
-                      style={{ color: "var(--iwms-black)" }}
+                      className="font-bold text-lg line-clamp-1"
+                      style={{ color: "var(--iwms-navy)" }}
                     >
                       {task.title}
                     </h3>
                     <p
-                      className="text-xs line-clamp-2 mt-1"
+                      className="text-sm line-clamp-2 mt-1"
                       style={{ color: "rgba(11,31,58,.55)" }}
                     >
                       {task.description}

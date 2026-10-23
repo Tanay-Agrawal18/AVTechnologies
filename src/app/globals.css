@@ -109,7 +109,7 @@ body {
 
 /* Task card left accent */
 .iwms-task-card {
-  border-left: 3px solid var(--iwms-sky);
+  border-left: 3.5px solid #0284C7;
 }
 
 /* ─── Buttons ────────────────────────────────────────── */
