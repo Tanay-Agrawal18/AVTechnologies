@@ -46,13 +46,30 @@ export default function InternProjectsPage() {
 
       <main className="p-8 space-y-6">
         {/* Toolbar */}
-        <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200">
+        <div
+          className="iwms-card flex items-center justify-between px-5 py-3.5 gap-4"
+          style={{ borderRadius: "12px" }}
+        >
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-slate-500 uppercase">Status:</span>
+            <FolderGit2
+              className="w-4 h-4 flex-shrink-0"
+              style={{ color: "var(--iwms-sky)" }}
+            />
+            <span
+              className="text-xs font-bold uppercase tracking-wider"
+              style={{ color: "var(--iwms-navy)" }}
+            >
+              Status:
+            </span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+              className="px-3 py-1.5 text-xs font-medium rounded-lg focus:outline-none transition-shadow"
+              style={{
+                border: "1px solid var(--iwms-border)",
+                color: "var(--iwms-navy)",
+                background: "var(--iwms-white)",
+              }}
             >
               <option value="all">All Projects</option>
               <option value="planning">Planning</option>
@@ -62,19 +79,41 @@ export default function InternProjectsPage() {
             </select>
           </div>
 
-          <span className="text-xs text-slate-500 font-medium">
+          <span
+            className="text-xs font-medium"
+            style={{ color: "rgba(11,31,58,.55)" }}
+          >
             {projects.length} project{projects.length !== 1 ? "s" : ""}
           </span>
         </div>
 
         {/* Projects Grid */}
         {isLoading ? (
-          <div className="p-12 text-center text-slate-500 text-sm">Loading your team projects...</div>
+          <div
+            className="p-12 text-center text-sm"
+            style={{ color: "rgba(11,31,58,.45)" }}
+          >
+            Loading your team projects…
+          </div>
         ) : projects.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-            <FolderGit2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="font-bold text-slate-800 text-base">No team projects assigned</h3>
-            <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+          <div
+            className="iwms-card p-12 text-center"
+            style={{ borderRadius: "14px" }}
+          >
+            <FolderGit2
+              className="w-12 h-12 mx-auto mb-3"
+              style={{ color: "rgba(56,189,248,.35)" }}
+            />
+            <h3
+              className="font-bold text-base"
+              style={{ color: "var(--iwms-navy)" }}
+            >
+              No team projects assigned
+            </h3>
+            <p
+              className="text-xs mt-1 max-w-sm mx-auto"
+              style={{ color: "rgba(11,31,58,.45)" }}
+            >
               When administrators assign you to a collaborative team project, it will appear here.
             </p>
           </div>
@@ -83,7 +122,12 @@ export default function InternProjectsPage() {
             {projects.map((proj) => (
               <div
                 key={proj._id}
-                className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col justify-between hover:shadow-sm transition-shadow"
+                className="iwms-card flex flex-col justify-between transition-shadow hover:shadow-md"
+                style={{
+                  padding: "1.5rem",
+                  borderRadius: "14px",
+                  borderLeft: "3.5px solid #0284C7",
+                }}
               >
                 <div className="space-y-4">
                   <div className="flex items-start justify-between gap-3">
@@ -94,21 +138,35 @@ export default function InternProjectsPage() {
                     >
                       {proj.status.replace("_", " ")}
                     </span>
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5" /> Due {formatDate(proj.dueDate)}
+                    <span
+                      className="text-xs flex items-center gap-1"
+                      style={{ color: "rgba(11,31,58,.55)" }}
+                    >
+                      <Calendar className="w-3.5 h-3.5" style={{ color: "var(--iwms-sky)" }} /> Due {formatDate(proj.dueDate)}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-slate-900 text-base line-clamp-1">{proj.title}</h3>
-                    <p className="text-xs text-slate-500 line-clamp-2 mt-1 leading-relaxed">
+                    <h3
+                      className="font-bold text-base line-clamp-1"
+                      style={{ color: "var(--iwms-black)" }}
+                    >
+                      {proj.title}
+                    </h3>
+                    <p
+                      className="text-xs line-clamp-2 mt-1 leading-relaxed"
+                      style={{ color: "rgba(11,31,58,.55)" }}
+                    >
                       {proj.description}
                     </p>
                   </div>
 
                   <div className="pt-2">
-                    <div className="flex items-center gap-1.5 text-xs text-slate-600 mb-1.5 font-medium">
-                      <Users className="w-3.5 h-3.5 text-indigo-600" />
+                    <div
+                      className="flex items-center gap-1.5 text-xs mb-1.5 font-medium"
+                      style={{ color: "var(--iwms-navy)" }}
+                    >
+                      <Users className="w-3.5 h-3.5" style={{ color: "var(--iwms-sky)" }} />
                       {proj.teamMembers?.length || 0} Team Members
                     </div>
 
@@ -118,7 +176,12 @@ export default function InternProjectsPage() {
                         return (
                           <span
                             key={typeof m.internId === "object" ? (m.internId as unknown as { _id: string })._id : String(m.internId)}
-                            className="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 text-xs rounded border border-slate-200"
+                            className="inline-block px-2 py-0.5 text-xs rounded font-medium"
+                            style={{
+                              background: "rgba(56,189,248,.10)",
+                              color: "var(--iwms-navy)",
+                              border: "1px solid var(--iwms-border)",
+                            }}
                           >
                             {memberInfo?.name || "Intern"}
                           </span>
@@ -128,13 +191,23 @@ export default function InternProjectsPage() {
                   </div>
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs text-slate-500">
+                <div
+                  className="pt-4 mt-4 flex items-center justify-between"
+                  style={{ borderTop: "1px solid var(--iwms-border)" }}
+                >
+                  <span
+                    className="text-xs"
+                    style={{ color: "rgba(11,31,58,.50)" }}
+                  >
                     Started: {formatDate(proj.startDate)}
                   </span>
                   <Link
                     href={`/intern/projects/${proj._id}`}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition-colors"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                    style={{
+                      background: "rgba(56,189,248,.12)",
+                      color: "var(--iwms-sky)",
+                    }}
                   >
                     View Project <ArrowRight className="w-3.5 h-3.5" />
                   </Link>

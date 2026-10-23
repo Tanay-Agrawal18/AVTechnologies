@@ -94,15 +94,22 @@ export default function InternProjectDetailPage({
         <div>
           <Link
             href="/intern/projects"
-            className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+            className="inline-flex items-center gap-2 text-sm font-medium transition-colors"
+            style={{ color: "var(--iwms-navy)" }}
           >
             <ArrowLeft className="w-4 h-4" /> Back to My Projects
           </Link>
         </div>
 
         {/* Project Overview Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div
+          className="iwms-card p-6 space-y-6"
+          style={{ borderRadius: "14px" }}
+        >
+          <div
+            className="flex flex-wrap items-center justify-between gap-4 pb-4"
+            style={{ borderBottom: "1px solid var(--iwms-border)" }}
+          >
             <div className="flex items-center gap-3">
               <span
                 className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border capitalize ${getStatusBadgeClass(
@@ -111,37 +118,58 @@ export default function InternProjectDetailPage({
               >
                 {project.status.replace("_", " ")}
               </span>
-              <span className="text-xs text-slate-500">
-                Deadline: <strong>{formatDate(project.dueDate)}</strong>
+              <span
+                className="text-xs"
+                style={{ color: "rgba(11,31,58,.55)" }}
+              >
+                Deadline: <strong style={{ color: "var(--iwms-black)" }}>{formatDate(project.dueDate)}</strong>
               </span>
             </div>
 
-            <div className="text-xs text-slate-500">
+            <div
+              className="text-xs"
+              style={{ color: "rgba(11,31,58,.50)" }}
+            >
               Started: {formatDate(project.startDate)}
             </div>
           </div>
 
           <div>
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+            <h4
+              className="text-xs font-bold uppercase tracking-wider mb-1"
+              style={{ color: "rgba(11,31,58,.50)" }}
+            >
               Project Description
             </h4>
-            <p className="text-sm text-slate-800 leading-relaxed whitespace-pre-line">
+            <p
+              className="text-sm leading-relaxed whitespace-pre-line"
+              style={{ color: "var(--iwms-black)" }}
+            >
               {project.description}
             </p>
           </div>
 
           {/* Progress Summary */}
-          <div className="space-y-3 pt-4 border-t border-slate-100">
+          <div
+            className="space-y-3 pt-4"
+            style={{ borderTop: "1px solid var(--iwms-border)" }}
+          >
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-700 uppercase tracking-wider">
+              <span
+                className="font-bold uppercase tracking-wider"
+                style={{ color: "var(--iwms-navy)" }}
+              >
                 Team Milestone Progress: {progress.completionPercentage}%
               </span>
-              <span className="text-slate-500">
+              <span style={{ color: "rgba(11,31,58,.55)" }}>
                 {progress.approved} of {progress.totalTasks} task(s) completed
               </span>
             </div>
 
-            <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+            <div
+              className="w-full h-2.5 rounded-full overflow-hidden"
+              style={{ background: "rgba(11,31,58,.08)" }}
+            >
               <div
                 className="bg-emerald-500 h-2.5 rounded-full transition-all duration-500"
                 style={{ width: `${progress.completionPercentage}%` }}
@@ -154,11 +182,17 @@ export default function InternProjectDetailPage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Team Members */}
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 text-lg flex items-center gap-2">
-              <Users className="w-5 h-5 text-indigo-600" /> Team Members ({project.teamMembers.length})
+            <h3
+              className="font-bold text-lg flex items-center gap-2"
+              style={{ color: "var(--iwms-navy)" }}
+            >
+              <Users className="w-5 h-5" style={{ color: "var(--iwms-sky)" }} /> Team Members ({project.teamMembers.length})
             </h3>
 
-            <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3 shadow-xs">
+            <div
+              className="iwms-card p-4 space-y-3"
+              style={{ borderRadius: "14px" }}
+            >
               {project.teamMembers.map((m) => {
                 const intern = m.internId as unknown as {
                   _id: string;
@@ -171,12 +205,22 @@ export default function InternProjectDetailPage({
                 return (
                   <div
                     key={intern._id || String(m.internId)}
-                    className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs"
+                    className="p-3 rounded-lg text-xs"
+                    style={{
+                      background: "rgba(56,189,248,.06)",
+                      border: "1px solid var(--iwms-border)",
+                    }}
                   >
-                    <p className="font-bold text-slate-900 text-sm">
+                    <p
+                      className="font-bold text-sm"
+                      style={{ color: "var(--iwms-black)" }}
+                    >
                       {intern?.name || "Intern"}
                     </p>
-                    <p className="text-slate-500 text-[11px] mt-0.5">
+                    <p
+                      className="text-[11px] mt-0.5"
+                      style={{ color: "rgba(11,31,58,.55)" }}
+                    >
                       {intern?.internId || intern?.email} • {intern?.department || "General"}
                     </p>
                   </div>
@@ -187,14 +231,25 @@ export default function InternProjectDetailPage({
 
           {/* Project Task Breakdown */}
           <div className="lg:col-span-2 space-y-4">
-            <h3 className="font-bold text-slate-900 text-lg flex items-center gap-2">
-              <FolderGit2 className="w-5 h-5 text-indigo-600" /> Project Tasks ({tasks.length})
+            <h3
+              className="font-bold text-lg flex items-center gap-2"
+              style={{ color: "var(--iwms-navy)" }}
+            >
+              <FolderGit2 className="w-5 h-5" style={{ color: "var(--iwms-sky)" }} /> Project Tasks ({tasks.length})
             </h3>
 
             {tasks.length === 0 ? (
-              <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-500">
-                <Clock className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                <p className="font-semibold text-slate-700">No project tasks allocated yet</p>
+              <div
+                className="iwms-card p-8 text-center"
+                style={{ borderRadius: "14px", color: "rgba(11,31,58,.50)" }}
+              >
+                <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p
+                  className="font-semibold text-sm"
+                  style={{ color: "var(--iwms-navy)" }}
+                >
+                  No project tasks allocated yet
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -207,7 +262,8 @@ export default function InternProjectDetailPage({
                   return (
                     <div
                       key={t._id}
-                      className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                      className="iwms-card iwms-task-card p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-shadow hover:shadow-md"
+                      style={{ borderRadius: "14px" }}
                     >
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -227,23 +283,42 @@ export default function InternProjectDetailPage({
                           </span>
                         </div>
 
-                        <h4 className="font-bold text-slate-900 text-sm truncate">{t.title}</h4>
-                        <p className="text-xs text-slate-500 line-clamp-2">{t.description}</p>
+                        <h4
+                          className="font-bold text-sm truncate"
+                          style={{ color: "var(--iwms-black)" }}
+                        >
+                          {t.title}
+                        </h4>
+                        <p
+                          className="text-xs line-clamp-2"
+                          style={{ color: "rgba(11,31,58,.55)" }}
+                        >
+                          {t.description}
+                        </p>
 
-                        <div className="flex items-center gap-4 text-[11px] text-slate-500 pt-1">
+                        <div
+                          className="flex items-center gap-4 text-[11px] pt-1"
+                          style={{ color: "rgba(11,31,58,.55)" }}
+                        >
                           <span>
                             Assignee:{" "}
-                            <strong className="text-slate-700">
+                            <strong style={{ color: "var(--iwms-black)" }}>
                               {assignee?.name || t.assignedInternSnapshot?.name || "Unassigned"}
                             </strong>
                           </span>
-                          <span>Due: {formatDate(t.dueDate)}</span>
+                          <span>
+                            Due: <strong style={{ color: "var(--iwms-black)" }}>{formatDate(t.dueDate)}</strong>
+                          </span>
                         </div>
                       </div>
 
                       <Link
                         href={`/intern/tasks/${t._id}`}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shrink-0"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors shrink-0"
+                        style={{
+                          background: "rgba(56,189,248,.12)",
+                          color: "var(--iwms-sky)",
+                        }}
                       >
                         View & Submit <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
