@@ -1,8 +1,33 @@
 @import "tailwindcss";
 
+/* ─── IWMS Design Tokens ─────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core palette */
+  --iwms-white:      #FFFFFF;
+  --iwms-navy:       #0B1F3A;
+  --iwms-sky:        #38BDF8;
+  --iwms-black:      #111827;
+
+  /* Derived surface colours */
+  --iwms-bg:         #F5F8FF;          /* main workspace tint */
+  --iwms-sidebar-bg: #FFFFFF;          /* sidebar */
+  --iwms-border:     rgba(11,31,58,.10); /* subtle border */
+
+  /* Active nav highlight */
+  --iwms-active-bg:  rgba(56,189,248,.10);
+  --iwms-active-bar: #38BDF8;
+
+  /* Background / foreground aliases used by Tailwind theme */
+  --background: var(--iwms-bg);
+  --foreground: var(--iwms-black);
+}
+
+/* Disable the system-level dark-mode override so our palette stays consistent */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: var(--iwms-bg);
+    --foreground: var(--iwms-black);
+  }
 }
 
 @theme inline {
@@ -12,15 +37,94 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base reset ─────────────────────────────────────── */
+html {
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans, 'Inter', system-ui, sans-serif);
+}
+
+/* ─── Wave background ────────────────────────────────── */
+/*
+   A pure-CSS SVG wave layer placed behind the main content.
+   Applied to the main workspace area (class .iwms-workspace).
+*/
+.iwms-workspace {
+  position: relative;
+  overflow-x: hidden;
+}
+
+.iwms-workspace::before,
+.iwms-workspace::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Bottom-left wave */
+.iwms-workspace::before {
+  left: 0;
+  width: 580px;
+  height: 400px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 580 400' fill='none'%3E%3Cpath d='M0 400 C120 320, 220 360, 340 310 C440 270, 500 230, 580 200 L580 400 Z' fill='%2338BDF8' fill-opacity='0.08'/%3E%3Cpath d='M0 400 C140 340, 260 370, 380 320 C460 290, 520 270, 580 240 L580 400 Z' fill='%2338BDF8' fill-opacity='0.12'/%3E%3Cpath d='M0 400 C160 360, 280 380, 420 340 C490 320, 540 300, 580 270 L580 400 Z' fill='%2338BDF8' fill-opacity='0.15'/%3E%3C/svg%3E")
+    no-repeat bottom left / contain;
+}
+
+/* Bottom-right wave */
+.iwms-workspace::after {
+  right: 0;
+  width: 720px;
+  height: 420px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 420' fill='none'%3E%3Cpath d='M720 420 C580 300, 420 340, 280 280 C160 220, 80 250, 0 200 L0 420 Z' fill='%2338BDF8' fill-opacity='0.08'/%3E%3Cpath d='M720 420 C540 330, 380 360, 220 300 C120 260, 60 280, 0 240 L0 420 Z' fill='%2338BDF8' fill-opacity='0.12'/%3E%3Cpath d='M720 420 C480 360, 320 380, 160 330 C90 300, 40 320, 0 280 L0 420 Z' fill='%2338BDF8' fill-opacity='0.15'/%3E%3C/svg%3E")
+    no-repeat bottom right / contain;
+}
+
+/* All page content must sit above the wave layer */
+.iwms-workspace > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Sidebar ─────────────────────────────────────────── */
+.iwms-sidebar {
+  background: var(--iwms-sidebar-bg);
+  border-right: 1px solid var(--iwms-border);
+}
+
+/* ─── Cards ──────────────────────────────────────────── */
+.iwms-card {
+  background: var(--iwms-white);
+  border: 1px solid var(--iwms-border);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(11,31,58,.06);
+}
+
+/* Task card left accent */
+.iwms-task-card {
+  border-left: 3.5px solid #0284C7;
+}
+
+/* ─── Buttons ────────────────────────────────────────── */
+.iwms-btn-primary {
+  background: var(--iwms-sky);
+  color: var(--iwms-white);
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+.iwms-btn-primary:hover {
+  background: #0EA5E9;
+  box-shadow: 0 4px 14px rgba(56,189,248,.35);
+}
+
+/* ─── Focus ring (accessibility) ─────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--iwms-sky);
+  outline-offset: 2px;
 }

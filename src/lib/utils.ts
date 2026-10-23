@@ -32,7 +32,7 @@ export function formatDateTime(dateStringOrDate?: string | Date | null): string 
 export function getStatusBadgeClass(status: string): string {
   switch (status) {
     case "assigned":
-      return "bg-slate-100 text-slate-700 border-slate-300";
+      return "bg-sky-50 text-sky-800 border-sky-200";
     case "in_progress":
       return "bg-blue-50 text-blue-700 border-blue-200";
     case "submitted":
@@ -71,7 +71,7 @@ export function getPriorityBadgeClass(priority: string): string {
     case "high":
       return "bg-orange-100 text-orange-800";
     case "urgent":
-      return "bg-red-100 text-red-800 font-semibold";
+      return "bg-rose-50 text-rose-600 border border-rose-200/60 font-bold";
     default:
       return "bg-slate-100 text-slate-700";
   }
