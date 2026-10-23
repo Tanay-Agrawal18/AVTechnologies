@@ -40,6 +40,12 @@ export async function connectDB(): Promise<typeof mongoose> {
     throw new Error(`Database configuration error: ${currentDbValidation.errors.join("; ")}`);
   }
 
+  try {
+    dns.setServers(["8.8.8.8", "1.1.1.1"]);
+  } catch {
+    // Ignore error if unable to set servers
+  }
+
   const effectiveUri = currentDbValidation.uri || MONGODB_URI;
 
   if (!cached.promise) {
