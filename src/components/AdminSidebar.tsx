@@ -10,6 +10,8 @@ import {
   BarChart3,
   LogOut,
   ShieldAlert,
+  Mail,
+  Award,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +20,8 @@ const navItems = [
   { label: "Interns", href: "/admin/interns", icon: Users },
   { label: "Bulk Import", href: "/admin/import", icon: FileSpreadsheet },
   { label: "Tasks", href: "/admin/tasks", icon: CheckSquare },
+  { label: "Bulk Email", href: "/admin/emails", icon: Mail },
+  { label: "Documents & Certs", href: "/admin/documents", icon: Award },
   { label: "Reports & KPIs", href: "/admin/reports", icon: BarChart3 },
 ];
 

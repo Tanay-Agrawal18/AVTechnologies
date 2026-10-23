@@ -23,6 +23,8 @@ import {
   History,
   MessageSquare,
   FileText,
+  Image as ImageIcon,
+  Camera,
 } from "lucide-react";
 
 export default function InternTaskDetailPage({
@@ -51,6 +53,34 @@ export default function InternTaskDetailPage({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
+  // Daily Progress Images State
+  const [progressImages, setProgressImages] = useState<
+    Array<{
+      _id: string;
+      originalFileName: string;
+      caption?: string;
+      uploadedAt: string;
+      expiresAt: string;
+      remainingMinutes: number;
+      viewUrl: string;
+    }>
+  >([]);
+  const [isUploadingProgressImage, setIsUploadingProgressImage] = useState(false);
+  const [progressCaption, setProgressCaption] = useState("");
+  const [progressError, setProgressError] = useState<string | null>(null);
+
+  const fetchProgressImages = async () => {
+    try {
+      const res = await fetch(`/api/intern/tasks/${id}/progress-images`);
+      if (res.ok) {
+        const data = await res.json();
+        setProgressImages(data.images || []);
+      }
+    } catch {
+      // Non-blocking
+    }
+  };
+
   const fetchTaskDetail = async () => {
     setIsLoading(true);
     try {
@@ -68,6 +98,7 @@ export default function InternTaskDetailPage({
 
   useEffect(() => {
     fetchTaskDetail();
+    fetchProgressImages();
   }, [id]);
 
   const handleStartTask = async () => {
@@ -133,6 +164,40 @@ export default function InternTaskDetailPage({
       alert(err instanceof Error ? err.message : "Upload error");
     } finally {
       setIsUploadingFile(false);
+    }
+  };
+
+  const handleProgressImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0]) return;
+    const file = e.target.files[0];
+    setProgressError(null);
+    setIsUploadingProgressImage(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    if (progressCaption.trim()) {
+      formData.append("caption", progressCaption.trim());
+    }
+
+    try {
+      const res = await fetch(`/api/intern/tasks/${id}/progress-images`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to upload progress image");
+      }
+
+      setProgressCaption("");
+      fetchProgressImages();
+    } catch (err: unknown) {
+      setProgressError(err instanceof Error ? err.message : "Upload error");
+    } finally {
+      setIsUploadingProgressImage(false);
+      // Reset input
+      e.target.value = "";
     }
   };
 
@@ -258,6 +323,99 @@ export default function InternTaskDetailPage({
               {task.description}
             </p>
           </div>
+        </div>
+
+        {/* Daily Progress Images with Strict 24-Hour Expiry */}
+        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+            <div>
+              <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                <Camera className="w-5 h-5 text-indigo-600" /> Daily Progress Snapshots
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Upload in-progress screenshots or proof of daily work. Snapshots are retained with a strict 24-hour expiry lifecycle.
+              </p>
+            </div>
+            <span className="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5" /> 24h Auto-Expiry
+            </span>
+          </div>
+
+          {progressError && (
+            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{progressError}</span>
+            </div>
+          )}
+
+          {/* Upload input form */}
+          <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col sm:flex-row gap-3 items-center">
+            <input
+              type="text"
+              value={progressCaption}
+              onChange={(e) => setProgressCaption(e.target.value)}
+              placeholder="Brief note (e.g. Completed initial mockups, running test suite)..."
+              className="flex-1 w-full px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white"
+            />
+            <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 shadow-sm flex-shrink-0">
+              <Upload className="w-3.5 h-3.5" />
+              {isUploadingProgressImage ? "Uploading to Cloud..." : "Upload Snapshot"}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="sr-only"
+                onChange={handleProgressImageUpload}
+                disabled={isUploadingProgressImage}
+              />
+            </label>
+          </div>
+
+          {/* Active progress images grid */}
+          {progressImages.length === 0 ? (
+            <p className="text-xs text-slate-400 text-center py-4 italic">
+              No active progress snapshots uploaded for this task today.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-2">
+              {progressImages.map((img) => (
+                <div
+                  key={img._id}
+                  className="bg-white border border-slate-200 rounded-lg p-3 shadow-xs space-y-2 flex flex-col justify-between"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-xs text-slate-500">
+                      <span className="truncate max-w-[140px] font-medium text-slate-700">
+                        {img.originalFileName}
+                      </span>
+                      <span className="text-[11px] font-mono text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                        {img.remainingMinutes > 60
+                          ? `${Math.floor(img.remainingMinutes / 60)}h remaining`
+                          : `${img.remainingMinutes}m remaining`}
+                      </span>
+                    </div>
+                    {img.caption && (
+                      <p className="text-xs text-slate-600 italic bg-slate-50 p-1.5 rounded">
+                        &ldquo;{img.caption}&rdquo;
+                      </p>
+                    )}
+                  </div>
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[10px] text-slate-400">
+                      {new Date(img.uploadedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                    <a
+                      href={img.viewUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 inline-flex items-center gap-1"
+                    >
+                      <ImageIcon className="w-3 h-3" /> View Secure Image &rarr;
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Submission & Revisions Form */}

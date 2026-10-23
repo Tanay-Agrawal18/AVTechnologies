@@ -64,6 +64,15 @@ This guide covers real-world, zero-cost / free-tier deployment for the **Intern 
 | `R2_SECRET_ACCESS_KEY` | When `r2` | R2 Token Secret Access Key | `64-character hex secret` |
 | `R2_BUCKET_NAME` | When `r2` | Private R2 bucket name | `iwms-submissions-private` |
 | `LOCAL_STORAGE_DIR` | Optional | Local storage fallback path | `./uploads` |
+| `CLOUDINARY_URL` | Optional | Cloudinary API URI for 24h daily progress snapshots | `cloudinary://<api_key>:<api_secret>@<cloud_name>` |
+| `CRON_SECRET` | Recommended | Bearer secret protecting `/api/cron/cleanup-expired-images` | `openssl rand -base64 32` |
+| `EMAIL_PROVIDER` | Optional | `smtp`, `resend`, or `disabled` (logs locally if disabled) | `smtp` |
+| `SMTP_HOST` | When `smtp` | SMTP Server Host | `smtp.mailgun.org` |
+| `SMTP_PORT` | When `smtp` | SMTP Port | `587` |
+| `SMTP_USER` | When `smtp` | SMTP Username | `postmaster@company.com` |
+| `SMTP_PASS` | When `smtp` | SMTP Password | `<secret-password>` |
+| `EMAIL_FROM` | Optional | Default Sender Email address | `no-reply@company.com` |
+| `RESEND_API_KEY` | When `resend` | Resend API Key | `re_123456789...` |
 
 ---
 

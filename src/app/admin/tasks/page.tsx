@@ -32,6 +32,8 @@ export default function AdminTasksPage() {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high" | "urgent">("medium");
   const [assignedInternId, setAssignedInternId] = useState("");
+  const [assignedInternIds, setAssignedInternIds] = useState<string[]>([]);
+  const [isMultiAssign, setIsMultiAssign] = useState(false);
   const [assignmentDate, setAssignmentDate] = useState(
     new Date().toISOString().split("T")[0]
   );
@@ -73,22 +75,51 @@ export default function AdminTasksPage() {
     fetchTasks();
   }, [statusFilter, internFilter, priorityFilter, includeArchived]);
 
+  const toggleInternSelection = (id: string) => {
+    setAssignedInternIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAllInterns = () => {
+    if (assignedInternIds.length === interns.length) {
+      setAssignedInternIds([]);
+    } else {
+      setAssignedInternIds(interns.map((i) => i._id));
+    }
+  };
+
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     setModalError(null);
+
+    const payload: Record<string, unknown> = {
+      title,
+      description,
+      priority,
+      assignmentDate,
+      dueDate,
+    };
+
+    if (isMultiAssign) {
+      if (assignedInternIds.length === 0) {
+        setModalError("Please select at least one intern to assign this task.");
+        return;
+      }
+      payload.assignedInternIds = assignedInternIds;
+    } else {
+      if (!assignedInternId) {
+        setModalError("Please select an intern to assign this task.");
+        return;
+      }
+      payload.assignedInternId = assignedInternId;
+    }
 
     try {
       const res = await fetch("/api/admin/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          description,
-          priority,
-          assignedInternId,
-          assignmentDate,
-          dueDate,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -99,6 +130,8 @@ export default function AdminTasksPage() {
       setIsModalOpen(false);
       setTitle("");
       setDescription("");
+      setAssignedInternId("");
+      setAssignedInternIds([]);
       setDueDate("");
       fetchTasks();
     } catch (err: unknown) {
@@ -349,22 +382,65 @@ export default function AdminTasksPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Assign To Intern *
-                  </label>
-                  <select
-                    required
-                    value={assignedInternId}
-                    onChange={(e) => setAssignedInternId(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
-                  >
-                    <option value="">Select an intern...</option>
-                    {interns.map((i) => (
-                      <option key={i._id} value={i._id}>
-                        {i.name} ({i.internId || i.email})
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-slate-700">
+                      Assign To *
+                    </label>
+                    <label className="text-xs text-blue-600 font-semibold cursor-pointer inline-flex items-center gap-1.5 hover:underline">
+                      <input
+                        type="checkbox"
+                        checked={isMultiAssign}
+                        onChange={(e) => setIsMultiAssign(e.target.checked)}
+                        className="rounded text-blue-600"
+                      />
+                      Multiple Interns
+                    </label>
+                  </div>
+
+                  {!isMultiAssign ? (
+                    <select
+                      value={assignedInternId}
+                      onChange={(e) => setAssignedInternId(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
+                    >
+                      <option value="">Select an intern...</option>
+                      {interns.map((i) => (
+                        <option key={i._id} value={i._id}>
+                          {i.name} ({i.internId || i.email})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs text-slate-500">
+                        <span>{assignedInternIds.length} intern(s) selected</span>
+                        <button
+                          type="button"
+                          onClick={handleSelectAllInterns}
+                          className="text-blue-600 hover:underline font-medium"
+                        >
+                          {assignedInternIds.length === interns.length ? "Deselect All" : "Select All"}
+                        </button>
+                      </div>
+                      <div className="max-h-36 overflow-y-auto border border-slate-300 rounded-lg p-2 space-y-1.5 bg-slate-50 text-xs">
+                        {interns.map((i) => (
+                          <label
+                            key={i._id}
+                            className="flex items-center gap-2 p-1 rounded hover:bg-slate-100 cursor-pointer text-slate-700"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={assignedInternIds.includes(i._id)}
+                              onChange={() => toggleInternSelection(i._id)}
+                              className="rounded text-blue-600"
+                            />
+                            <span className="font-medium text-slate-900">{i.name}</span>
+                            <span className="text-slate-400">({i.internId || i.email})</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

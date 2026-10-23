@@ -8,8 +8,10 @@ export interface IUser {
   email: string;
   role: UserRole;
   status: UserStatus;
-  internId?: string; // e.g. INT-2026-001 (required for interns)
+  internId?: string; // e.g. AV-2026-001 (required for interns)
   department?: string;
+  designation?: string;
+  phone?: string;
   startDate?: string; // ISO date string
   endDate?: string;
   passwordHash?: string;
@@ -43,6 +45,7 @@ export interface ITask {
     email: string;
     internId: string;
   };
+  taskGroupId?: string;
   assignmentDate: Date;
   dueDate: Date;
   isArchived: boolean;

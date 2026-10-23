@@ -57,9 +57,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const task = await TaskService.createTask(parsed.data, auth.user);
+    const tasks = await TaskService.createTasks(parsed.data, auth.user);
 
-    return NextResponse.json({ success: true, task }, { status: 201 });
+    return NextResponse.json(
+      { success: true, task: tasks[0], tasks, count: tasks.length },
+      { status: 201 }
+    );
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Failed to create task";
     return NextResponse.json({ error: errorMsg }, { status: 400 });

@@ -11,7 +11,8 @@ export interface CreateTaskInput {
   title: string;
   description: string;
   priority: TaskPriority;
-  assignedInternId: string;
+  assignedInternId?: string;
+  assignedInternIds?: string[];
   assignmentDate: string;
   dueDate: string;
 }
@@ -39,47 +40,75 @@ export interface SubmissionInput {
 
 export class TaskService {
   static async createTask(data: CreateTaskInput, actor: SessionUser): Promise<ITaskDocument> {
+    const tasks = await this.createTasks(data, actor);
+    return tasks[0];
+  }
+
+  static async createTasks(data: CreateTaskInput, actor: SessionUser): Promise<ITaskDocument[]> {
     await connectDB();
 
-    const intern = await User.findOne({ _id: data.assignedInternId, role: "intern" });
-    if (!intern) {
-      throw new Error("Assigned intern not found or invalid role");
+    // Determine intern IDs list
+    const rawIds: string[] = [];
+    if (data.assignedInternIds && data.assignedInternIds.length > 0) {
+      rawIds.push(...data.assignedInternIds);
+    } else if (data.assignedInternId) {
+      rawIds.push(data.assignedInternId);
     }
 
-    const task = await Task.create({
-      title: data.title,
-      description: data.description,
-      priority: data.priority,
-      status: "assigned",
-      assignedInternId: intern._id,
-      assignedInternSnapshot: {
-        name: intern.name,
-        email: intern.email,
-        internId: intern.internId || "",
-      },
-      assignmentDate: new Date(data.assignmentDate),
-      dueDate: new Date(data.dueDate),
-      isArchived: false,
-      createdByAdminId: actor.id,
-    });
+    const uniqueIds = Array.from(new Set(rawIds));
+    if (uniqueIds.length === 0) {
+      throw new Error("At least one valid intern must be assigned");
+    }
 
-    await TaskEvent.create({
-      taskId: task._id,
-      eventType: "created",
-      actorId: actor.id,
-      actorRole: actor.role,
-      actorName: actor.name,
-      newValue: {
-        title: task.title,
-        priority: task.priority,
-        status: task.status,
-        assignedTo: intern.name,
-      },
-      note: "Task created and assigned",
-      timestamp: new Date(),
-    });
+    const interns = await User.find({ _id: { $in: uniqueIds }, role: "intern" });
+    if (interns.length !== uniqueIds.length) {
+      throw new Error("One or more assigned interns were not found or have invalid roles");
+    }
 
-    return task;
+    // If multiple interns, assign a common taskGroupId for correlation while keeping independent task records
+    const taskGroupId = uniqueIds.length > 1 ? new mongoose.Types.ObjectId().toString() : undefined;
+    const createdTasks: ITaskDocument[] = [];
+
+    for (const intern of interns) {
+      const task = await Task.create({
+        title: data.title,
+        description: data.description,
+        priority: data.priority,
+        status: "assigned",
+        assignedInternId: intern._id,
+        assignedInternSnapshot: {
+          name: intern.name,
+          email: intern.email,
+          internId: intern.internId || "",
+        },
+        taskGroupId,
+        assignmentDate: new Date(data.assignmentDate),
+        dueDate: new Date(data.dueDate),
+        isArchived: false,
+        createdByAdminId: actor.id,
+      });
+
+      await TaskEvent.create({
+        taskId: task._id,
+        eventType: "created",
+        actorId: actor.id,
+        actorRole: actor.role,
+        actorName: actor.name,
+        newValue: {
+          title: task.title,
+          priority: task.priority,
+          status: task.status,
+          assignedTo: intern.name,
+          taskGroupId,
+        },
+        note: `Task created and assigned to ${intern.name}`,
+        timestamp: new Date(),
+      });
+
+      createdTasks.push(task);
+    }
+
+    return createdTasks;
   }
 
   static async updateTask(

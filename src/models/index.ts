@@ -2,3 +2,8 @@ export * from "./User";
 export * from "./Task";
 export * from "./TaskEvent";
 export * from "./Submission";
+export * from "./AuditLog";
+export * from "./DailyProgressImage";
+export * from "./EmailLog";
+export * from "./DocumentTemplate";
+export * from "./IssuedDocument";

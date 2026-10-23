@@ -8,6 +8,8 @@ export interface IUserDocument extends Document {
   status: UserStatus;
   internId?: string;
   department?: string;
+  designation?: string;
+  phone?: string;
   startDate?: string;
   endDate?: string;
   passwordHash?: string;
@@ -55,6 +57,14 @@ const UserSchema = new Schema<IUserDocument>(
       index: true,
     },
     department: {
+      type: String,
+      trim: true,
+    },
+    designation: {
+      type: String,
+      trim: true,
+    },
+    phone: {
       type: String,
       trim: true,
     },

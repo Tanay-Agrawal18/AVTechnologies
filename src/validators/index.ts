@@ -38,38 +38,52 @@ export const CreateInternSchema = z.object({
     .trim()
     .regex(/^AV/i, "Intern ID must start with 'AV' (e.g. AV-001 or AV-2026-001)"),
   department: z.string().trim().optional(),
+  designation: z.string().trim().optional(),
+  phone: z.string().trim().optional(),
   startDate: z.string().trim().optional(),
   endDate: z.string().trim().optional(),
 });
 
 export const UpdateInternSchema = z.object({
-  name: z.string().trim().min(2).optional(),
-  email: z.string().trim().email().optional(),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").optional(),
+  email: z.string().trim().email("Invalid email address").optional(),
   internId: z
     .string()
     .trim()
     .regex(/^AV/i, "Intern ID must start with 'AV' (e.g. AV-001 or AV-2026-001)")
     .optional(),
   department: z.string().trim().optional(),
+  designation: z.string().trim().optional(),
+  phone: z.string().trim().optional(),
   startDate: z.string().trim().optional(),
   endDate: z.string().trim().optional(),
   status: UserStatusSchema.optional(),
 });
 
-export const CreateTaskSchema = z.object({
-  title: z.string().trim().min(3, "Title must be at least 3 characters").max(200),
-  description: z.string().trim().min(10, "Description must be at least 10 characters"),
-  priority: TaskPrioritySchema.default("medium"),
-  assignedInternId: z.string().min(1, "Intern assignment is required"),
-  assignmentDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid assignment date"),
-  dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid due date"),
-}).refine(
-  (data) => new Date(data.dueDate) >= new Date(data.assignmentDate),
-  {
-    message: "Due date cannot be before assignment date",
-    path: ["dueDate"],
-  }
-);
+export const CreateTaskSchema = z
+  .object({
+    title: z.string().trim().min(3, "Title must be at least 3 characters").max(200),
+    description: z.string().trim().min(10, "Description must be at least 10 characters"),
+    priority: TaskPrioritySchema.default("medium"),
+    assignedInternId: z.string().optional(),
+    assignedInternIds: z.array(z.string().min(1)).optional(),
+    assignmentDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid assignment date"),
+    dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid due date"),
+  })
+  .refine(
+    (data) => Boolean(data.assignedInternId || (data.assignedInternIds && data.assignedInternIds.length > 0)),
+    {
+      message: "At least one intern must be assigned",
+      path: ["assignedInternId"],
+    }
+  )
+  .refine(
+    (data) => new Date(data.dueDate) >= new Date(data.assignmentDate),
+    {
+      message: "Due date cannot be before assignment date",
+      path: ["dueDate"],
+    }
+  );
 
 export const UpdateTaskSchema = z.object({
   title: z.string().trim().min(3).max(200).optional(),

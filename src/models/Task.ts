@@ -12,6 +12,7 @@ export interface ITaskDocument extends Document {
     email: string;
     internId: string;
   };
+  taskGroupId?: string;
   assignmentDate: Date;
   dueDate: Date;
   isArchived: boolean;
@@ -61,6 +62,10 @@ const TaskSchema = new Schema<ITaskDocument>(
       name: String,
       email: String,
       internId: String,
+    },
+    taskGroupId: {
+      type: String,
+      index: true,
     },
     assignmentDate: {
       type: Date,

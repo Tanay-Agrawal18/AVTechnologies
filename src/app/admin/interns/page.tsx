@@ -15,6 +15,7 @@ import {
   FileSpreadsheet,
   AlertCircle,
   ExternalLink,
+  Edit2,
 } from "lucide-react";
 
 export default function AdminInternsPage() {
@@ -33,6 +34,19 @@ export default function AdminInternsPage() {
   const [endDate, setEndDate] = useState("");
   const [modalError, setModalError] = useState<string | null>(null);
   const [modalSuccessLink, setModalSuccessLink] = useState<string | null>(null);
+
+  // Edit Intern Modal State
+  const [editingIntern, setEditingIntern] = useState<IUser | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editInternId, setEditInternId] = useState("");
+  const [editDepartment, setEditDepartment] = useState("");
+  const [editDesignation, setEditDesignation] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editStartDate, setEditStartDate] = useState("");
+  const [editEndDate, setEditEndDate] = useState("");
+  const [editError, setEditError] = useState<string | null>(null);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // Reset link toast state
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
@@ -126,6 +140,55 @@ export default function AdminInternsPage() {
       }
     } catch {
       alert("Failed to generate setup link");
+    }
+  };
+
+  const openEditModal = (intern: IUser) => {
+    setEditingIntern(intern);
+    setEditName(intern.name);
+    setEditEmail(intern.email);
+    setEditInternId(intern.internId || "");
+    setEditDepartment(intern.department || "");
+    setEditDesignation(intern.designation || "");
+    setEditPhone(intern.phone || "");
+    setEditStartDate(intern.startDate || "");
+    setEditEndDate(intern.endDate || "");
+    setEditError(null);
+  };
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingIntern) return;
+    setEditError(null);
+    setIsSavingEdit(true);
+
+    try {
+      const res = await fetch(`/api/admin/interns/${editingIntern._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editName,
+          email: editEmail,
+          internId: editInternId || undefined,
+          department: editDepartment || undefined,
+          designation: editDesignation || undefined,
+          phone: editPhone || undefined,
+          startDate: editStartDate || undefined,
+          endDate: editEndDate || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to update member");
+      }
+
+      setEditingIntern(null);
+      fetchInterns();
+    } catch (err: unknown) {
+      setEditError(err instanceof Error ? err.message : "Failed to update member");
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
@@ -265,6 +328,13 @@ export default function AdminInternsPage() {
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         <div className="inline-flex items-center gap-2">
+                          <button
+                            onClick={() => openEditModal(intern)}
+                            title="Edit member details"
+                            className="p-1.5 text-slate-500 hover:text-blue-600 rounded hover:bg-slate-100"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
                           <button
                             onClick={() => handleGenerateReset(intern)}
                             title="Generate one-time activation/reset link"
@@ -443,6 +513,151 @@ export default function AdminInternsPage() {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Edit Intern Modal */}
+      {editingIntern && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-6">
+            <h3 className="text-lg font-bold text-slate-900 mb-1">Edit Member Profile</h3>
+            <p className="text-xs text-slate-500 mb-5">
+              Update intern details. Roles, credentials, and authentication secrets are strictly protected.
+            </p>
+
+            {editError && (
+              <div className="p-3 mb-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{editError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Intern ID *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editInternId}
+                  onChange={(e) => setEditInternId(e.target.value)}
+                  placeholder="e.g. AV-2026-001"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Full Legal Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Maya Patel"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  placeholder="maya.p@company.com"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Department
+                  </label>
+                  <input
+                    type="text"
+                    value={editDepartment}
+                    onChange={(e) => setEditDepartment(e.target.value)}
+                    placeholder="Engineering"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Designation
+                  </label>
+                  <input
+                    type="text"
+                    value={editDesignation}
+                    onChange={(e) => setEditDesignation(e.target.value)}
+                    placeholder="Full Stack Intern"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="text"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  placeholder="+1 (555) 019-2834"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    value={editStartDate}
+                    onChange={(e) => setEditStartDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    End Date
+                  </label>
+                  <input
+                    type="date"
+                    value={editEndDate}
+                    onChange={(e) => setEditEndDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setEditingIntern(null)}
+                  className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingEdit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isSavingEdit ? "Saving Changes..." : "Save Profile Details"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
