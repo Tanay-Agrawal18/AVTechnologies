@@ -5,7 +5,7 @@ import Link from "next/link";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { ITask } from "@/types";
 import { formatDate, getStatusBadgeClass, getPriorityBadgeClass } from "@/lib/utils";
-import { CheckSquare, ArrowRight, Clock, AlertTriangle } from "lucide-react";
+import { CheckSquare, ArrowRight, Filter, CalendarDays } from "lucide-react";
 
 export default function InternTasksPage() {
   const [tasks, setTasks] = useState<ITask[]>([]);
@@ -40,14 +40,31 @@ export default function InternTasksPage() {
       />
 
       <main className="p-8 space-y-6">
-        {/* Filter bar */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between">
+        {/* ── Filter bar ─────────────────────────────────────── */}
+        <div
+          className="iwms-card flex items-center justify-between px-5 py-3.5 gap-4"
+          style={{ borderRadius: "12px" }}
+        >
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-slate-500 uppercase">Status:</span>
+            <Filter
+              className="w-4 h-4 flex-shrink-0"
+              style={{ color: "var(--iwms-sky)" }}
+            />
+            <span
+              className="text-xs font-bold uppercase tracking-wider"
+              style={{ color: "var(--iwms-navy)" }}
+            >
+              Status:
+            </span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+              className="px-3 py-1.5 text-xs font-medium rounded-lg focus:outline-none transition-shadow"
+              style={{
+                border: "1px solid var(--iwms-border)",
+                color: "var(--iwms-navy)",
+                background: "var(--iwms-white)",
+              }}
             >
               <option value="all">All Assignments</option>
               <option value="assigned">Assigned</option>
@@ -58,60 +75,135 @@ export default function InternTasksPage() {
             </select>
           </div>
 
-          <span className="text-xs text-slate-500 font-medium">
-            {tasks.length} task{tasks.length !== 1 ? "s" : ""}
-          </span>
+          <div className="flex items-center gap-2">
+            <CalendarDays
+              className="w-4 h-4"
+              style={{ color: "var(--iwms-sky)" }}
+            />
+            <span
+              className="text-xs font-medium"
+              style={{ color: "rgba(11,31,58,.55)" }}
+            >
+              {tasks.length} task{tasks.length !== 1 ? "s" : ""}
+            </span>
+          </div>
         </div>
 
-        {/* Task Cards Grid */}
+        {/* ── Task Cards ─────────────────────────────────────── */}
         {isLoading ? (
-          <div className="p-12 text-center text-slate-500 text-sm">Loading your tasks...</div>
+          <div
+            className="p-12 text-center text-sm"
+            style={{ color: "rgba(11,31,58,.45)" }}
+          >
+            Loading your tasks…
+          </div>
         ) : tasks.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-            <CheckSquare className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="font-bold text-slate-800 text-base">No tasks match filter</h3>
-            <p className="text-xs text-slate-400 mt-1">Check back later or adjust the status dropdown.</p>
+          <div
+            className="iwms-card p-12 text-center"
+            style={{ borderRadius: "14px" }}
+          >
+            <CheckSquare
+              className="w-12 h-12 mx-auto mb-3"
+              style={{ color: "rgba(56,189,248,.35)" }}
+            />
+            <h3
+              className="font-bold text-base"
+              style={{ color: "var(--iwms-navy)" }}
+            >
+              No tasks match the selected filter
+            </h3>
+            <p
+              className="text-xs mt-1"
+              style={{ color: "rgba(11,31,58,.45)" }}
+            >
+              Check back later or adjust the status dropdown.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {tasks.map((task) => (
               <div
                 key={task._id}
-                className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col justify-between hover:shadow-sm transition-shadow"
+                className="iwms-card iwms-task-card flex flex-col justify-between transition-shadow hover:shadow-md"
+                style={{ padding: "1.5rem", borderRadius: "14px" }}
               >
+                {/* Top: badges */}
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-3">
+                    {/* Status badge */}
                     <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize ${getStatusBadgeClass(
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize ${getStatusBadgeClass(
                         task.status
                       )}`}
                     >
+                      <span
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={
+                          task.status === "assigned"
+                            ? { background: "var(--iwms-sky)" }
+                            : {}
+                        }
+                      />
                       {task.status.replace("_", " ")}
                     </span>
+
+                    {/* Priority badge */}
                     <span
                       className={`inline-block px-2 py-0.5 rounded text-xs font-semibold uppercase ${getPriorityBadgeClass(
                         task.priority
                       )}`}
                     >
+                      {task.priority === "urgent" ? "⚠ " : ""}
                       {task.priority}
                     </span>
                   </div>
 
+                  {/* Task info */}
                   <div>
-                    <h3 className="font-bold text-slate-900 text-base line-clamp-1">{task.title}</h3>
-                    <p className="text-xs text-slate-500 line-clamp-2 mt-1">{task.description}</p>
+                    <h3
+                      className="font-bold text-base line-clamp-1"
+                      style={{ color: "var(--iwms-black)" }}
+                    >
+                      {task.title}
+                    </h3>
+                    <p
+                      className="text-xs line-clamp-2 mt-1"
+                      style={{ color: "rgba(11,31,58,.55)" }}
+                    >
+                      {task.description}
+                    </p>
                   </div>
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-                  <div className="text-xs text-slate-500">
-                    Due: <strong className="text-slate-800">{formatDate(task.dueDate)}</strong>
+                {/* Bottom: due date + CTA */}
+                <div
+                  className="pt-4 mt-4 flex items-center justify-between"
+                  style={{ borderTop: "1px solid rgba(11,31,58,.07)" }}
+                >
+                  <div
+                    className="text-xs flex items-center gap-1.5"
+                    style={{ color: "rgba(11,31,58,.55)" }}
+                  >
+                    <CalendarDays
+                      className="w-3.5 h-3.5"
+                      style={{ color: "var(--iwms-sky)" }}
+                    />
+                    Due:{" "}
+                    <strong style={{ color: "var(--iwms-black)" }}>
+                      {formatDate(task.dueDate)}
+                    </strong>
                   </div>
+
                   <Link
                     href={`/intern/tasks/${task._id}`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition-colors"
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold iwms-btn-primary transition-all"
+                    style={{
+                      background: "var(--iwms-navy)",
+                      color: "var(--iwms-white)",
+                      borderRadius: "8px",
+                    }}
                   >
-                    View & Submit <ArrowRight className="w-3.5 h-3.5" />
+                    View &amp; Submit <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>

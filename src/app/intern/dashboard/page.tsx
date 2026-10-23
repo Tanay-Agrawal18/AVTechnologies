@@ -7,12 +7,21 @@ import { ITask } from "@/types";
 import { formatDate, getStatusBadgeClass, getPriorityBadgeClass } from "@/lib/utils";
 import {
   CheckSquare,
+  ArrowRight,
+  AlertCircle,
+  TrendingUp,
   Clock,
   CheckCircle,
-  AlertCircle,
-  ArrowRight,
-  TrendingUp,
+  ListTodo,
 } from "lucide-react";
+
+interface KpiCard {
+  label: string;
+  value: number;
+  sublabel: string;
+  accent: string;
+  icon: React.ElementType;
+}
 
 export default function InternDashboardPage() {
   const [tasks, setTasks] = useState<ITask[]>([]);
@@ -27,11 +36,42 @@ export default function InternDashboardPage() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  const assignedCount = tasks.filter((t) => t.status === "assigned").length;
+  const assignedCount  = tasks.filter((t) => t.status === "assigned").length;
   const inProgressCount = tasks.filter((t) => t.status === "in_progress").length;
   const submittedCount = tasks.filter((t) => t.status === "submitted").length;
-  const approvedCount = tasks.filter((t) => t.status === "approved").length;
-  const changesCount = tasks.filter((t) => t.status === "changes_requested").length;
+  const approvedCount  = tasks.filter((t) => t.status === "approved").length;
+  const changesCount   = tasks.filter((t) => t.status === "changes_requested").length;
+
+  const kpis: KpiCard[] = [
+    {
+      label: "Assigned Tasks",
+      value: assignedCount,
+      sublabel: "Ready to be started",
+      accent: "var(--iwms-navy)",
+      icon: ListTodo,
+    },
+    {
+      label: "In Progress",
+      value: inProgressCount,
+      sublabel: "Currently working on",
+      accent: "var(--iwms-sky)",
+      icon: TrendingUp,
+    },
+    {
+      label: "Under Review",
+      value: submittedCount,
+      sublabel: "Submitted to supervisor",
+      accent: "#f59e0b",
+      icon: Clock,
+    },
+    {
+      label: "Approved",
+      value: approvedCount,
+      sublabel: "Successfully completed",
+      accent: "#10b981",
+      icon: CheckCircle,
+    },
+  ];
 
   return (
     <>
@@ -41,82 +81,154 @@ export default function InternDashboardPage() {
       />
 
       <main className="p-8 space-y-8">
-        {/* KPI Strip */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
-            <span className="text-xs font-semibold text-slate-500 uppercase">Assigned Tasks</span>
-            <p className="text-3xl font-extrabold text-slate-900 mt-2">{assignedCount}</p>
-            <p className="text-xs text-slate-400 mt-1">Ready to be started</p>
-          </div>
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
-            <span className="text-xs font-semibold text-blue-600 uppercase">In Progress</span>
-            <p className="text-3xl font-extrabold text-blue-600 mt-2">{inProgressCount}</p>
-            <p className="text-xs text-slate-400 mt-1">Currently working on</p>
-          </div>
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
-            <span className="text-xs font-semibold text-amber-600 uppercase">Under Review</span>
-            <p className="text-3xl font-extrabold text-amber-600 mt-2">{submittedCount}</p>
-            <p className="text-xs text-slate-400 mt-1">Submitted to supervisor</p>
-          </div>
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
-            <span className="text-xs font-semibold text-emerald-600 uppercase">Approved Deliverables</span>
-            <p className="text-3xl font-extrabold text-emerald-600 mt-2">{approvedCount}</p>
-            <p className="text-xs text-slate-400 mt-1">Successfully completed</p>
-          </div>
+        {/* ── KPI Strip ──────────────────────────────────────── */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          {kpis.map((kpi) => {
+            const Icon = kpi.icon;
+            return (
+              <div
+                key={kpi.label}
+                className="iwms-card p-5 flex flex-col gap-3"
+                style={{ borderRadius: "14px" }}
+              >
+                <div className="flex items-center justify-between">
+                  <span
+                    className="text-xs font-bold uppercase tracking-wider"
+                    style={{ color: "rgba(11,31,58,.50)" }}
+                  >
+                    {kpi.label}
+                  </span>
+                  <span
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ background: `${kpi.accent}18` }}
+                  >
+                    <Icon
+                      className="w-4 h-4"
+                      style={{ color: kpi.accent }}
+                    />
+                  </span>
+                </div>
+                <p
+                  className="text-3xl font-extrabold leading-none"
+                  style={{ color: kpi.accent }}
+                >
+                  {kpi.value}
+                </p>
+                <p
+                  className="text-xs"
+                  style={{ color: "rgba(11,31,58,.40)" }}
+                >
+                  {kpi.sublabel}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
+        {/* ── Changes-requested alert ────────────────────────── */}
         {changesCount > 0 && (
-          <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between">
+          <div
+            className="iwms-card flex items-center justify-between gap-4 px-5 py-4"
+            style={{
+              borderRadius: "12px",
+              borderLeft: "3px solid #ef4444",
+              background: "rgba(239,68,68,.04)",
+            }}
+          >
             <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-rose-600" />
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
               <div>
-                <p className="font-semibold text-rose-900 text-sm">
-                  {changesCount} task(s) require revisions!
+                <p
+                  className="font-semibold text-sm"
+                  style={{ color: "#991b1b" }}
+                >
+                  {changesCount} task{changesCount > 1 ? "s" : ""}{" "}
+                  require{changesCount === 1 ? "s" : ""} revisions!
                 </p>
-                <p className="text-xs text-rose-700">
-                  Supervisor has provided feedback on your submission. Please check and revise.
+                <p
+                  className="text-xs mt-0.5"
+                  style={{ color: "#b91c1c" }}
+                >
+                  Supervisor has provided feedback. Please review and revise.
                 </p>
               </div>
             </div>
             <Link
               href="/intern/tasks?status=changes_requested"
-              className="text-xs font-bold text-rose-800 hover:underline inline-flex items-center gap-1"
+              className="text-xs font-bold text-red-700 hover:underline inline-flex items-center gap-1 whitespace-nowrap"
             >
               View Feedback <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         )}
 
-        {/* Priority & Upcoming Deadlines */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-          <div className="p-5 border-b border-slate-200 flex items-center justify-between">
-            <h3 className="font-bold text-slate-900 text-base">Current Assigned Tasks</h3>
+        {/* ── Current Assigned Tasks table ───────────────────── */}
+        <div
+          className="iwms-card overflow-hidden"
+          style={{ borderRadius: "14px" }}
+        >
+          {/* Table header */}
+          <div
+            className="px-6 py-4 flex items-center justify-between"
+            style={{ borderBottom: "1px solid var(--iwms-border)" }}
+          >
+            <h3
+              className="font-bold text-base"
+              style={{ color: "var(--iwms-black)" }}
+            >
+              Current Assigned Tasks
+            </h3>
             <Link
               href="/intern/tasks"
-              className="text-xs font-semibold text-blue-600 hover:underline"
+              className="text-xs font-semibold hover:underline"
+              style={{ color: "var(--iwms-sky)" }}
             >
-              View All Tasks &rarr;
+              View All Tasks →
             </Link>
           </div>
 
-          <div className="divide-y divide-slate-100">
+          <div>
             {isLoading ? (
-              <div className="p-8 text-center text-slate-500 text-sm">Loading tasks...</div>
+              <div
+                className="p-8 text-center text-sm"
+                style={{ color: "rgba(11,31,58,.45)" }}
+              >
+                Loading tasks…
+              </div>
             ) : tasks.length === 0 ? (
               <div className="p-10 text-center">
-                <CheckSquare className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="font-semibold text-slate-700">No active tasks</p>
-                <p className="text-xs text-slate-400 mt-1">You are all caught up!</p>
+                <CheckSquare
+                  className="w-10 h-10 mx-auto mb-2"
+                  style={{ color: "rgba(56,189,248,.3)" }}
+                />
+                <p
+                  className="font-semibold text-sm"
+                  style={{ color: "var(--iwms-navy)" }}
+                >
+                  No active tasks
+                </p>
+                <p
+                  className="text-xs mt-1"
+                  style={{ color: "rgba(11,31,58,.4)" }}
+                >
+                  You are all caught up!
+                </p>
               </div>
             ) : (
               tasks.slice(0, 5).map((task) => (
                 <div
                   key={task._id}
-                  className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors"
+                  className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-sky-50/40"
+                  style={{ borderBottom: "1px solid var(--iwms-border)" }}
                 >
                   <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold text-slate-900 text-sm">{task.title}</span>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span
+                        className="font-bold text-sm"
+                        style={{ color: "var(--iwms-black)" }}
+                      >
+                        {task.title}
+                      </span>
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize ${getStatusBadgeClass(
                           task.status
@@ -124,19 +236,36 @@ export default function InternDashboardPage() {
                       >
                         {task.status.replace("_", " ")}
                       </span>
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded text-xs font-semibold uppercase ${getPriorityBadgeClass(
+                          task.priority
+                        )}`}
+                      >
+                        {task.priority}
+                      </span>
                     </div>
-                    <p className="text-xs text-slate-500 line-clamp-1 max-w-xl">
+                    <p
+                      className="text-xs line-clamp-1 max-w-xl"
+                      style={{ color: "rgba(11,31,58,.50)" }}
+                    >
                       {task.description}
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-4 text-xs">
-                    <span className="text-slate-500">
-                      Due: <strong className="text-slate-700">{formatDate(task.dueDate)}</strong>
+                  <div className="flex items-center gap-4 text-xs flex-shrink-0">
+                    <span style={{ color: "rgba(11,31,58,.50)" }}>
+                      Due:{" "}
+                      <strong style={{ color: "var(--iwms-black)" }}>
+                        {formatDate(task.dueDate)}
+                      </strong>
                     </span>
                     <Link
                       href={`/intern/tasks/${task._id}`}
-                      className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg transition-colors inline-flex items-center gap-1"
+                      className="px-3.5 py-1.5 rounded-lg font-semibold transition-colors inline-flex items-center gap-1"
+                      style={{
+                        background: "rgba(56,189,248,.12)",
+                        color: "var(--iwms-sky)",
+                      }}
                     >
                       Open Task <ArrowRight className="w-3.5 h-3.5" />
                     </Link>

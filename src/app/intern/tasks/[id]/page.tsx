@@ -239,7 +239,7 @@ export default function InternTaskDetailPage({
     return (
       <>
         <DashboardHeader title="Task Details" />
-        <main className="p-8 text-slate-500">Loading task instructions...</main>
+        <main className="p-8" style={{ color: "rgba(11,31,58,.50)" }}>Loading task instructions…</main>
       </>
     );
   }
@@ -249,8 +249,8 @@ export default function InternTaskDetailPage({
       <>
         <DashboardHeader title="Task Not Found" />
         <main className="p-8">
-          <p className="text-slate-600 mb-4">Task could not be found or you do not have permission to view it.</p>
-          <Link href="/intern/tasks" className="text-indigo-600 font-semibold hover:underline">
+          <p className="mb-4" style={{ color: "rgba(11,31,58,.60)" }}>Task could not be found or you do not have permission to view it.</p>
+          <Link href="/intern/tasks" className="font-semibold hover:underline" style={{ color: "var(--iwms-sky)" }}>
             &larr; Return to My Tasks
           </Link>
         </main>
@@ -271,7 +271,8 @@ export default function InternTaskDetailPage({
         <div className="flex items-center justify-between">
           <Link
             href="/intern/tasks"
-            className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+            className="inline-flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-80"
+            style={{ color: "var(--iwms-navy)" }}
           >
             <ArrowLeft className="w-4 h-4" /> Back to My Tasks
           </Link>
@@ -280,7 +281,8 @@ export default function InternTaskDetailPage({
             <button
               onClick={handleStartTask}
               disabled={isUpdatingStatus}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all iwms-btn-primary"
+              style={{ background: "var(--iwms-navy)", color: "var(--iwms-white)" }}
             >
               <Play className="w-4 h-4" /> Start Working on Task
             </button>
@@ -288,8 +290,8 @@ export default function InternTaskDetailPage({
         </div>
 
         {/* Task Brief */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="iwms-card iwms-task-card p-6 space-y-4" style={{ borderRadius: "14px" }}>
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-4" style={{ borderBottom: "1px solid var(--iwms-border)" }}>
             <div className="flex items-center gap-3">
               <span
                 className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border capitalize ${getStatusBadgeClass(
@@ -307,32 +309,32 @@ export default function InternTaskDetailPage({
               </span>
             </div>
 
-            <div className="text-xs text-slate-500 flex items-center gap-4">
+            <div className="text-xs flex items-center gap-4" style={{ color: "rgba(11,31,58,.50)" }}>
               <span>Assigned: {formatDate(task.assignmentDate)}</span>
               <span>
-                Due Deadline: <strong className="text-slate-700">{formatDate(task.dueDate)}</strong>
+                Due Deadline: <strong style={{ color: "var(--iwms-black)" }}>{formatDate(task.dueDate)}</strong>
               </span>
             </div>
           </div>
 
           <div>
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-              Deliverable Guidelines & Requirements
+            <h4 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "rgba(11,31,58,.40)" }}>
+              Deliverable Guidelines &amp; Requirements
             </h4>
-            <p className="text-sm text-slate-800 whitespace-pre-line leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <p className="text-sm whitespace-pre-line leading-relaxed p-4 rounded-lg" style={{ color: "var(--iwms-black)", background: "rgba(11,31,58,.03)", border: "1px solid var(--iwms-border)" }}>
               {task.description}
             </p>
           </div>
         </div>
 
         {/* Daily Progress Images with Strict 24-Hour Expiry */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+        <div className="iwms-card p-6 space-y-4" style={{ borderRadius: "14px" }}>
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-3" style={{ borderBottom: "1px solid var(--iwms-border)" }}>
             <div>
-              <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-                <Camera className="w-5 h-5 text-indigo-600" /> Daily Progress Snapshots
+              <h3 className="font-bold text-base flex items-center gap-2" style={{ color: "var(--iwms-black)" }}>
+                <Camera className="w-5 h-5" style={{ color: "var(--iwms-sky)" }} /> Daily Progress Snapshots
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs mt-0.5" style={{ color: "rgba(11,31,58,.50)" }}>
                 Upload in-progress screenshots or proof of daily work. Snapshots are retained with a strict 24-hour expiry lifecycle.
               </p>
             </div>
@@ -349,17 +351,18 @@ export default function InternTaskDetailPage({
           )}
 
           {/* Upload input form */}
-          <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col sm:flex-row gap-3 items-center">
+          <div className="flex flex-col sm:flex-row gap-3 items-center p-4 rounded-lg" style={{ background: "rgba(11,31,58,.03)", border: "1px solid var(--iwms-border)" }}>
             <input
               type="text"
               value={progressCaption}
               onChange={(e) => setProgressCaption(e.target.value)}
               placeholder="Brief note (e.g. Completed initial mockups, running test suite)..."
-              className="flex-1 w-full px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white"
+              className="flex-1 w-full px-3 py-2 text-xs rounded-lg bg-white focus:outline-none"
+              style={{ border: "1px solid var(--iwms-border)" }}
             />
-            <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 shadow-sm flex-shrink-0">
+            <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold shadow-sm flex-shrink-0 iwms-btn-primary" style={{ background: "var(--iwms-sky)", color: "white" }}>
               <Upload className="w-3.5 h-3.5" />
-              {isUploadingProgressImage ? "Uploading to Cloud..." : "Upload Snapshot"}
+              {isUploadingProgressImage ? "Uploading to Cloud…" : "Upload Snapshot"}
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif"
@@ -407,7 +410,8 @@ export default function InternTaskDetailPage({
                       href={img.viewUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 inline-flex items-center gap-1"
+                      className="text-xs font-semibold hover:opacity-80 inline-flex items-center gap-1"
+                      style={{ color: "var(--iwms-sky)" }}
                     >
                       <ImageIcon className="w-3 h-3" /> View Secure Image &rarr;
                     </a>
@@ -436,20 +440,20 @@ export default function InternTaskDetailPage({
             )}
 
             {canSubmit ? (
-              <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-5">
+              <div className="iwms-card p-6 space-y-5" style={{ borderRadius: "14px" }}>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-lg">
+                  <h3 className="font-bold text-lg" style={{ color: "var(--iwms-black)" }}>
                     {submissions.length > 0 ? "Submit Work Revision" : "Submit Deliverables"}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(11,31,58,.50)" }}>
                     Provide your detailed completion notes, repository/demo URLs, and upload any output documents.
                   </p>
                 </div>
 
                 <form onSubmit={handleSubmitWork} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Deliverable Notes & Summary *
+                    <label className="block text-xs font-semibold mb-1" style={{ color: "var(--iwms-navy)" }}>
+                      Deliverable Notes &amp; Summary *
                     </label>
                     <textarea
                       required
@@ -457,12 +461,13 @@ export default function InternTaskDetailPage({
                       value={workDescription}
                       onChange={(e) => setWorkDescription(e.target.value)}
                       placeholder="Outline what was built, testing steps performed, and any notes for review..."
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                      className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none"
+                      style={{ border: "1px solid var(--iwms-border)", color: "var(--iwms-black)" }}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label className="block text-xs font-semibold mb-1" style={{ color: "var(--iwms-navy)" }}>
                       Repository or Demo URLs
                     </label>
                     <div className="flex gap-2">
@@ -471,12 +476,14 @@ export default function InternTaskDetailPage({
                         value={linkInput}
                         onChange={(e) => setLinkInput(e.target.value)}
                         placeholder="https://github.com/my-pr or https://figma.com/..."
-                        className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-xs"
+                        className="flex-1 px-3 py-2 rounded-lg text-xs focus:outline-none"
+                        style={{ border: "1px solid var(--iwms-border)", color: "var(--iwms-black)" }}
                       />
                       <button
                         type="button"
                         onClick={handleAddLink}
-                        className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold"
+                        className="px-3 py-2 rounded-lg text-xs font-semibold"
+                        style={{ background: "rgba(11,31,58,.07)", color: "var(--iwms-navy)" }}
                       >
                         Add Link
                       </button>
@@ -487,13 +494,14 @@ export default function InternTaskDetailPage({
                         {externalLinks.map((link, idx) => (
                           <li
                             key={idx}
-                            className="text-xs flex items-center justify-between bg-slate-50 px-2.5 py-1 rounded border border-slate-200"
+                            className="text-xs flex items-center justify-between px-2.5 py-1 rounded"
+                            style={{ background: "rgba(11,31,58,.03)", border: "1px solid var(--iwms-border)" }}
                           >
-                            <span className="truncate max-w-sm font-mono text-slate-700">{link}</span>
+                            <span className="truncate max-w-sm font-mono" style={{ color: "var(--iwms-navy)" }}>{link}</span>
                             <button
                               type="button"
                               onClick={() => handleRemoveLink(idx)}
-                              className="text-rose-600 hover:text-rose-800 font-bold ml-2"
+                              className="text-rose-500 hover:text-rose-700 font-bold ml-2"
                             >
                               &times;
                             </button>
@@ -504,11 +512,11 @@ export default function InternTaskDetailPage({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label className="block text-xs font-semibold mb-1" style={{ color: "var(--iwms-navy)" }}>
                       Upload Private Files (PDF, ZIP, DOCX, Images)
                     </label>
                     <div className="flex items-center gap-3">
-                      <label className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 border border-slate-300 rounded-lg bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                      <label className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white text-xs font-semibold transition-colors hover:bg-sky-50" style={{ border: "1px solid var(--iwms-border)", color: "var(--iwms-navy)" }}>
                         <Upload className="w-3.5 h-3.5" /> Select File
                         <input
                           type="file"
@@ -518,7 +526,7 @@ export default function InternTaskDetailPage({
                         />
                       </label>
                       {isUploadingFile && (
-                        <span className="text-xs text-indigo-600 font-medium">Uploading securely...</span>
+                        <span className="text-xs font-medium" style={{ color: "var(--iwms-sky)" }}>Uploading securely…</span>
                       )}
                     </div>
 
@@ -527,9 +535,10 @@ export default function InternTaskDetailPage({
                         {attachments.map((att, idx) => (
                           <span
                             key={idx}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-700 rounded text-xs border border-slate-200"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs"
+                            style={{ background: "rgba(11,31,58,.06)", color: "var(--iwms-navy)", border: "1px solid var(--iwms-border)" }}
                           >
-                            <Paperclip className="w-3 h-3 text-slate-400" />
+                            <Paperclip className="w-3 h-3" style={{ color: "var(--iwms-sky)" }} />
                             {att.fileName}
                             <button
                               type="button"
@@ -550,18 +559,19 @@ export default function InternTaskDetailPage({
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow-sm disabled:opacity-50"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm disabled:opacity-50 iwms-btn-primary"
+                      style={{ background: "var(--iwms-navy)", color: "var(--iwms-white)" }}
                     >
                       <Send className="w-4 h-4" />
-                      {isSubmitting ? "Submitting Work..." : "Submit Deliverables for Review"}
+                      {isSubmitting ? "Submitting Work…" : "Submit Deliverables for Review"}
                     </button>
                   </div>
                 </form>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-slate-200 p-6 text-center text-slate-500">
-                <Clock className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                <p className="font-semibold text-slate-700">
+              <div className="iwms-card p-6 text-center" style={{ borderRadius: "14px" }}>
+                <Clock className="w-8 h-8 mx-auto mb-2" style={{ color: "rgba(56,189,248,.40)" }} />
+                <p className="font-semibold" style={{ color: "var(--iwms-navy)" }}>
                   {task.status === "assigned"
                     ? "Click 'Start Working on Task' above to begin."
                     : task.status === "submitted"
@@ -573,14 +583,14 @@ export default function InternTaskDetailPage({
 
             {/* Previous Submissions List */}
             <div className="space-y-4">
-              <h4 className="font-bold text-slate-900 text-base flex items-center gap-2">
-                <FileText className="w-4 h-4 text-indigo-600" /> My Submission Versions ({submissions.length})
+              <h4 className="font-bold text-base flex items-center gap-2" style={{ color: "var(--iwms-black)" }}>
+                <FileText className="w-4 h-4" style={{ color: "var(--iwms-sky)" }} /> My Submission Versions ({submissions.length})
               </h4>
 
               {submissions.map((sub) => (
-                <div key={sub._id} className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <span className="font-bold text-xs bg-slate-100 text-slate-800 px-2 py-0.5 rounded">
+                <div key={sub._id} className="iwms-card p-5 space-y-3" style={{ borderRadius: "12px" }}>
+                  <div className="flex items-center justify-between pb-2" style={{ borderBottom: "1px solid var(--iwms-border)" }}>
+                    <span className="font-bold text-xs px-2 py-0.5 rounded" style={{ background: "rgba(11,31,58,.07)", color: "var(--iwms-navy)" }}>
                       Version {sub.version}
                     </span>
                     <span
@@ -592,7 +602,7 @@ export default function InternTaskDetailPage({
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-800 whitespace-pre-line bg-slate-50 p-3 rounded">
+                  <p className="text-xs whitespace-pre-line p-3 rounded" style={{ color: "var(--iwms-black)", background: "rgba(11,31,58,.03)" }}>
                     {sub.workDescription}
                   </p>
 
@@ -611,21 +621,21 @@ export default function InternTaskDetailPage({
 
           {/* Activity Timeline */}
           <div>
-            <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
-              <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <History className="w-4 h-4 text-slate-500" /> Task History Log
+            <div className="iwms-card p-5 space-y-4" style={{ borderRadius: "14px" }}>
+              <h4 className="font-bold text-sm flex items-center gap-2" style={{ color: "var(--iwms-black)" }}>
+                <History className="w-4 h-4" style={{ color: "rgba(11,31,58,.40)" }} /> Task History Log
               </h4>
 
               <div className="space-y-3 font-mono text-xs">
                 {events.map((evt) => (
-                  <div key={evt._id} className="border-l-2 border-slate-200 pl-3 py-1">
-                    <p className="font-sans font-semibold text-slate-800 capitalize">
+                  <div key={evt._id} className="pl-3 py-1" style={{ borderLeft: "2px solid var(--iwms-sky)", opacity: 0.8 }}>
+                    <p className="font-sans font-semibold capitalize" style={{ color: "var(--iwms-black)" }}>
                       {evt.eventType.replace("_", " ")}
                     </p>
-                    <p className="text-slate-400 text-xs">
+                    <p className="text-xs" style={{ color: "rgba(11,31,58,.45)" }}>
                       {formatDateTime(evt.timestamp)} by {evt.actorName}
                     </p>
-                    {evt.note && <p className="font-sans text-slate-600 mt-1">{evt.note}</p>}
+                    {evt.note && <p className="font-sans mt-1" style={{ color: "rgba(11,31,58,.60)" }}>{evt.note}</p>}
                   </div>
                 ))}
               </div>

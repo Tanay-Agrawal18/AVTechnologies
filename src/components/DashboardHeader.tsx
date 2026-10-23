@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { User, Bell } from "lucide-react";
+import { Bell, ChevronDown } from "lucide-react";
 import { SessionUser } from "@/types";
 
 interface HeaderProps {
@@ -21,37 +21,94 @@ export function DashboardHeader({ title, description }: HeaderProps) {
       .catch(() => {});
   }, []);
 
+  /* Derive initials for the avatar */
+  const initials = currentUser?.name
+    ? currentUser.name
+        .split(" ")
+        .map((w) => w[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "U";
+
   return (
-    <header className="bg-white border-b border-slate-200 px-8 py-5 flex items-center justify-between">
+    <header
+      className="px-8 py-5 flex items-center justify-between"
+      style={{
+        background: "var(--iwms-white)",
+        borderBottom: "1px solid var(--iwms-border)",
+      }}
+    >
+      {/* Page title */}
       <div>
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight">{title}</h2>
-        {description && <p className="text-sm text-slate-500 mt-0.5">{description}</p>}
+        <h2
+          className="text-xl font-bold tracking-tight"
+          style={{ color: "var(--iwms-black)" }}
+        >
+          {title}
+        </h2>
+        {description && (
+          <p
+            className="text-sm mt-0.5"
+            style={{ color: "rgba(11,31,58,.55)" }}
+          >
+            {description}
+          </p>
+        )}
       </div>
 
-      <div className="flex items-center gap-4">
+      {/* Right-hand controls */}
+      <div className="flex items-center gap-3">
+        {/* Notification bell */}
         <button
-          className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+          className="relative p-2 rounded-lg transition-colors hover:bg-sky-50"
           title="Notifications"
+          style={{ color: "var(--iwms-navy)" }}
         >
           <Bell className="w-5 h-5" />
         </button>
 
-        <div className="h-6 w-px bg-slate-200" />
+        {/* Divider */}
+        <div
+          className="h-6 w-px"
+          style={{ background: "var(--iwms-border)" }}
+        />
 
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600">
-            <User className="w-4 h-4" />
+        {/* User profile chip */}
+        <div className="flex items-center gap-2.5 cursor-default select-none">
+          {/* Avatar circle */}
+          <div
+            className="h-9 w-9 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
+            style={{
+              background: "rgba(56,189,248,.15)",
+              color: "var(--iwms-sky)",
+              border: "1.5px solid rgba(56,189,248,.35)",
+            }}
+          >
+            {initials}
           </div>
-          <div className="text-left text-sm">
-            <p className="font-semibold text-slate-900 leading-tight">
-              {currentUser?.name || "Loading..."}
+
+          <div className="text-left">
+            <p
+              className="font-semibold text-sm leading-tight"
+              style={{ color: "var(--iwms-black)" }}
+            >
+              {currentUser?.name || "Loading…"}
             </p>
-            <p className="text-xs text-slate-500 capitalize">
+            <p
+              className="text-xs leading-tight"
+              style={{ color: "rgba(11,31,58,.50)" }}
+            >
               {currentUser?.role === "intern"
                 ? `Intern • ${currentUser?.internId || ""}`
                 : "System Administrator"}
             </p>
           </div>
+
+          <ChevronDown
+            className="w-4 h-4 flex-shrink-0"
+            style={{ color: "rgba(11,31,58,.35)" }}
+          />
         </div>
       </div>
     </header>

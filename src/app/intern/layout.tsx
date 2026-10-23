@@ -9,12 +9,25 @@ export default function InternLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900">
-      <Suspense fallback={<div className="w-64 bg-slate-900 min-h-screen" />}>
+    <div className="flex min-h-screen" style={{ background: "var(--iwms-bg)" }}>
+      {/* Sidebar */}
+      <Suspense
+        fallback={
+          <div className="w-64 min-h-screen bg-white border-r" style={{ borderColor: "var(--iwms-border)" }} />
+        }
+      >
         <InternSidebar />
       </Suspense>
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <Suspense fallback={<div className="p-8 text-slate-500">Loading workspace...</div>}>
+
+      {/* Main workspace — receives the wave pseudo-elements */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto iwms-workspace">
+        <Suspense
+          fallback={
+            <div className="p-8" style={{ color: "var(--iwms-navy)" }}>
+              Loading workspace…
+            </div>
+          }
+        >
           {children}
         </Suspense>
       </div>
