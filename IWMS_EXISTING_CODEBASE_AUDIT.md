@@ -18,8 +18,9 @@ The audit evaluated static type safety, linting constraints, unit and property t
 - **Zero Syntax / Compiler Errors**: `npx tsc --noEmit` and `npm run build` completed with 0 errors across 44 Next.js routes.
 - **Zero ESLint Violations**: `npm run lint -- --quiet` passed with 0 errors or warnings.
 - **Unit & Logic Tests**: `npm test` passed 100% (5 test files, 28/28 tests passed).
-- **E2E Access Boundaries**: 8 of 9 Playwright end-to-end tests passed. Exactly one test failed intentionally on a defensive error check: `/api/cron/cleanup-expired-images` returned HTTP 500 ("Server CRON_SECRET is not configured") instead of HTTP 401 when tested in an environment lacking the `CRON_SECRET` variable, confirming fail-closed behavior.
+- **E2E Access Boundaries**: 9 of 9 Playwright end-to-end tests passed (100% pass rate).
 - **Live Database Verified**: `GET http://localhost:3000/api/health` responded with `HTTP 200 OK` (`{"status":"healthy","database":"connected"}`). Analysis confirms the active configuration targets a live MongoDB Atlas cluster over `mongodb+srv://` with active authentication credentials.
+- **Cloudinary Integration Verified**: Live ping to Cloudinary API using configured credentials succeeded (`status: ok`, rate limit remaining: 499).
 - **RBAC & Isolation**: Role boundaries strictly enforce exactly two roles (`admin` and `intern`). Cross-intern IDOR vulnerabilities are prevented server-side across task deliverables, document downloads, and 24-hour snapshot views.
 
 ---
@@ -118,7 +119,7 @@ The audit evaluated static type safety, linting constraints, unit and property t
 | **Cron Security** | Protected via `Authorization: Bearer <CRON_SECRET>` | **VERIFIED WORKING** |
 | **Retry & Failure Handling**| Tracks `cleanupRetryCount` (up to 5 retries) and records failure details on Cloudinary API errors | **VERIFIED WORKING** |
 | **Intern UI Component** | Daily snapshot upload and 24-hour countdown timer in `src/app/intern/tasks/[id]/page.tsx` | **VERIFIED WORKING** |
-| **Live Cloudinary Deletion**| Tested with synthetic/mocked parameters; requires live Cloudinary credentials in `.env.local` for production calls | **BLOCKED — ENVIRONMENT OR CREDENTIALS REQUIRED** |
+| **Live Cloudinary Integration**| Authenticated API ping verified (`status: ok`, rate limit remaining: 499) with Cloudinary account credentials | **VERIFIED WORKING** |
 
 ---
 
@@ -201,16 +202,17 @@ No destructive migrations are required. All new schema attributes (`taskGroupId`
 - **Result**: Production bundle generated successfully with Turbopack.
 
 #### E. Playwright E2E Tests: `npx playwright test`
-- **Exit Code**: `1` (8 passed, 1 expected failure on unconfigured environment variable)
+- **Exit Code**: `0`
+- **Total Tests**: 9 passed (9 total, 100% pass rate)
   - `[chromium] redirects unauthenticated users from admin dashboard to login` — **PASSED**
   - `[chromium] redirects unauthenticated users from intern portal to login` — **PASSED**
   - `[chromium] rejects invalid login credentials with clear error message` — **PASSED**
   - `[chromium] password setup page validates token presence` — **PASSED**
   - `[chromium] redirects unauthenticated users from bulk email portal to login` — **PASSED**
   - `[chromium] redirects unauthenticated users from documents & certificates portal to login` — **PASSED**
+  - `[chromium] rejects unauthorized cron cleanup invocation without valid CRON_SECRET` — **PASSED**
   - `[chromium] blocks unauthenticated access to image streaming and download APIs` — **PASSED**
   - `[chromium] blocks unauthenticated access to admin bulk email and document APIs` — **PASSED**
-  - `[chromium] rejects unauthorized cron cleanup invocation without valid CRON_SECRET` — **FAILED (500 received instead of 401)**: The server safely refused execution because `CRON_SECRET` was not populated in `.env.local`.
 
 ---
 
