@@ -33,7 +33,7 @@ export function DashboardHeader({ title, description }: HeaderProps) {
 
   return (
     <header
-      className="px-8 py-5 flex items-center justify-between"
+      className="px-6 pl-14 lg:px-8 py-5 flex items-center justify-between"
       style={{
         background: "var(--iwms-white)",
         borderBottom: "1px solid var(--iwms-border)",
@@ -42,15 +42,15 @@ export function DashboardHeader({ title, description }: HeaderProps) {
       {/* Page title */}
       <div>
         <h2
-          className="text-xl font-bold tracking-tight"
-          style={{ color: "var(--iwms-black)" }}
+          className="text-2xl font-bold tracking-tight"
+          style={{ color: "var(--iwms-navy)" }}
         >
           {title}
         </h2>
         {description && (
           <p
             className="text-sm mt-0.5"
-            style={{ color: "rgba(11,31,58,.55)" }}
+            style={{ color: "rgba(11,31,58,.50)" }}
           >
             {description}
           </p>
@@ -66,11 +66,15 @@ export function DashboardHeader({ title, description }: HeaderProps) {
           style={{ color: "var(--iwms-navy)" }}
         >
           <Bell className="w-5 h-5" />
+          <span
+            className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
+            style={{ background: "var(--iwms-sky)" }}
+          />
         </button>
 
         {/* Divider */}
         <div
-          className="h-6 w-px"
+          className="h-6 w-px mx-1"
           style={{ background: "var(--iwms-border)" }}
         />
 
@@ -78,11 +82,10 @@ export function DashboardHeader({ title, description }: HeaderProps) {
         <div className="flex items-center gap-2.5 cursor-default select-none">
           {/* Avatar circle */}
           <div
-            className="h-9 w-9 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
+            className="h-9 w-9 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
             style={{
-              background: "rgba(56,189,248,.15)",
-              color: "var(--iwms-sky)",
-              border: "1.5px solid rgba(56,189,248,.35)",
+              background: "#BAE6FD",
+              color: "#0369A1",
             }}
           >
             {initials}

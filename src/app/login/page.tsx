@@ -39,21 +39,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen iwms-workspace flex flex-col justify-center py-12 sm:px-6 lg:px-8" style={{ background: "var(--iwms-bg)" }}>
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-blue-600 text-white shadow-md mb-4">
+        <div
+          className="inline-flex items-center justify-center h-12 w-12 rounded-xl text-white shadow-sm mb-4"
+          style={{ background: "linear-gradient(135deg, #38BDF8 0%, #0EA5E9 100%)" }}
+        >
           <ShieldCheck className="h-6 w-6" />
         </div>
-        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h2 className="text-3xl font-extrabold tracking-tight" style={{ color: "var(--iwms-navy)" }}>
           IWMS Portal Login
         </h2>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm" style={{ color: "rgba(11,31,58,0.65)" }}>
           Intern Work Management System • Secure Role-Based Access
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-sm border border-slate-200 rounded-xl sm:px-10">
+        <div
+          className="iwms-card py-8 px-6 shadow-sm sm:px-10"
+          style={{ background: "var(--iwms-white)", borderRadius: "16px" }}
+        >
           {error && (
             <div className="mb-6 p-4 rounded-lg bg-rose-50 border border-rose-200 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
@@ -65,13 +71,14 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-semibold text-slate-700 mb-1"
+                className="block text-sm font-semibold mb-1"
+                style={{ color: "var(--iwms-navy)" }}
               >
                 Work Email Address
               </label>
-              <div className="relative rounded-lg shadow-sm">
+              <div className="relative rounded-lg shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 text-slate-400" />
+                  <Mail className="h-4 w-4" style={{ color: "var(--iwms-sky)" }} />
                 </div>
                 <input
                   id="email"
@@ -80,7 +87,12 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="block w-full pl-10 pr-3 py-2.5 rounded-lg text-sm transition-colors focus:outline-none"
+                  style={{
+                    background: "var(--iwms-white)",
+                    border: "1px solid var(--iwms-border)",
+                    color: "var(--iwms-black)",
+                  }}
                   placeholder="admin@iwms.company.com or intern@company.com"
                 />
               </div>
@@ -89,13 +101,14 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-semibold text-slate-700 mb-1"
+                className="block text-sm font-semibold mb-1"
+                style={{ color: "var(--iwms-navy)" }}
               >
                 Password
               </label>
-              <div className="relative rounded-lg shadow-sm">
+              <div className="relative rounded-lg shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-slate-400" />
+                  <Lock className="h-4 w-4" style={{ color: "var(--iwms-sky)" }} />
                 </div>
                 <input
                   id="password"
@@ -104,7 +117,12 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="block w-full pl-10 pr-3 py-2.5 rounded-lg text-sm transition-colors focus:outline-none"
+                  style={{
+                    background: "var(--iwms-white)",
+                    border: "1px solid var(--iwms-border)",
+                    color: "var(--iwms-black)",
+                  }}
                   placeholder="••••••••"
                 />
               </div>
@@ -113,7 +131,11 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-60 transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg shadow-xs text-sm font-semibold iwms-btn-primary transition-all disabled:opacity-60"
+              style={{
+                background: "var(--iwms-sky)",
+                color: "var(--iwms-navy)",
+              }}
             >
               {isLoading ? (
                 "Signing In..."
@@ -125,8 +147,11 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 border-t border-slate-200 pt-4 text-center">
-            <p className="text-xs text-slate-500">
+          <div
+            className="mt-6 pt-4 text-center"
+            style={{ borderTop: "1px solid var(--iwms-border)" }}
+          >
+            <p className="text-xs" style={{ color: "rgba(11,31,58,0.50)" }}>
               New intern? Use the activation link received in your invitation email to set your password.
             </p>
           </div>

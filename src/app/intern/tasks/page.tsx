@@ -137,10 +137,10 @@ export default function InternTasksPage() {
                       )}`}
                     >
                       <span
-                        className="w-1.5 h-1.5 rounded-full"
+                        className="w-2 h-2 rounded-full"
                         style={
                           task.status === "assigned"
-                            ? { background: "var(--iwms-sky)" }
+                            ? { background: "#1D6CE5" }
                             : {}
                         }
                       />
@@ -149,11 +149,15 @@ export default function InternTasksPage() {
 
                     {/* Priority badge */}
                     <span
-                      className={`inline-block px-2 py-0.5 rounded text-xs font-semibold uppercase ${getPriorityBadgeClass(
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase ${getPriorityBadgeClass(
                         task.priority
                       )}`}
                     >
-                      {task.priority === "urgent" ? "⚠ " : ""}
+                      {task.priority === "urgent" && (
+                        <span className="w-3.5 h-3.5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px] font-black leading-none">
+                          !
+                        </span>
+                      )}
                       {task.priority}
                     </span>
                   </div>
@@ -196,10 +200,9 @@ export default function InternTasksPage() {
 
                   <Link
                     href={`/intern/tasks/${task._id}`}
-                    className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold iwms-btn-primary transition-all"
+                    className="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-semibold text-white transition-all shadow-xs hover:opacity-95"
                     style={{
-                      background: "var(--iwms-navy)",
-                      color: "var(--iwms-white)",
+                      background: "#1D6CE5",
                       borderRadius: "8px",
                     }}
                   >

@@ -1,27 +1,31 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard,
+  Home,
   CheckSquare,
-  History,
-  UserCircle,
+  Clock,
+  User,
   LogOut,
   Sparkles,
+  Menu,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: "Dashboard", href: "/intern/dashboard", icon: LayoutDashboard },
+  { label: "Dashboard", href: "/intern/dashboard", icon: Home },
   { label: "My Tasks", href: "/intern/tasks", icon: CheckSquare },
-  { label: "Work History", href: "/intern/history", icon: History },
-  { label: "My Profile", href: "/intern/profile", icon: UserCircle },
+  { label: "Work History", href: "/intern/history", icon: Clock },
+  { label: "My Profile", href: "/intern/profile", icon: User },
 ];
 
 export function InternSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -34,19 +38,46 @@ export function InternSidebar() {
   };
 
   return (
-    <aside
-      className="w-64 min-h-screen flex flex-col iwms-sidebar"
-      style={{ background: "var(--iwms-sidebar-bg)" }}
-    >
-      {/* Brand */}
-      <div
-        className="px-6 py-5 flex items-center gap-3"
-        style={{ borderBottom: "1px solid var(--iwms-border)" }}
+    <>
+      {/* Mobile Toggle Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label="Toggle navigation menu"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg shadow-sm"
+        style={{
+          background: "var(--iwms-white)",
+          border: "1px solid var(--iwms-border)",
+          color: "var(--iwms-navy)",
+        }}
       >
+        {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+      </button>
+
+      {/* Backdrop for mobile */}
+      {isOpen && (
+        <div
+          onClick={() => setIsOpen(false)}
+          className="lg:hidden fixed inset-0 z-40 bg-black/20 backdrop-blur-xs transition-opacity"
+        />
+      )}
+
+      {/* Sidebar container */}
+      <aside
+        className={cn(
+          "w-64 min-h-screen flex flex-col iwms-sidebar fixed lg:static top-0 bottom-0 left-0 z-40 transition-transform duration-200 ease-in-out",
+          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+        style={{ background: "var(--iwms-sidebar-bg)" }}
+      >
+        {/* Brand */}
+        <div
+          className="px-6 py-5 flex items-center gap-3"
+          style={{ borderBottom: "1px solid var(--iwms-border)" }}
+        >
         {/* Logo mark */}
         <div
-          className="h-9 w-9 rounded-xl flex items-center justify-center text-white font-bold text-sm tracking-tight shadow-sm flex-shrink-0"
-          style={{ background: "linear-gradient(135deg, #38BDF8 0%, #0EA5E9 100%)" }}
+          className="h-10 w-10 rounded-xl flex items-center justify-center text-white font-bold text-sm tracking-tight shadow-xs flex-shrink-0"
+          style={{ background: "#38BDF8" }}
         >
           IW
         </div>
@@ -59,10 +90,9 @@ export function InternSidebar() {
             IWMS Portal
           </h1>
           <span
-            className="text-xs font-medium inline-flex items-center gap-1 mt-0.5"
-            style={{ color: "var(--iwms-sky)" }}
+            className="text-xs font-normal inline-flex items-center gap-1 mt-1"
+            style={{ color: "rgba(11,31,58,0.50)" }}
           >
-            <Sparkles className="w-3 h-3" />
             Intern Workspace
           </span>
         </div>
@@ -82,27 +112,27 @@ export function InternSidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                "group relative flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors",
                 isActive
-                  ? "text-sky-500"
-                  : "hover:bg-sky-50"
+                  ? ""
+                  : "hover:bg-slate-50"
               )}
               style={
                 isActive
-                  ? { background: "var(--iwms-active-bg)", color: "var(--iwms-sky)" }
+                  ? { background: "#E0F2FE", color: "#0284C7" }
                   : { color: "var(--iwms-navy)" }
               }
             >
               {/* Active left bar */}
               {isActive && (
                 <span
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r-full"
-                  style={{ background: "var(--iwms-sky)" }}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-md"
+                  style={{ background: "#0284C7" }}
                 />
               )}
               <Icon
                 className="w-4 h-4 flex-shrink-0"
-                style={isActive ? { color: "var(--iwms-sky)" } : { color: "var(--iwms-navy)", opacity: 0.6 }}
+                style={isActive ? { color: "#0284C7" } : { color: "var(--iwms-navy)", opacity: 0.7 }}
               />
               {item.label}
             </Link>
@@ -133,5 +163,6 @@ export function InternSidebar() {
         </button>
       </div>
     </aside>
+    </>
   );
 }
