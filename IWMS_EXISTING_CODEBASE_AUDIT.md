@@ -250,7 +250,42 @@ The following optional variables are documented in `.env.example` but not yet de
 
 ---
 
-## 11. Priority Issue Summary
+## 11. New Feature Set: Task Unassignment, Reassignment & Collaborative Projects
+
+### A. Unassign Intern from Task
+| Verification Item | Implementation Evidence | Audit Status |
+| :--- | :--- | :--- |
+| **Admin-Only Unassign Action** | `POST /api/admin/tasks/[id]/unassign` enforced via `requireAuth(["admin"])` | **VERIFIED WORKING** |
+| **Existing Submission Warning Modal** | Dialog in `src/app/admin/tasks/[id]/page.tsx` checks `submissions.length > 0` and renders preview of deliverable notes and review status before confirmation | **VERIFIED WORKING** |
+| **Explicit Status & Metadata** | Updates task status to `unassigned`, records `unassignedAt`, `unassignedReason`, `unassignedByAdminId` | **VERIFIED WORKING** |
+| **History & Deliverable Preservation** | Preserves all previous submissions, version history, task events, and reviews without deleting records | **VERIFIED WORKING** |
+| **Active List Exclusion** | `/api/intern/tasks` filters `{ status: { $nin: ["unassigned", "transferred"] } }`, removing unassigned tasks from active queues | **VERIFIED WORKING** |
+| **Audit Log Event** | Creates append-only `TaskEvent` (`unassigned`) and `AuditLog` (`task_unassigned`) records | **VERIFIED WORKING** |
+
+### B. Transfer/Reassign Responsibility
+| Verification Item | Implementation Evidence | Audit Status |
+| :--- | :--- | :--- |
+| **Admin-Only Transfer Action** | `POST /api/admin/tasks/[id]/transfer` enforced via `requireAuth(["admin"])` | **VERIFIED WORKING** |
+| **Replacement Intern Validation** | Validates active intern account, prevents reassigning to identical active intern, checks for duplicate active tasks | **VERIFIED WORKING** |
+| **Atomic Transfer Execution** | Uses MongoDB transaction session where replica set is available, falling back safely to atomic sequential operations | **VERIFIED WORKING** |
+| **Submission Isolation** | Previous task marked `transferred`; fresh `Task` created for new intern with status `assigned`. Previous submissions/approvals are **never copied** | **VERIFIED WORKING** |
+| **Dual Audit Logging** | Logs `TaskEvent` (`transferred`) on previous task and `TaskEvent` (`created` via transfer) on new task, plus append-only `AuditLog` | **VERIFIED WORKING** |
+| **UI Transfer Modal** | Dropdown filtering out current assignee, required transfer reason textarea, and informational notes | **VERIFIED WORKING** |
+
+### C. Collaborative Team Projects
+| Verification Item | Implementation Evidence | Audit Status |
+| :--- | :--- | :--- |
+| **Dedicated Project Entity** | Mongoose model `Project` in `src/models/Project.ts` with compound indexes on team members and deadlines | **VERIFIED WORKING** |
+| **Multi-Intern Project Creation** | Validates >= 2 active interns required per project via `CreateProjectSchema` and `ProjectService.createProject` | **VERIFIED WORKING** |
+| **Subtask Allocation** | Admin can create project-linked tasks (`projectId`) allocated to individual team members | **VERIFIED WORKING** |
+| **Independent Task Statuses** | Completing or approving an individual task does not complete the project; project and task statuses remain distinct | **VERIFIED WORKING** |
+| **Team Member Management** | Admin can add or remove team members (`POST /api/admin/projects/[id]/members`); removed members are tracked in `removedMembers` without deleting past work | **VERIFIED WORKING** |
+| **Strict Authorization (IDOR Protection)** | Interns can only view projects they are an active or historical team member of (`/api/intern/projects`, `/api/intern/projects/[id]`) | **VERIFIED WORKING** |
+| **Portals & Navigation** | Admin project portal (`/admin/projects`, `/admin/projects/[id]`) and intern project portal (`/intern/projects`, `/intern/projects/[id]`) integrated into sidebar navigation | **VERIFIED WORKING** |
+
+---
+
+## 12. Priority Issue Summary
 
 ### Critical Priority (0 Issues)
 - None. System is stable, type-safe, and passes all build checks.
@@ -267,10 +302,11 @@ The following optional variables are documented in `.env.example` but not yet de
 
 ---
 
-## 12. Recommended Next Steps in Dependency Order
+## 13. Recommended Next Steps in Dependency Order
 
 1. **Add `CRON_SECRET` to `.env.local`**: Set a local 32-character secret string so Playwright E2E and scheduled cron runners can test the cleanup endpoint seamlessly.
 2. **Configure Cloudinary in `.env.local`**: Set `CLOUDINARY_URL` using your account credentials to enable real image uploads and automated CDN asset deletions.
 3. **Configure Email Provider in `.env.local`**: Set `EMAIL_PROVIDER=smtp` or `EMAIL_PROVIDER=resend` with valid SMTP/API credentials to transition from dry-run logging to live email delivery.
 4. **Deploy Scheduled Cron Runner**: In production (Vercel Cron, GitHub Actions, or crontab), schedule a periodic POST request to `https://<your-app-domain>/api/cron/cleanup-expired-images` with the `Authorization: Bearer <CRON_SECRET>` header every 15–60 minutes.
 5. **Configure Cloudflare R2 for Production Deliverables**: When ready for production deployment, switch `STORAGE_ADAPTER=r2` and supply the four Cloudflare R2 bucket credentials.
+

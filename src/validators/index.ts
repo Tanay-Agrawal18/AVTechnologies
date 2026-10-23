@@ -9,6 +9,8 @@ export const TaskStatusSchema = z.enum([
   "submitted",
   "changes_requested",
   "approved",
+  "unassigned",
+  "transferred",
 ]);
 
 export const LoginSchema = z.object({
@@ -67,6 +69,7 @@ export const CreateTaskSchema = z
     priority: TaskPrioritySchema.default("medium"),
     assignedInternId: z.string().optional(),
     assignedInternIds: z.array(z.string().min(1)).optional(),
+    projectId: z.string().optional(),
     assignmentDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid assignment date"),
     dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid due date"),
   })
@@ -90,9 +93,54 @@ export const UpdateTaskSchema = z.object({
   description: z.string().trim().min(10).optional(),
   priority: TaskPrioritySchema.optional(),
   assignedInternId: z.string().optional(),
+  projectId: z.string().nullable().optional(),
   assignmentDate: z.string().optional(),
   dueDate: z.string().optional(),
   isArchived: z.boolean().optional(),
+});
+
+export const UnassignTaskSchema = z.object({
+  reason: z.string().trim().max(500).optional(),
+});
+
+export const TransferTaskSchema = z.object({
+  newInternId: z.string().trim().min(1, "New intern must be selected"),
+  reason: z.string().trim().min(3, "Transfer reason must be at least 3 characters").max(500),
+});
+
+export const ProjectStatusSchema = z.enum(["planning", "in_progress", "completed", "on_hold"]);
+
+export const CreateProjectSchema = z
+  .object({
+    title: z.string().trim().min(3, "Title must be at least 3 characters").max(200),
+    description: z.string().trim().min(10, "Description must be at least 10 characters"),
+    teamMemberIds: z
+      .array(z.string().min(1))
+      .min(2, "Collaborative projects require at least 2 team members"),
+    status: ProjectStatusSchema.default("planning"),
+    startDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid start date"),
+    dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid due date"),
+  })
+  .refine(
+    (data) => new Date(data.dueDate) >= new Date(data.startDate),
+    {
+      message: "Due date cannot be before start date",
+      path: ["dueDate"],
+    }
+  );
+
+export const UpdateProjectSchema = z.object({
+  title: z.string().trim().min(3).max(200).optional(),
+  description: z.string().trim().min(10).optional(),
+  status: ProjectStatusSchema.optional(),
+  startDate: z.string().optional(),
+  dueDate: z.string().optional(),
+});
+
+export const ManageProjectMemberSchema = z.object({
+  action: z.enum(["add", "remove"]),
+  internId: z.string().trim().min(1, "Intern ID is required"),
+  reason: z.string().trim().max(500).optional(),
 });
 
 export const InternStatusUpdateSchema = z.object({

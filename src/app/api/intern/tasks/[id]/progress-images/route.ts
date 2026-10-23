@@ -24,7 +24,7 @@ export async function GET(
   }
 
   // Intern can only access their own task
-  if (auth.user.role === "intern" && task.assignedInternId.toString() !== auth.user.id) {
+  if (auth.user.role === "intern" && (!task.assignedInternId || task.assignedInternId.toString() !== auth.user.id)) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
@@ -70,7 +70,7 @@ export async function POST(
     return NextResponse.json({ error: "Task not found" }, { status: 404 });
   }
 
-  if (task.assignedInternId.toString() !== auth.user.id) {
+  if (!task.assignedInternId || task.assignedInternId.toString() !== auth.user.id) {
     return NextResponse.json(
       { error: "Access denied: You can only upload progress images for your own assigned tasks" },
       { status: 403 }

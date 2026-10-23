@@ -12,6 +12,7 @@ import {
   ShieldAlert,
   Mail,
   Award,
+  FolderGit2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ const navItems = [
   { label: "Interns", href: "/admin/interns", icon: Users },
   { label: "Bulk Import", href: "/admin/import", icon: FileSpreadsheet },
   { label: "Tasks", href: "/admin/tasks", icon: CheckSquare },
+  { label: "Team Projects", href: "/admin/projects", icon: FolderGit2 },
   { label: "Bulk Email", href: "/admin/emails", icon: Mail },
   { label: "Documents & Certs", href: "/admin/documents", icon: Award },
   { label: "Reports & KPIs", href: "/admin/reports", icon: BarChart3 },

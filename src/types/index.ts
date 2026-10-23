@@ -31,7 +31,9 @@ export type TaskStatus =
   | "in_progress"
   | "submitted"
   | "changes_requested"
-  | "approved";
+  | "approved"
+  | "unassigned"
+  | "transferred";
 
 export interface ITask {
   _id: string;
@@ -39,17 +41,24 @@ export interface ITask {
   description: string;
   priority: TaskPriority;
   status: TaskStatus;
-  assignedInternId: string; // Mongo User ID ref
+  assignedInternId?: string; // Mongo User ID ref (optional if unassigned)
   assignedInternSnapshot?: {
     name: string;
     email: string;
     internId: string;
   };
   taskGroupId?: string;
+  projectId?: string; // Optional reference to collaborative Project
   assignmentDate: Date;
   dueDate: Date;
   isArchived: boolean;
   createdByAdminId: string; // Mongo User ID ref
+  unassignedAt?: Date;
+  unassignedReason?: string;
+  unassignedByAdminId?: string;
+  transferredAt?: Date;
+  transferredToInternId?: string;
+  transferredReason?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -63,7 +72,11 @@ export type TaskEventType =
   | "review_requested_changes"
   | "review_approved"
   | "archived"
-  | "unarchived";
+  | "unarchived"
+  | "unassigned"
+  | "transferred"
+  | "project_linked"
+  | "project_unlinked";
 
 export interface ITaskEvent {
   _id: string;
@@ -76,6 +89,35 @@ export interface ITaskEvent {
   newValue?: string | Record<string, unknown>;
   note?: string;
   timestamp: Date;
+}
+
+export type ProjectStatus = "planning" | "in_progress" | "completed" | "on_hold";
+
+export interface IProjectMember {
+  internId: string;
+  joinedAt: Date;
+  addedByAdminId: string;
+}
+
+export interface IProjectRemovedMember {
+  internId: string;
+  removedAt: Date;
+  reason?: string;
+  removedByAdminId: string;
+}
+
+export interface IProject {
+  _id: string;
+  title: string;
+  description: string;
+  status: ProjectStatus;
+  startDate: Date;
+  dueDate: Date;
+  teamMembers: IProjectMember[];
+  removedMembers: IProjectRemovedMember[];
+  createdByAdminId: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ISubmissionAttachment {

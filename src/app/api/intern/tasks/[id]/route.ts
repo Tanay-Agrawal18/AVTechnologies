@@ -24,7 +24,7 @@ export async function GET(
   }
 
   // IDOR Protection: ensure task belongs to this intern
-  if (task.assignedInternId.toString() !== auth.user.id) {
+  if (!task.assignedInternId || task.assignedInternId.toString() !== auth.user.id) {
     return NextResponse.json(
       { error: "Access denied: This task is not assigned to you" },
       { status: 403 }

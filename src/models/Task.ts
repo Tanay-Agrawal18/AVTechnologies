@@ -6,17 +6,24 @@ export interface ITaskDocument extends Document {
   description: string;
   priority: TaskPriority;
   status: TaskStatus;
-  assignedInternId: mongoose.Types.ObjectId;
+  assignedInternId?: mongoose.Types.ObjectId;
   assignedInternSnapshot?: {
     name: string;
     email: string;
     internId: string;
   };
   taskGroupId?: string;
+  projectId?: mongoose.Types.ObjectId;
   assignmentDate: Date;
   dueDate: Date;
   isArchived: boolean;
   createdByAdminId: mongoose.Types.ObjectId;
+  unassignedAt?: Date;
+  unassignedReason?: string;
+  unassignedByAdminId?: mongoose.Types.ObjectId;
+  transferredAt?: Date;
+  transferredToInternId?: mongoose.Types.ObjectId;
+  transferredReason?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,6 +55,8 @@ const TaskSchema = new Schema<ITaskDocument>(
         "submitted",
         "changes_requested",
         "approved",
+        "unassigned",
+        "transferred",
       ],
       default: "assigned",
       index: true,
@@ -55,7 +64,7 @@ const TaskSchema = new Schema<ITaskDocument>(
     assignedInternId: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
       index: true,
     },
     assignedInternSnapshot: {
@@ -65,6 +74,11 @@ const TaskSchema = new Schema<ITaskDocument>(
     },
     taskGroupId: {
       type: String,
+      index: true,
+    },
+    projectId: {
+      type: Schema.Types.ObjectId,
+      ref: "Project",
       index: true,
     },
     assignmentDate: {
@@ -86,6 +100,28 @@ const TaskSchema = new Schema<ITaskDocument>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    unassignedAt: {
+      type: Date,
+    },
+    unassignedReason: {
+      type: String,
+      trim: true,
+    },
+    unassignedByAdminId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    transferredAt: {
+      type: Date,
+    },
+    transferredToInternId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    transferredReason: {
+      type: String,
+      trim: true,
     },
   },
   {

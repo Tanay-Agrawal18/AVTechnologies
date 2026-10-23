@@ -4,6 +4,7 @@ import { Task, ITaskDocument } from "@/models/Task";
 import { TaskEvent } from "@/models/TaskEvent";
 import { Submission, ISubmissionDocument } from "@/models/Submission";
 import { User } from "@/models/User";
+import { AuditLog } from "@/models/AuditLog";
 import { canTransitionStatus } from "./taskStateService";
 import { TaskPriority, TaskStatus, SessionUser } from "@/types";
 
@@ -13,6 +14,7 @@ export interface CreateTaskInput {
   priority: TaskPriority;
   assignedInternId?: string;
   assignedInternIds?: string[];
+  projectId?: string;
   assignmentDate: string;
   dueDate: string;
 }
@@ -22,9 +24,19 @@ export interface UpdateTaskInput {
   description?: string;
   priority?: TaskPriority;
   assignedInternId?: string;
+  projectId?: string | null;
   assignmentDate?: string;
   dueDate?: string;
   isArchived?: boolean;
+}
+
+export interface UnassignTaskInput {
+  reason?: string;
+}
+
+export interface TransferTaskInput {
+  newInternId: string;
+  reason: string;
 }
 
 export interface SubmissionInput {
@@ -82,6 +94,7 @@ export class TaskService {
           internId: intern.internId || "",
         },
         taskGroupId,
+        projectId: data.projectId ? new mongoose.Types.ObjectId(data.projectId) : undefined,
         assignmentDate: new Date(data.assignmentDate),
         dueDate: new Date(data.dueDate),
         isArchived: false,
@@ -100,10 +113,24 @@ export class TaskService {
           status: task.status,
           assignedTo: intern.name,
           taskGroupId,
+          projectId: data.projectId,
         },
         note: `Task created and assigned to ${intern.name}`,
         timestamp: new Date(),
       });
+
+      if (data.projectId) {
+        await TaskEvent.create({
+          taskId: task._id,
+          eventType: "project_linked",
+          actorId: actor.id,
+          actorRole: actor.role,
+          actorName: actor.name,
+          newValue: data.projectId,
+          note: `Task linked to collaborative project`,
+          timestamp: new Date(),
+        });
+      }
 
       createdTasks.push(task);
     }
@@ -124,12 +151,12 @@ export class TaskService {
 
     const eventsToCreate: Array<Record<string, unknown>> = [];
 
-    if (data.assignedInternId && data.assignedInternId !== task.assignedInternId.toString()) {
+    if (data.assignedInternId && data.assignedInternId !== task.assignedInternId?.toString()) {
       const newIntern = await User.findOne({ _id: data.assignedInternId, role: "intern" });
       if (!newIntern) {
         throw new Error("New assigned intern not found");
       }
-      const prevIntern = task.assignedInternSnapshot?.name || task.assignedInternId.toString();
+      const prevIntern = task.assignedInternSnapshot?.name || task.assignedInternId?.toString() || "Unassigned";
       task.assignedInternId = newIntern._id as mongoose.Types.ObjectId;
       task.assignedInternSnapshot = {
         name: newIntern.name,
@@ -203,7 +230,7 @@ export class TaskService {
     }
 
     // Role & ownership check
-    if (actor.role === "intern" && task.assignedInternId.toString() !== actor.id) {
+    if (actor.role === "intern" && (!task.assignedInternId || task.assignedInternId.toString() !== actor.id)) {
       throw new Error("Access denied: You can only update tasks assigned to you");
     }
 
@@ -242,7 +269,7 @@ export class TaskService {
       throw new Error("Task not found");
     }
 
-    if (task.assignedInternId.toString() !== actor.id) {
+    if (!task.assignedInternId || task.assignedInternId.toString() !== actor.id) {
       throw new Error("Access denied: You can only submit work for tasks assigned to you");
     }
 
@@ -331,5 +358,277 @@ export class TaskService {
     });
 
     return { task, submission };
+  }
+
+  static async unassignTask(
+    taskId: string,
+    data: UnassignTaskInput,
+    actor: SessionUser
+  ): Promise<ITaskDocument> {
+    if (actor.role !== "admin") {
+      throw new Error("Unauthorized: Only administrators can unassign tasks");
+    }
+
+    await connectDB();
+    const task = await Task.findById(taskId);
+    if (!task) {
+      throw new Error("Task not found");
+    }
+
+    if (task.status === "unassigned") {
+      throw new Error("Task is already unassigned");
+    }
+
+    if (task.status === "transferred") {
+      throw new Error("Cannot unassign a transferred task");
+    }
+
+    const prevStatus = task.status;
+    const prevInternId = task.assignedInternId;
+    const prevInternSnapshot = task.assignedInternSnapshot;
+
+    task.status = "unassigned";
+    task.unassignedAt = new Date();
+    task.unassignedReason = data.reason?.trim() || "Unassigned by administrator";
+    task.unassignedByAdminId = new mongoose.Types.ObjectId(actor.id);
+    // Retain assignedInternSnapshot for audit clarity, while clearing active assignment
+    task.assignedInternId = undefined;
+
+    await task.save();
+
+    await TaskEvent.create({
+      taskId: task._id,
+      eventType: "unassigned",
+      actorId: actor.id,
+      actorRole: actor.role,
+      actorName: actor.name,
+      previousValue: {
+        status: prevStatus,
+        assignedInternId: prevInternId?.toString(),
+        internName: prevInternSnapshot?.name,
+      },
+      newValue: {
+        status: "unassigned",
+        reason: task.unassignedReason,
+      },
+      note: `Intern unassigned from task. Reason: ${task.unassignedReason}`,
+      timestamp: new Date(),
+    });
+
+    await AuditLog.create({
+      action: "task_unassigned",
+      targetModel: "Task",
+      targetId: task._id,
+      actorId: actor.id,
+      actorName: actor.name,
+      actorRole: actor.role,
+      changes: {
+        status: { from: prevStatus, to: "unassigned" },
+        assignedInternId: { from: prevInternId?.toString(), to: null },
+      },
+      metadata: {
+        previousIntern: prevInternSnapshot,
+        reason: task.unassignedReason,
+      },
+    });
+
+    return task;
+  }
+
+  static async transferTask(
+    taskId: string,
+    data: TransferTaskInput,
+    actor: SessionUser
+  ): Promise<{ previousTask: ITaskDocument; newTask: ITaskDocument }> {
+    if (actor.role !== "admin") {
+      throw new Error("Unauthorized: Only administrators can transfer task assignments");
+    }
+
+    await connectDB();
+    const previousTask = await Task.findById(taskId);
+    if (!previousTask) {
+      throw new Error("Original task not found");
+    }
+
+    if (previousTask.status === "transferred") {
+      throw new Error("Task has already been transferred to another intern");
+    }
+
+    if (previousTask.status === "approved") {
+      throw new Error("Cannot transfer an already approved task");
+    }
+
+    // Verify new intern
+    const newIntern = await User.findOne({ _id: data.newInternId, role: "intern", status: "active" });
+    if (!newIntern) {
+      throw new Error("Selected replacement intern does not exist or is not an active intern");
+    }
+
+    if (previousTask.assignedInternId && previousTask.assignedInternId.toString() === newIntern._id.toString()) {
+      throw new Error("Target intern is already the active assignee for this task");
+    }
+
+    // Prevent duplicate active assignments if the target intern already has an active task in the same group or project
+    if (previousTask.taskGroupId || previousTask.projectId) {
+      const duplicateQuery: Record<string, unknown> = {
+        assignedInternId: newIntern._id,
+        status: { $in: ["assigned", "in_progress", "submitted", "changes_requested"] },
+        isArchived: false,
+      };
+      if (previousTask.taskGroupId) {
+        duplicateQuery.taskGroupId = previousTask.taskGroupId;
+      } else if (previousTask.projectId) {
+        duplicateQuery.projectId = previousTask.projectId;
+        duplicateQuery.title = previousTask.title;
+      }
+
+      const existingActive = await Task.findOne(duplicateQuery);
+      if (existingActive) {
+        throw new Error(
+          `Target intern '${newIntern.name}' already has an active assignment for this task set`
+        );
+      }
+    }
+
+    const previousInternSnapshot = previousTask.assignedInternSnapshot;
+    const prevStatus = previousTask.status;
+
+    // Use transaction if supported by Mongo deployment, else fallback safely
+    let session: mongoose.ClientSession | null = null;
+    try {
+      session = await mongoose.startSession();
+      session.startTransaction();
+    } catch {
+      session = null;
+    }
+
+    try {
+      // 1. Mark previous assignment as 'transferred'
+      previousTask.status = "transferred";
+      previousTask.transferredAt = new Date();
+      previousTask.transferredToInternId = newIntern._id as mongoose.Types.ObjectId;
+      previousTask.transferredReason = data.reason.trim();
+      await previousTask.save(session ? { session } : undefined);
+
+      // 2. Create brand-new clean assignment for new intern WITHOUT copying old submissions
+      const newTaskData = {
+        title: previousTask.title,
+        description: previousTask.description,
+        priority: previousTask.priority,
+        status: "assigned" as TaskStatus,
+        assignedInternId: newIntern._id,
+        assignedInternSnapshot: {
+          name: newIntern.name,
+          email: newIntern.email,
+          internId: newIntern.internId || "",
+        },
+        taskGroupId: previousTask.taskGroupId,
+        projectId: previousTask.projectId,
+        assignmentDate: new Date(),
+        dueDate: previousTask.dueDate,
+        isArchived: false,
+        createdByAdminId: new mongoose.Types.ObjectId(actor.id),
+      };
+
+      const rawNewTask = session
+        ? await Task.create([newTaskData], { session })
+        : await Task.create(newTaskData);
+      const newTask = Array.isArray(rawNewTask) ? rawNewTask[0] : rawNewTask;
+
+      // 3. Record TaskEvent for previous task
+      await TaskEvent.create(
+        [
+          {
+            taskId: previousTask._id,
+            eventType: "transferred",
+            actorId: actor.id,
+            actorRole: actor.role,
+            actorName: actor.name,
+            previousValue: {
+              status: prevStatus,
+              internName: previousInternSnapshot?.name,
+            },
+            newValue: {
+              status: "transferred",
+              transferredTo: newIntern.name,
+              newTaskId: newTask._id.toString(),
+              reason: data.reason,
+            },
+            note: `Assignment transferred to ${newIntern.name}. Reason: ${data.reason}`,
+            timestamp: new Date(),
+          },
+        ],
+        session ? { session } : undefined
+      );
+
+      // 4. Record TaskEvent for new task
+      await TaskEvent.create(
+        [
+          {
+            taskId: newTask._id,
+            eventType: "created",
+            actorId: actor.id,
+            actorRole: actor.role,
+            actorName: actor.name,
+            newValue: {
+              title: newTask.title,
+              assignedTo: newIntern.name,
+              transferredFrom: previousInternSnapshot?.name,
+              previousTaskId: previousTask._id.toString(),
+            },
+            note: `Task assigned via transfer from ${previousInternSnapshot?.name || "previous intern"}`,
+            timestamp: new Date(),
+          },
+        ],
+        session ? { session } : undefined
+      );
+
+      // 5. Append-only AuditLog
+      await AuditLog.create(
+        [
+          {
+            action: "task_transferred",
+            targetModel: "Task",
+            targetId: previousTask._id,
+            actorId: actor.id,
+            actorName: actor.name,
+            actorRole: actor.role,
+            changes: {
+              status: { from: prevStatus, to: "transferred" },
+              assignedInternId: {
+                from: previousTask.assignedInternId?.toString(),
+                to: newIntern._id.toString(),
+              },
+            },
+            metadata: {
+              previousIntern: previousInternSnapshot,
+              newIntern: {
+                id: newIntern._id.toString(),
+                name: newIntern.name,
+                email: newIntern.email,
+              },
+              newTaskId: newTask._id.toString(),
+              reason: data.reason,
+            },
+          },
+        ],
+        session ? { session } : undefined
+      );
+
+      if (session) {
+        await session.commitTransaction();
+      }
+
+      return { previousTask, newTask };
+    } catch (err) {
+      if (session) {
+        await session.abortTransaction();
+      }
+      throw err;
+    } finally {
+      if (session) {
+        session.endSession();
+      }
+    }
   }
 }

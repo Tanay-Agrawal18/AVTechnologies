@@ -11,10 +11,11 @@ export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const status = searchParams.get("status");
 
-  // Strictly enforce ownership: only fetch tasks assigned to this intern
+  // Strictly enforce ownership: only fetch active tasks assigned to this intern (exclude unassigned/transferred)
   const query: Record<string, unknown> = {
     assignedInternId: auth.user.id,
     isArchived: false,
+    status: { $nin: ["unassigned", "transferred"] },
   };
 
   if (status && status !== "all") {

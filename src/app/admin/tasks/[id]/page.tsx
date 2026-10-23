@@ -23,7 +23,10 @@ import {
   MessageSquare,
   AlertCircle,
   Paperclip,
+  UserX,
+  ArrowRightLeft,
 } from "lucide-react";
+import { IUser } from "@/types";
 
 export default function AdminTaskDetailPage({
   params,
@@ -36,12 +39,28 @@ export default function AdminTaskDetailPage({
   const [events, setEvents] = useState<ITaskEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Active interns for transfer
+  const [interns, setInterns] = useState<IUser[]>([]);
+
   // Review Feedback Form State
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
   const [decision, setDecision] = useState<"approve" | "request_changes">("approve");
   const [feedback, setFeedback] = useState("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState<string | null>(null);
+
+  // Unassign Modal State
+  const [isUnassignModalOpen, setIsUnassignModalOpen] = useState(false);
+  const [unassignReason, setUnassignReason] = useState("");
+  const [isUnassigning, setIsUnassigning] = useState(false);
+  const [unassignError, setUnassignError] = useState<string | null>(null);
+
+  // Transfer Modal State
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [transferTargetInternId, setTransferTargetInternId] = useState("");
+  const [transferReason, setTransferReason] = useState("");
+  const [isTransferring, setIsTransferring] = useState(false);
+  const [transferError, setTransferError] = useState<string | null>(null);
 
   const fetchTaskDetail = async () => {
     setIsLoading(true);
@@ -63,9 +82,87 @@ export default function AdminTaskDetailPage({
     }
   };
 
+  const fetchActiveInterns = async () => {
+    try {
+      const res = await fetch("/api/admin/interns?status=active");
+      if (res.ok) {
+        const data = await res.json();
+        setInterns(data.interns || []);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
   useEffect(() => {
     fetchTaskDetail();
+    fetchActiveInterns();
   }, [id]);
+
+  const handleUnassignIntern = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsUnassigning(true);
+    setUnassignError(null);
+
+    try {
+      const res = await fetch(`/api/admin/tasks/${id}/unassign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: unassignReason }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to unassign task");
+      }
+
+      setIsUnassignModalOpen(false);
+      setUnassignReason("");
+      fetchTaskDetail();
+    } catch (err: unknown) {
+      setUnassignError(err instanceof Error ? err.message : "Failed to unassign task");
+    } finally {
+      setIsUnassigning(false);
+    }
+  };
+
+  const handleTransferTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!transferTargetInternId) {
+      setTransferError("Please select a target intern");
+      return;
+    }
+    if (!transferReason.trim()) {
+      setTransferError("Please provide a reason for the transfer");
+      return;
+    }
+
+    setIsTransferring(true);
+    setTransferError(null);
+
+    try {
+      const res = await fetch(`/api/admin/tasks/${id}/transfer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          newInternId: transferTargetInternId,
+          reason: transferReason,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to transfer task");
+      }
+
+      setIsTransferModalOpen(false);
+      setTransferTargetInternId("");
+      setTransferReason("");
+      fetchTaskDetail();
+    } catch (err: unknown) {
+      setTransferError(err instanceof Error ? err.message : "Failed to transfer task");
+    } finally {
+      setIsTransferring(false);
+    }
+  };
 
   const handleToggleArchive = async () => {
     if (!task) return;
@@ -165,20 +262,46 @@ export default function AdminTaskDetailPage({
             <ArrowLeft className="w-4 h-4" /> Back to Tasks
           </Link>
 
-          <button
-            onClick={handleToggleArchive}
-            className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium border border-slate-300 rounded-lg bg-white hover:bg-slate-50"
-          >
-            {task.isArchived ? (
+          <div className="flex items-center gap-3">
+            {task.status !== "unassigned" && task.status !== "transferred" && (
               <>
-                <RotateCcw className="w-4 h-4 text-blue-600" /> Restore / Unarchive Task
-              </>
-            ) : (
-              <>
-                <Archive className="w-4 h-4 text-slate-500" /> Archive Task
+                <button
+                  onClick={() => {
+                    setUnassignError(null);
+                    setIsUnassignModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-rose-300 text-rose-700 rounded-lg bg-rose-50 hover:bg-rose-100 transition-colors"
+                >
+                  <UserX className="w-4 h-4" /> Unassign Intern
+                </button>
+
+                <button
+                  onClick={() => {
+                    setTransferError(null);
+                    setIsTransferModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-purple-300 text-purple-700 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors"
+                >
+                  <ArrowRightLeft className="w-4 h-4" /> Transfer Task
+                </button>
               </>
             )}
-          </button>
+
+            <button
+              onClick={handleToggleArchive}
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium border border-slate-300 rounded-lg bg-white hover:bg-slate-50"
+            >
+              {task.isArchived ? (
+                <>
+                  <RotateCcw className="w-4 h-4 text-blue-600" /> Restore / Unarchive Task
+                </>
+              ) : (
+                <>
+                  <Archive className="w-4 h-4 text-slate-500" /> Archive Task
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Task Overview Card */}
@@ -516,6 +639,175 @@ export default function AdminTaskDetailPage({
             </table>
           </div>
         </div>
+
+        {/* Unassign Confirmation Modal */}
+        {isUnassignModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+            <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2.5 bg-rose-50 text-rose-600 rounded-lg">
+                  <UserX className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-lg">Unassign Intern</h3>
+                  <p className="text-xs text-slate-500">
+                    Remove active assignment for{" "}
+                    <strong>{intern?.name || task.assignedInternSnapshot?.name || "Intern"}</strong>.
+                  </p>
+                </div>
+              </div>
+
+              {submissions.length > 0 && (
+                <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-lg text-xs space-y-2">
+                  <div className="flex items-center gap-1.5 font-semibold text-amber-800">
+                    <AlertCircle className="w-4 h-4" /> Existing Submission Found
+                  </div>
+                  <p className="text-amber-700">
+                    This intern has already submitted <strong>{submissions.length}</strong> version(s) of deliverables (current review status: <strong>{submissions[0].reviewStatus}</strong>). Unassigning will preserve all submitted files, version logs, and reviews in the historical audit trail without deleting them.
+                  </p>
+                  <p className="text-amber-900 font-mono bg-white/70 p-2 rounded border border-amber-200 truncate">
+                    Latest note: {submissions[0].workDescription}
+                  </p>
+                </div>
+              )}
+
+              {unassignError && (
+                <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-lg border border-rose-200 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{unassignError}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleUnassignIntern} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Unassignment Reason (Optional)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={unassignReason}
+                    onChange={(e) => setUnassignReason(e.target.value)}
+                    placeholder="Provide a rationale for audit records (e.g. intern reassigned to other priority, medical leave)..."
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsUnassignModalOpen(false)}
+                    className="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isUnassigning}
+                    className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold disabled:opacity-50 transition-colors shadow-sm"
+                  >
+                    {isUnassigning ? "Unassigning..." : "Confirm Unassignment"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Transfer Assignment Modal */}
+        {isTransferModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+            <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2.5 bg-purple-50 text-purple-600 rounded-lg">
+                  <ArrowRightLeft className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-lg">Transfer Task Assignment</h3>
+                  <p className="text-xs text-slate-500">
+                    Reassign task from{" "}
+                    <strong>{intern?.name || task.assignedInternSnapshot?.name || "current assignee"}</strong> to another intern.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600 space-y-1">
+                <p>
+                  • The original task will be marked as <strong>transferred</strong> and preserved in historical audit records.
+                </p>
+                <p>
+                  • A clean task assignment will be created for the new intern. Previous submissions and approval states are <strong>never copied</strong> into the new assignment.
+                </p>
+              </div>
+
+              {transferError && (
+                <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-lg border border-rose-200 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{transferError}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleTransferTask} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Select New Intern *
+                  </label>
+                  <select
+                    value={transferTargetInternId}
+                    onChange={(e) => setTransferTargetInternId(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                  >
+                    <option value="">-- Choose active intern --</option>
+                    {interns
+                      .filter(
+                        (i) =>
+                          !task.assignedInternId ||
+                          (typeof task.assignedInternId === "object"
+                            ? (task.assignedInternId as unknown as { _id: string })._id !== i._id
+                            : task.assignedInternId !== i._id)
+                      )
+                      .map((i) => (
+                        <option key={i._id} value={i._id}>
+                          {i.name} ({i.internId || i.email}) — {i.department || "General"}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Transfer Reason *
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={transferReason}
+                    onChange={(e) => setTransferReason(e.target.value)}
+                    required
+                    placeholder="Explain why this assignment is being transferred (e.g. workload rebalancing, domain expertise handover)..."
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsTransferModalOpen(false)}
+                    className="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isTransferring}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold disabled:opacity-50 transition-colors shadow-sm"
+                  >
+                    {isTransferring ? "Transferring..." : "Confirm Transfer"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </main>
     </>
   );

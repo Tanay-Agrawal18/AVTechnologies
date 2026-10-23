@@ -26,6 +26,14 @@ export const VALID_STATUS_TRANSITIONS: Record<TaskStatus, StatusTransitionRule> 
     from: ["submitted"],
     allowedRoles: ["admin"],
   },
+  unassigned: {
+    from: ["assigned", "in_progress", "submitted", "changes_requested"],
+    allowedRoles: ["admin"],
+  },
+  transferred: {
+    from: ["assigned", "in_progress", "submitted", "changes_requested"],
+    allowedRoles: ["admin"],
+  },
 };
 
 export function canTransitionStatus(

@@ -49,4 +49,35 @@ test.describe("IWMS Enhanced Features — Access Boundaries & Workflows", () => 
     });
     expect(docIssueResponse.status()).toBe(401);
   });
+
+  test("redirects unauthenticated users from collaborative project portals to login", async ({ page }) => {
+    await page.goto("/admin/projects");
+    await expect(page).toHaveURL(/.*login/);
+
+    await page.goto("/intern/projects");
+    await expect(page).toHaveURL(/.*login/);
+  });
+
+  test("blocks unauthenticated access to unassign and transfer task APIs", async ({ request }) => {
+    const unassignResponse = await request.post("/api/admin/tasks/650f1234567890abcdef1234/unassign", {
+      data: { reason: "E2E unassign test" },
+    });
+    expect(unassignResponse.status()).toBe(401);
+
+    const transferResponse = await request.post("/api/admin/tasks/650f1234567890abcdef1234/transfer", {
+      data: {
+        newInternId: "650f1234567890abcdef5678",
+        reason: "E2E transfer test",
+      },
+    });
+    expect(transferResponse.status()).toBe(401);
+  });
+
+  test("blocks unauthenticated access to collaborative project APIs", async ({ request }) => {
+    const adminProjectsRes = await request.get("/api/admin/projects");
+    expect(adminProjectsRes.status()).toBe(401);
+
+    const internProjectsRes = await request.get("/api/intern/projects");
+    expect(internProjectsRes.status()).toBe(401);
+  });
 });

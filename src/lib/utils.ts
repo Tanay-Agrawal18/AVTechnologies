@@ -41,11 +41,21 @@ export function getStatusBadgeClass(status: string): string {
       return "bg-rose-50 text-rose-700 border-rose-200";
     case "approved":
       return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "unassigned":
+      return "bg-slate-200 text-slate-700 border-slate-300";
+    case "transferred":
+      return "bg-purple-50 text-purple-700 border-purple-200";
     case "active":
       return "bg-emerald-50 text-emerald-700 border-emerald-200";
     case "inactive":
       return "bg-slate-100 text-slate-600 border-slate-300";
     case "pending_setup":
+      return "bg-amber-50 text-amber-700 border-amber-200";
+    case "planning":
+      return "bg-indigo-50 text-indigo-700 border-indigo-200";
+    case "completed":
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "on_hold":
       return "bg-amber-50 text-amber-700 border-amber-200";
     default:
       return "bg-slate-100 text-slate-700 border-slate-300";

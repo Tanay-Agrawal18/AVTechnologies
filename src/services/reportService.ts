@@ -19,6 +19,8 @@ export interface KPIStats {
   submitted: number;
   approved: number;
   changesRequested: number;
+  unassigned: number;
+  transferred: number;
   overdue: number;
 }
 
@@ -40,6 +42,8 @@ export class ReportService {
       submitted,
       approved,
       changesRequested,
+      unassigned,
+      transferred,
       overdue,
     ] = await Promise.all([
       Task.countDocuments({ isArchived: false }),
@@ -48,9 +52,11 @@ export class ReportService {
       Task.countDocuments({ isArchived: false, status: "submitted" }),
       Task.countDocuments({ isArchived: false, status: "approved" }),
       Task.countDocuments({ isArchived: false, status: "changes_requested" }),
+      Task.countDocuments({ isArchived: false, status: "unassigned" }),
+      Task.countDocuments({ isArchived: false, status: "transferred" }),
       Task.countDocuments({
         isArchived: false,
-        status: { $ne: "approved" },
+        status: { $nin: ["approved", "unassigned", "transferred"] },
         dueDate: { $lt: now },
       }),
     ]);
@@ -63,6 +69,8 @@ export class ReportService {
       submitted,
       approved,
       changesRequested,
+      unassigned,
+      transferred,
       overdue,
     };
   }

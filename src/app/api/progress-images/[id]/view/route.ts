@@ -32,7 +32,7 @@ export async function GET(
   // Authorization check: Admin or the intern who owns the task
   if (auth.user.role === "intern") {
     const task = await Task.findById(image.taskId);
-    if (!task || task.assignedInternId.toString() !== auth.user.id) {
+    if (!task || !task.assignedInternId || task.assignedInternId.toString() !== auth.user.id) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
   }

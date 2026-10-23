@@ -9,12 +9,14 @@ import {
   UserCircle,
   LogOut,
   Sparkles,
+  FolderGit2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Dashboard", href: "/intern/dashboard", icon: LayoutDashboard },
   { label: "My Tasks", href: "/intern/tasks", icon: CheckSquare },
+  { label: "Team Projects", href: "/intern/projects", icon: FolderGit2 },
   { label: "Work History", href: "/intern/history", icon: History },
   { label: "My Profile", href: "/intern/profile", icon: UserCircle },
 ];

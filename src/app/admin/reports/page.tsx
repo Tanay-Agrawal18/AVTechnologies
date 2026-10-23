@@ -167,6 +167,8 @@ export default function AdminReportsPage() {
                 <option value="submitted">Submitted</option>
                 <option value="changes_requested">Changes Requested</option>
                 <option value="approved">Approved</option>
+                <option value="unassigned">Unassigned</option>
+                <option value="transferred">Transferred</option>
               </select>
             </div>
 

@@ -38,4 +38,27 @@ describe("Task State Transition Engine", () => {
     expect(result.valid).toBe(false);
     expect(result.reason).toContain("Cannot transition task");
   });
+
+  it("allows admin to unassign an assigned or in-progress task", () => {
+    expect(canTransitionStatus("assigned", "unassigned", "admin").valid).toBe(true);
+    expect(canTransitionStatus("in_progress", "unassigned", "admin").valid).toBe(true);
+    expect(canTransitionStatus("submitted", "unassigned", "admin").valid).toBe(true);
+  });
+
+  it("prevents intern from unassigning a task", () => {
+    const result = canTransitionStatus("in_progress", "unassigned", "intern");
+    expect(result.valid).toBe(false);
+    expect(result.reason).toContain("not permitted");
+  });
+
+  it("allows admin to transfer an active task", () => {
+    expect(canTransitionStatus("assigned", "transferred", "admin").valid).toBe(true);
+    expect(canTransitionStatus("in_progress", "transferred", "admin").valid).toBe(true);
+  });
+
+  it("prevents intern from transferring a task", () => {
+    const result = canTransitionStatus("in_progress", "transferred", "intern");
+    expect(result.valid).toBe(false);
+    expect(result.reason).toContain("not permitted");
+  });
 });
