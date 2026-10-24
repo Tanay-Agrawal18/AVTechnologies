@@ -92,56 +92,58 @@ export default function AdminReportsPage() {
         description="Comprehensive operational reporting, lifecycle telemetry, and CSV data exports"
       />
 
-      <main className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 lg:space-y-8">
+      <main className="p-3 sm:p-5 lg:p-8 space-y-3 sm:space-y-5 lg:space-y-8">
         {/* KPI Strip */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
-            <span className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Active Interns</span>
-            <p className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1 sm:mt-2">
+          <div className="iwms-card p-3.5 sm:p-5" style={{ borderRadius: "12px" }}>
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(11,31,58,0.5)" }}>Active Interns</span>
+            <p className="text-xl sm:text-2xl font-extrabold mt-1 sm:mt-2" style={{ color: "var(--iwms-navy)" }}>
               {kpis?.activeInterns ?? 0}
             </p>
           </div>
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
-            <span className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">In Progress Tasks</span>
-            <p className="text-xl sm:text-2xl font-extrabold text-indigo-600 mt-1 sm:mt-2">
+          <div className="iwms-card p-3.5 sm:p-5" style={{ borderRadius: "12px" }}>
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(11,31,58,0.5)" }}>In Progress Tasks</span>
+            <p className="text-xl sm:text-2xl font-extrabold mt-1 sm:mt-2 text-sky-600">
               {kpis?.inProgress ?? 0}
             </p>
           </div>
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
-            <span className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Approved</span>
-            <p className="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-1 sm:mt-2">
+          <div className="iwms-card p-3.5 sm:p-5" style={{ borderRadius: "12px" }}>
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(11,31,58,0.5)" }}>Approved</span>
+            <p className="text-xl sm:text-2xl font-extrabold mt-1 sm:mt-2 text-emerald-600">
               {kpis?.approved ?? 0}
             </p>
           </div>
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
-            <span className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Overdue Tasks</span>
-            <p className="text-xl sm:text-2xl font-extrabold text-rose-600 mt-1 sm:mt-2">
+          <div className="iwms-card p-3.5 sm:p-5" style={{ borderRadius: "12px" }}>
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(11,31,58,0.5)" }}>Overdue Tasks</span>
+            <p className="text-xl sm:text-2xl font-extrabold mt-1 sm:mt-2 text-rose-600">
               {kpis?.overdue ?? 0}
             </p>
           </div>
         </div>
 
         {/* Filter Controls & CSV Export Bar */}
-        <div className="bg-white rounded-xl border border-slate-200 p-3.5 sm:p-5 space-y-3 sm:space-y-4">
+        <div className="iwms-card p-3.5 sm:p-5 space-y-3 sm:space-y-4" style={{ borderRadius: "14px" }}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <h3 className="font-bold text-slate-900 text-sm sm:text-base">Report Customization & Export</h3>
+            <h3 className="font-bold text-sm sm:text-base" style={{ color: "var(--iwms-navy)" }}>Report Customization & Export</h3>
             <button
               onClick={handleExportCSV}
-              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-slate-900 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-slate-800 transition-colors shadow-sm w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white shadow-xs transition-all hover:opacity-95 active:scale-95 w-full sm:w-auto"
+              style={{ background: "#0284C7" }}
             >
               <Download className="w-4 h-4 shrink-0" /> Export CSV
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-bold mb-1" style={{ color: "var(--iwms-navy)" }}>
                 Filter by Intern
               </label>
               <select
                 value={internFilter}
                 onChange={(e) => setInternFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white"
+                className="w-full px-3 py-2 border rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                style={{ borderColor: "var(--iwms-border)", color: "var(--iwms-black)" }}
               >
                 <option value="all">All Interns</option>
                 {interns.map((i) => (
@@ -153,13 +155,14 @@ export default function AdminReportsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-bold mb-1" style={{ color: "var(--iwms-navy)" }}>
                 Filter by Status
               </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white"
+                className="w-full px-3 py-2 border rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                style={{ borderColor: "var(--iwms-border)", color: "var(--iwms-black)" }}
               >
                 <option value="all">All Statuses</option>
                 <option value="assigned">Assigned</option>
@@ -173,44 +176,46 @@ export default function AdminReportsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">From Date</label>
+              <label className="block text-xs font-bold mb-1" style={{ color: "var(--iwms-navy)" }}>From Date</label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs"
+                className="w-full px-3 py-2 border rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                style={{ borderColor: "var(--iwms-border)", color: "var(--iwms-black)" }}
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">To Date</label>
+              <label className="block text-xs font-bold mb-1" style={{ color: "var(--iwms-navy)" }}>To Date</label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs"
+                className="w-full px-3 py-2 border rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                style={{ borderColor: "var(--iwms-border)", color: "var(--iwms-black)" }}
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+          <div className="flex items-center gap-2 pt-2 border-t" style={{ borderColor: "var(--iwms-border)" }}>
             <input
               type="checkbox"
               id="includeArchived"
               checked={includeArchived}
               onChange={(e) => setIncludeArchived(e.target.checked)}
-              className="rounded text-blue-600 focus:ring-blue-500"
+              className="rounded text-sky-600 focus:ring-sky-500"
             />
-            <label htmlFor="includeArchived" className="text-xs font-medium text-slate-600 cursor-pointer">
+            <label htmlFor="includeArchived" className="text-xs font-medium cursor-pointer" style={{ color: "rgba(11,31,58,0.7)" }}>
               Include archived tasks in report output
             </label>
           </div>
         </div>
 
         {/* Results Data Table */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-            <span className="font-bold text-slate-900 text-sm">
+        <div className="iwms-card overflow-hidden shadow-xs" style={{ borderRadius: "14px" }}>
+          <div className="p-3.5 sm:p-4 border-b flex items-center justify-between" style={{ borderColor: "var(--iwms-border)" }}>
+            <span className="font-bold text-sm" style={{ color: "var(--iwms-navy)" }}>
               Filtered Records ({tasks.length})
             </span>
           </div>

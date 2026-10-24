@@ -70,21 +70,26 @@ export function AdminSidebar() {
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
-          className="lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity"
+          className="lg:hidden fixed inset-0 z-40 bg-black/20 backdrop-blur-xs transition-opacity"
         />
       )}
 
       {/* Sidebar container */}
       <aside
         className={cn(
-          "w-64 bg-slate-900 text-slate-200 min-h-screen flex flex-col border-r border-slate-800",
-          "fixed lg:static top-0 bottom-0 left-0 z-40 transition-transform duration-200 ease-in-out",
+          "w-64 min-h-screen flex flex-col iwms-sidebar fixed lg:static top-0 bottom-0 left-0 z-40 transition-transform duration-200 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
+        style={{ background: "var(--iwms-sidebar-bg)" }}
       >
-        <div className="p-4 sm:p-6 border-b border-slate-800 flex items-center justify-between gap-3">
+        {/* Brand */}
+        <div
+          className="px-4 py-4 flex items-center justify-between gap-3"
+          style={{ borderBottom: "1px solid var(--iwms-border)" }}
+        >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-9 w-9 rounded-lg bg-white p-0.5 flex items-center justify-center shadow-xs shrink-0 overflow-hidden border border-slate-700/50">
+            {/* Logo mark */}
+            <div className="h-9 w-9 rounded-xl flex items-center justify-center p-0.5 bg-white shadow-xs shrink-0 border border-slate-200 overflow-hidden">
               <img
                 src="/image.png"
                 alt="Vyorai"
@@ -92,10 +97,16 @@ export function AdminSidebar() {
               />
             </div>
             <div className="min-w-0">
-              <h1 className="font-bold text-white text-base tracking-tight leading-none truncate">
+              <h1
+                className="font-bold text-sm tracking-tight leading-none truncate"
+                style={{ color: "var(--iwms-navy)" }}
+              >
                 Vyorai
               </h1>
-              <span className="text-xs text-blue-400 font-medium inline-flex items-center gap-1 mt-1 truncate">
+              <span
+                className="text-xs font-medium inline-flex items-center gap-1 mt-1 truncate"
+                style={{ color: "var(--iwms-sky)" }}
+              >
                 <ShieldAlert className="w-3 h-3 shrink-0" /> Admin Portal
               </span>
             </div>
@@ -104,13 +115,15 @@ export function AdminSidebar() {
           <button
             onClick={() => setIsOpen(false)}
             aria-label="Close navigation menu"
-            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shrink-0"
+            className="lg:hidden p-1.5 rounded-lg transition-colors hover:bg-slate-100 shrink-0"
+            style={{ color: "var(--iwms-navy)" }}
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
@@ -123,25 +136,55 @@ export function AdminSidebar() {
                 href={item.href}
                 onClick={() => setIsOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  "group relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors",
+                  isActive ? "" : "hover:bg-slate-50"
                 )}
+                style={
+                  isActive
+                    ? { background: "#E0F2FE", color: "#0284C7" }
+                    : { color: "var(--iwms-navy)" }
+                }
               >
-                <Icon className="w-4 h-4" />
-                {item.label}
+                {/* Active left bar */}
+                {isActive && (
+                  <span
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-md"
+                    style={{ background: "#0284C7" }}
+                  />
+                )}
+                <Icon
+                  className="w-4 h-4 shrink-0"
+                  style={
+                    isActive
+                      ? { color: "#0284C7" }
+                      : { color: "var(--iwms-navy)", opacity: 0.7 }
+                  }
+                />
+                <span className="truncate">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-slate-800">
+        {/* Sign-out */}
+        <div
+          className="px-3 py-4"
+          style={{ borderTop: "1px solid var(--iwms-border)" }}
+        >
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-rose-400 hover:bg-slate-800/60 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-red-50"
+            style={{ color: "var(--iwms-navy)", opacity: 0.7 }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = "#ef4444";
+              (e.currentTarget as HTMLButtonElement).style.opacity = "1";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = "var(--iwms-navy)";
+              (e.currentTarget as HTMLButtonElement).style.opacity = "0.7";
+            }}
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4 shrink-0" />
             Sign Out
           </button>
         </div>

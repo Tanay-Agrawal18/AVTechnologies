@@ -9,12 +9,12 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900">
-      <Suspense fallback={<div className="hidden lg:block w-64 bg-slate-900 min-h-screen" />}>
+    <div className="flex min-h-screen" style={{ background: "var(--iwms-bg)" }}>
+      <Suspense fallback={<div className="hidden lg:block w-64 min-h-screen bg-white border-r" style={{ borderColor: "var(--iwms-border)" }} />}>
         <AdminSidebar />
       </Suspense>
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto w-full">
-        <Suspense fallback={<div className="p-4 sm:p-8 text-slate-500">Loading view...</div>}>
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto w-full iwms-workspace">
+        <Suspense fallback={<div className="p-4 sm:p-8" style={{ color: "var(--iwms-navy)" }}>Loading view...</div>}>
           {children}
         </Suspense>
       </div>
