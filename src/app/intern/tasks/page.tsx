@@ -12,24 +12,32 @@ export default function InternTasksPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchTasks = async () => {
-    setIsLoading(true);
-    try {
-      const query = new URLSearchParams();
-      if (statusFilter !== "all") query.set("status", statusFilter);
-
-      const res = await fetch(`/api/intern/tasks?${query.toString()}`);
-      if (res.ok) {
-        const data = await res.json();
-        setTasks(data.tasks || []);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchTasks();
+    let isCancelled = false;
+    setIsLoading(true);
+
+    const query = new URLSearchParams();
+    if (statusFilter !== "all") query.set("status", statusFilter);
+
+    fetch(`/api/intern/tasks?${query.toString()}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!isCancelled && data?.tasks) {
+          setTasks(data.tasks);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load intern tasks:", err);
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [statusFilter]);
 
   return (

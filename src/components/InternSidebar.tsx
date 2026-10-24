@@ -9,7 +9,6 @@ import {
   Clock,
   User,
   LogOut,
-  Sparkles,
   FolderGit2,
   Menu,
   X,

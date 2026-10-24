@@ -12,7 +12,6 @@ import { ProjectService } from "@/services/projectService";
 import { Task } from "@/models/Task";
 import { TaskEvent } from "@/models/TaskEvent";
 import { User } from "@/models/User";
-import { Submission } from "@/models/Submission";
 import { Project } from "@/models/Project";
 import { AuditLog } from "@/models/AuditLog";
 import { SessionUser } from "@/types";
