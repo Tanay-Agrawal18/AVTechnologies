@@ -26,6 +26,7 @@ const navItems = [
   { label: "Tasks", href: "/admin/tasks", icon: CheckSquare },
   { label: "Team Projects", href: "/admin/projects", icon: FolderGit2 },
   { label: "Bulk Email", href: "/admin/emails", icon: Mail },
+  { label: "Offer Letters", href: "/admin/offer-letters", icon: FileSpreadsheet },
   { label: "Documents & Certs", href: "/admin/documents", icon: Award },
   { label: "Reports & KPIs", href: "/admin/reports", icon: BarChart3 },
 ];

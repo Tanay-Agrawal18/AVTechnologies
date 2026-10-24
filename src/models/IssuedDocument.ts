@@ -22,6 +22,10 @@ export interface IIssuedDocumentDocument extends Document {
   issuedByAdminName: string;
   signatoryName: string;
   signatoryTitle: string;
+  status: "issued" | "revoked" | "replaced";
+  revokedAt?: Date;
+  revocationReason?: string;
+  replacedByDocumentId?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -99,6 +103,22 @@ const IssuedDocumentSchema = new Schema<IIssuedDocumentDocument>(
     signatoryTitle: {
       type: String,
       required: true,
+    },
+    status: {
+      type: String,
+      enum: ["issued", "revoked", "replaced"],
+      default: "issued",
+      index: true,
+    },
+    revokedAt: {
+      type: Date,
+    },
+    revocationReason: {
+      type: String,
+    },
+    replacedByDocumentId: {
+      type: Schema.Types.ObjectId,
+      ref: "IssuedDocument",
     },
   },
   {
