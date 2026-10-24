@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -35,6 +35,16 @@ export function AdminSidebar() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
+  useEffect(() => {
+    const handleToggle = () => setIsOpen((prev) => !prev);
+    window.addEventListener("iwms:toggle-sidebar", handleToggle);
+    return () => window.removeEventListener("iwms:toggle-sidebar", handleToggle);
+  }, []);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
@@ -47,14 +57,13 @@ export function AdminSidebar() {
 
   return (
     <>
-      {/* Mobile Toggle Button */}
+      {/* Mobile Toggle Button (Triggered via Header or fallback) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle navigation menu"
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg shadow-sm bg-slate-900 border border-slate-700 text-slate-200"
-      >
-        {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-      </button>
+        className="hidden"
+        id="iwms-admin-menu-btn"
+      />
 
       {/* Backdrop for mobile */}
       {isOpen && (

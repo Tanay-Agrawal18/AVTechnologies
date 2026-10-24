@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -28,6 +28,18 @@ export function InternSidebar() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
+  // Listen for sidebar toggle event from header
+  useEffect(() => {
+    const handleToggle = () => setIsOpen((prev) => !prev);
+    window.addEventListener("iwms:toggle-sidebar", handleToggle);
+    return () => window.removeEventListener("iwms:toggle-sidebar", handleToggle);
+  }, []);
+
+  // Close sidebar on route change
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
@@ -40,21 +52,13 @@ export function InternSidebar() {
 
   return (
     <>
-      {/* Mobile hamburger — only shows when sidebar is closed */}
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          aria-label="Open navigation menu"
-          className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg shadow-sm"
-          style={{
-            background: "var(--iwms-white)",
-            border: "1px solid var(--iwms-border)",
-            color: "var(--iwms-navy)",
-          }}
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-      )}
+      {/* Mobile hamburger — trigger navigation */}
+      <button
+        onClick={() => setIsOpen(true)}
+        aria-label="Open navigation menu"
+        className="hidden" // Handled by header event
+        id="iwms-intern-menu-btn"
+      />
 
       {/* Backdrop for mobile */}
       {isOpen && (
