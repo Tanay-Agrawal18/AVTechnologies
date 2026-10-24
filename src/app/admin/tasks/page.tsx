@@ -146,14 +146,14 @@ export default function AdminTasksPage() {
         description="Assign assignments to interns, monitor progression, and review completion lifecycles"
       />
 
-      <main className="p-8 space-y-6">
+      <main className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
         {/* Filters Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             >
               <option value="all">All Statuses</option>
               <option value="assigned">Assigned</option>
@@ -168,7 +168,7 @@ export default function AdminTasksPage() {
             <select
               value={internFilter}
               onChange={(e) => setInternFilter(e.target.value)}
-              className="px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             >
               <option value="all">All Interns</option>
               {interns.map((i) => (
@@ -181,7 +181,7 @@ export default function AdminTasksPage() {
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             >
               <option value="all">All Priorities</option>
               <option value="low">Low</option>
@@ -190,7 +190,7 @@ export default function AdminTasksPage() {
               <option value="urgent">Urgent</option>
             </select>
 
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer ml-2">
+            <label className="flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-slate-600 cursor-pointer col-span-2 sm:col-span-1 sm:ml-2">
               <input
                 type="checkbox"
                 checked={includeArchived}
@@ -206,9 +206,9 @@ export default function AdminTasksPage() {
               setIsModalOpen(true);
               setModalError(null);
             }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 shadow-sm"
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-blue-700 shadow-sm shrink-0"
           >
-            <PlusCircle className="w-4 h-4" /> Create Task
+            <PlusCircle className="w-4 h-4 shrink-0" /> Create Task
           </button>
         </div>
 
@@ -321,10 +321,10 @@ export default function AdminTasksPage() {
 
       {/* Create Task Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-1">Create & Assign Task</h3>
-            <p className="text-xs text-slate-500 mb-5">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1">Create & Assign Task</h3>
+            <p className="text-xs text-slate-500 mb-4 sm:mb-5">
               Specify scope, priority, and assign to an active intern roster member.
             </p>
 
@@ -364,7 +364,7 @@ export default function AdminTasksPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Priority Level
@@ -446,7 +446,7 @@ export default function AdminTasksPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Assignment Date

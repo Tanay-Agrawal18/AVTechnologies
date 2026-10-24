@@ -123,15 +123,15 @@ export default function AdminProjectsPage() {
         description="Organize cross-intern collaborative initiatives, delegate subtasks, and track project-level milestones"
       />
 
-      <main className="p-8 space-y-6">
+      <main className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-slate-500 uppercase">Status:</span>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Status:</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             >
               <option value="all">All Projects</option>
               <option value="planning">Planning</option>
@@ -143,9 +143,9 @@ export default function AdminProjectsPage() {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm"
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs sm:text-sm font-semibold transition-colors shadow-sm"
           >
-            <PlusCircle className="w-4 h-4" /> Create New Project
+            <PlusCircle className="w-4 h-4 shrink-0" /> Create New Project
           </button>
         </div>
 
@@ -370,7 +370,7 @@ export default function AdminProjectsPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block font-semibold text-slate-700 mb-1">Start Date *</label>
                     <input

@@ -252,17 +252,17 @@ export default function AdminTaskDetailPage({
         description="Inspect deliverables, submit supervisory review feedback, and trace immutable audit log"
       />
 
-      <main className="p-8 space-y-8">
+      <main className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 lg:space-y-8">
         {/* Navigation & Controls */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <Link
             href="/admin/tasks"
-            className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Tasks
+            <ArrowLeft className="w-4 h-4 shrink-0" /> Back to Tasks
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {task.status !== "unassigned" && task.status !== "transferred" && (
               <>
                 <button
@@ -270,9 +270,9 @@ export default function AdminTaskDetailPage({
                     setUnassignError(null);
                     setIsUnassignModalOpen(true);
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-rose-300 text-rose-700 rounded-lg bg-rose-50 hover:bg-rose-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium border border-rose-300 text-rose-700 rounded-lg bg-rose-50 hover:bg-rose-100 transition-colors"
                 >
-                  <UserX className="w-4 h-4" /> Unassign Intern
+                  <UserX className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> Unassign
                 </button>
 
                 <button
@@ -280,24 +280,24 @@ export default function AdminTaskDetailPage({
                     setTransferError(null);
                     setIsTransferModalOpen(true);
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-purple-300 text-purple-700 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium border border-purple-300 text-purple-700 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors"
                 >
-                  <ArrowRightLeft className="w-4 h-4" /> Transfer Task
+                  <ArrowRightLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> Transfer
                 </button>
               </>
             )}
 
             <button
               onClick={handleToggleArchive}
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium border border-slate-300 rounded-lg bg-white hover:bg-slate-50"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-medium border border-slate-300 rounded-lg bg-white hover:bg-slate-50"
             >
               {task.isArchived ? (
                 <>
-                  <RotateCcw className="w-4 h-4 text-blue-600" /> Restore / Unarchive Task
+                  <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 shrink-0" /> Restore
                 </>
               ) : (
                 <>
-                  <Archive className="w-4 h-4 text-slate-500" /> Archive Task
+                  <Archive className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 shrink-0" /> Archive
                 </>
               )}
             </button>
@@ -305,7 +305,7 @@ export default function AdminTaskDetailPage({
         </div>
 
         {/* Task Overview Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-6">
+        <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-4 sm:space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <span

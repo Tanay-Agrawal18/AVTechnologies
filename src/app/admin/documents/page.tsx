@@ -168,10 +168,10 @@ export default function AdminDocumentsPage() {
         description="Issue verified offer letters and completion certificates with immutable hashes and PDF rendering"
       />
 
-      <main className="p-8 space-y-6">
+      <main className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
         {issueMessage && (
           <div
-            className={`p-4 rounded-xl text-sm flex items-center justify-between ${
+            className={`p-3 sm:p-4 rounded-xl text-xs sm:text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 ${
               issueMessage.type === "success"
                 ? "bg-emerald-50 border border-emerald-200 text-emerald-900"
                 : "bg-rose-50 border border-rose-200 text-rose-800"
@@ -179,9 +179,9 @@ export default function AdminDocumentsPage() {
           >
             <div className="flex items-center gap-2">
               {issueMessage.type === "success" ? (
-                <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 shrink-0" />
               ) : (
-                <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
+                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-rose-600 shrink-0" />
               )}
               <span>{issueMessage.text}</span>
             </div>
@@ -191,7 +191,7 @@ export default function AdminDocumentsPage() {
                 href={issueMessage.downloadUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 shadow-sm"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 shadow-sm w-full sm:w-auto"
               >
                 <Download className="w-3.5 h-3.5" /> Download PDF Now
               </a>
@@ -199,11 +199,11 @@ export default function AdminDocumentsPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Issue Controls Card */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-5">
-            <h3 className="font-bold text-slate-900 text-base flex items-center gap-2 pb-3 border-b border-slate-100">
-              <Award className="w-5 h-5 text-blue-600" /> Issue New Document
+          <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-4 sm:space-y-5">
+            <h3 className="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2 pb-2.5 sm:pb-3 border-b border-slate-100">
+              <Award className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 shrink-0" /> Issue New Document
             </h3>
 
             <div>
@@ -257,31 +257,31 @@ export default function AdminDocumentsPage() {
               </span>
             </div>
 
-            <div className="pt-2 flex gap-3">
+            <div className="pt-2 flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={handlePreview}
                 disabled={!selectedTemplateId || !selectedInternId}
-                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50"
               >
-                <Eye className="w-4 h-4" /> Live Preview
+                <Eye className="w-4 h-4 shrink-0" /> Live Preview
               </button>
               <button
                 type="button"
                 onClick={handleIssue}
                 disabled={!selectedTemplateId || !selectedInternId || isIssuing}
-                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 shadow-sm disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-blue-600 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-blue-700 shadow-sm disabled:opacity-50"
               >
-                <Printer className="w-4 h-4" />
+                <Printer className="w-4 h-4 shrink-0" />
                 {isIssuing ? "Generating..." : "Generate & Sign PDF"}
               </button>
             </div>
           </div>
 
           {/* Template Details & Placeholder Guide */}
-          <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-4">
-            <h3 className="font-bold text-slate-900 text-base flex items-center gap-2 pb-3 border-b border-slate-100">
-              <FileText className="w-5 h-5 text-indigo-600" /> Template Structure & Placeholders
+          <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-3 sm:space-y-4">
+            <h3 className="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2 pb-2.5 sm:pb-3 border-b border-slate-100">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 shrink-0" /> Template Structure & Placeholders
             </h3>
 
             {selectedTemplate ? (

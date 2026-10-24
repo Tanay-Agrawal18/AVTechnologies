@@ -128,6 +128,7 @@ export function InternSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setIsOpen(false)}
               className={cn(
                 "group relative flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors",
                 isActive
