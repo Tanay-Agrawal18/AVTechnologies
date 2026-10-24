@@ -7,7 +7,7 @@ import { SessionUser } from "@/types";
 export interface CreateInternInput {
   name: string;
   email: string;
-  internId: string;
+  internId?: string;
   department?: string;
   startDate?: string;
   endDate?: string;
@@ -27,6 +27,50 @@ export class UserService {
     const rawToken = crypto.randomBytes(32).toString("hex");
     const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
     return { token: rawToken, hashedToken };
+  }
+
+  static async generateNextInternId(): Promise<string> {
+    await connectDB();
+    const currentYear = new Date().getFullYear();
+    const prefix = `AV-${currentYear}-`;
+
+    // Fetch all interns who have an internId
+    const interns = await User.find(
+      { role: "intern", internId: { $exists: true, $ne: "" } },
+      { internId: 1 }
+    ).lean();
+
+    let maxNum = 0;
+    for (const intern of interns) {
+      if (!intern.internId) continue;
+      // Match AV-YYYY-XXX or AV-XXX
+      const matchYear = intern.internId.match(new RegExp(`^AV-${currentYear}-(\\d+)$`, "i"));
+      if (matchYear) {
+        const num = parseInt(matchYear[1], 10);
+        if (!isNaN(num) && num > maxNum) {
+          maxNum = num;
+        }
+      } else {
+        const matchShort = intern.internId.match(/^AV-(\d+)$/i);
+        if (matchShort) {
+          const num = parseInt(matchShort[1], 10);
+          if (!isNaN(num) && num > maxNum) {
+            maxNum = num;
+          }
+        }
+      }
+    }
+
+    let nextNum = maxNum + 1;
+    let candidate = `${prefix}${String(nextNum).padStart(3, "0")}`;
+
+    // Ensure uniqueness in case of race condition or custom formatted ids
+    while (await User.exists({ internId: candidate })) {
+      nextNum++;
+      candidate = `${prefix}${String(nextNum).padStart(3, "0")}`;
+    }
+
+    return candidate;
   }
 
   static async authenticateUser(email: string, password: string): Promise<SessionUser | null> {
@@ -69,9 +113,11 @@ export class UserService {
       throw new Error(`Email ${data.email} is already in use`);
     }
 
-    const existingInternId = await User.findOne({ internId: data.internId });
+    const assignedInternId = data.internId?.trim() || (await this.generateNextInternId());
+
+    const existingInternId = await User.findOne({ internId: assignedInternId });
     if (existingInternId) {
-      throw new Error(`Intern ID ${data.internId} already exists`);
+      throw new Error(`Intern ID ${assignedInternId} already exists`);
     }
 
     const { token, hashedToken } = this.generateSecureToken();
@@ -82,7 +128,7 @@ export class UserService {
       email: data.email.toLowerCase(),
       role: "intern",
       status: "pending_setup",
-      internId: data.internId,
+      internId: assignedInternId,
       department: data.department,
       startDate: data.startDate,
       endDate: data.endDate,
