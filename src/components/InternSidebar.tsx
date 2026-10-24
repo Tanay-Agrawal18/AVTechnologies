@@ -40,19 +40,21 @@ export function InternSidebar() {
 
   return (
     <>
-      {/* Mobile Toggle Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle navigation menu"
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg shadow-sm"
-        style={{
-          background: "var(--iwms-white)",
-          border: "1px solid var(--iwms-border)",
-          color: "var(--iwms-navy)",
-        }}
-      >
-        {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-      </button>
+      {/* Mobile hamburger — only shows when sidebar is closed */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          aria-label="Open navigation menu"
+          className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg shadow-sm"
+          style={{
+            background: "var(--iwms-white)",
+            border: "1px solid var(--iwms-border)",
+            color: "var(--iwms-navy)",
+          }}
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      )}
 
       {/* Backdrop for mobile */}
       {isOpen && (
@@ -72,32 +74,42 @@ export function InternSidebar() {
       >
         {/* Brand */}
         <div
-          className="px-6 py-5 flex items-center gap-3"
+          className="px-4 py-4 flex items-center gap-3"
           style={{ borderBottom: "1px solid var(--iwms-border)" }}
         >
-        {/* Logo mark */}
-        <div
-          className="h-10 w-10 rounded-xl flex items-center justify-center text-white font-bold text-sm tracking-tight shadow-xs flex-shrink-0"
-          style={{ background: "#38BDF8" }}
-        >
-          IW
-        </div>
+          {/* Logo mark */}
+          <div
+            className="h-9 w-9 rounded-xl flex items-center justify-center text-white font-bold text-sm tracking-tight shadow-xs flex-shrink-0"
+            style={{ background: "#38BDF8" }}
+          >
+            IW
+          </div>
 
-        <div>
-          <h1
-            className="font-bold text-sm tracking-tight leading-none"
+          <div className="flex-1 min-w-0">
+            <h1
+              className="font-bold text-sm tracking-tight leading-none"
+              style={{ color: "var(--iwms-navy)" }}
+            >
+              IWMS Portal
+            </h1>
+            <span
+              className="text-xs font-normal inline-flex items-center gap-1 mt-1"
+              style={{ color: "rgba(11,31,58,0.50)" }}
+            >
+              Intern Workspace
+            </span>
+          </div>
+
+          {/* Close button — right side, mobile only */}
+          <button
+            onClick={() => setIsOpen(false)}
+            aria-label="Close navigation menu"
+            className="lg:hidden ml-auto p-1.5 rounded-lg transition-colors hover:bg-slate-100 flex-shrink-0"
             style={{ color: "var(--iwms-navy)" }}
           >
-            IWMS Portal
-          </h1>
-          <span
-            className="text-xs font-normal inline-flex items-center gap-1 mt-1"
-            style={{ color: "rgba(11,31,58,0.50)" }}
-          >
-            Intern Workspace
-          </span>
+            <X className="w-4 h-4" />
+          </button>
         </div>
-      </div>
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-0.5">
