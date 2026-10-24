@@ -210,11 +210,19 @@ export default function InternTasksPage() {
                     href={`/intern/tasks/${task._id}`}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold text-white transition-all shadow-xs hover:opacity-90 shrink-0"
                     style={{
-                      background: "#1D6CE5",
+                      background: task.status === "approved" ? "#10b981" : "#1D6CE5",
                       borderRadius: "7px",
                     }}
                   >
-                    View &amp; Submit <ArrowRight className="w-3 h-3" />
+                    {task.status === "assigned"
+                      ? "Start Task"
+                      : task.status === "approved"
+                      ? "View Submission"
+                      : task.status === "submitted"
+                      ? "View Status"
+                      : task.status === "changes_requested"
+                      ? "Review & Revise"
+                      : "Submit Work"} <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
               </div>

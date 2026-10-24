@@ -108,7 +108,9 @@ export default function AdminInternsPage() {
 
   const handleToggleStatus = async (intern: IUser) => {
     const nextStatus = intern.status === "active" ? "inactive" : "active";
-    const confirmMsg = `Are you sure you want to mark ${intern.name} as ${nextStatus}?`;
+    const confirmMsg = nextStatus === "inactive"
+      ? `Are you sure you want to deactivate ${intern.name}? They will not be able to log in to the dashboard or submit deliverables while inactive.`
+      : `Reactivate ${intern.name}? They will regain access to their assigned tasks and dashboard.`;
     if (!confirm(confirmMsg)) return;
 
     try {

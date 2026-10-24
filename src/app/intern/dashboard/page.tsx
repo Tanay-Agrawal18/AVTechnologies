@@ -41,14 +41,16 @@ export default function InternDashboardPage() {
   const submittedCount = tasks.filter((t) => t.status === "submitted").length;
   const approvedCount  = tasks.filter((t) => t.status === "approved").length;
   const changesCount   = tasks.filter((t) => t.status === "changes_requested").length;
+  const totalActive    = tasks.length;
 
-  const kpis: KpiCard[] = [
+  const kpis: (KpiCard & { href: string })[] = [
     {
-      label: "Assigned Tasks",
+      label: "To Do (Unstarted)",
       value: assignedCount,
-      sublabel: "Ready to be started",
+      sublabel: "Assigned, ready to start",
       accent: "var(--iwms-navy)",
       icon: ListTodo,
+      href: "/intern/tasks?status=assigned",
     },
     {
       label: "In Progress",
@@ -56,6 +58,7 @@ export default function InternDashboardPage() {
       sublabel: "Currently working on",
       accent: "var(--iwms-sky)",
       icon: TrendingUp,
+      href: "/intern/tasks?status=in_progress",
     },
     {
       label: "Under Review",
@@ -63,6 +66,7 @@ export default function InternDashboardPage() {
       sublabel: "Submitted to supervisor",
       accent: "#f59e0b",
       icon: Clock,
+      href: "/intern/tasks?status=submitted",
     },
     {
       label: "Approved",
@@ -70,6 +74,7 @@ export default function InternDashboardPage() {
       sublabel: "Successfully completed",
       accent: "#10b981",
       icon: CheckCircle,
+      href: "/intern/tasks?status=approved",
     },
   ];
 
@@ -81,14 +86,28 @@ export default function InternDashboardPage() {
       />
 
       <main className="p-3 sm:p-5 lg:p-8 space-y-3 sm:space-y-5 lg:space-y-8">
-        {/* ── KPI Strip ──────────────────────────────────────── */}
+        {/* ── Summary & KPI Strip ──────────────────────────────── */}
+        <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+          <p className="text-xs sm:text-sm font-semibold" style={{ color: "var(--iwms-navy)" }}>
+            Overview &bull; <span className="font-normal text-slate-500">{totalActive} total task{totalActive !== 1 ? "s" : ""} on your roster</span>
+          </p>
+          <Link
+            href="/intern/tasks"
+            className="text-xs font-semibold hover:underline inline-flex items-center gap-1"
+            style={{ color: "var(--iwms-sky)" }}
+          >
+            All Tasks ({totalActive}) <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
           {kpis.map((kpi) => {
             const Icon = kpi.icon;
             return (
-              <div
+              <Link
                 key={kpi.label}
-                className="iwms-card flex md:flex-col items-center md:items-start gap-3 px-3 py-3 md:p-5"
+                href={kpi.href}
+                className="iwms-card flex md:flex-col items-center md:items-start gap-3 px-3 py-3 md:p-5 transition-transform hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
                 style={{ borderRadius: "12px" }}
               >
                 {/* Icon badge */}
@@ -102,25 +121,26 @@ export default function InternDashboardPage() {
                 {/* Text group */}
                 <div className="min-w-0 flex-1 md:w-full">
                   <p
-                    className="text-[10px] font-bold uppercase tracking-wide leading-tight"
-                    style={{ color: "rgba(11,31,58,.45)" }}
+                    className="text-[10px] font-bold uppercase tracking-wide leading-tight truncate"
+                    style={{ color: "rgba(11,31,58,.55)" }}
+                    title={kpi.label}
                   >
                     {kpi.label}
                   </p>
                   <p
-                    className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight"
+                    className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight mt-0.5"
                     style={{ color: kpi.accent }}
                   >
-                    {kpi.value}
+                    {isLoading ? "…" : kpi.value}
                   </p>
                   <p
-                    className="hidden sm:block text-[10px] leading-tight mt-0.5"
-                    style={{ color: "rgba(11,31,58,.40)" }}
+                    className="hidden sm:block text-[10px] leading-tight mt-0.5 truncate"
+                    style={{ color: "rgba(11,31,58,.45)" }}
                   >
                     {kpi.sublabel}
                   </p>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -236,7 +256,13 @@ export default function InternDashboardPage() {
                         color: "var(--iwms-sky)",
                       }}
                     >
-                      Open <ArrowRight className="w-3 h-3" />
+                      {task.status === "assigned"
+                        ? "Start Task"
+                        : task.status === "approved"
+                        ? "View Result"
+                        : task.status === "submitted"
+                        ? "View Status"
+                        : "Open"} <ArrowRight className="w-3 h-3" />
                     </Link>
                   </div>
 

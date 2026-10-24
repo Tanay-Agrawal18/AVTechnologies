@@ -97,7 +97,7 @@ export default function AdminDashboardPage() {
               {isLoading ? "..." : kpis?.inProgress ?? 0}
             </p>
             <div className="mt-2 text-xs flex items-center justify-between" style={{ color: "rgba(11,31,58,0.55)" }}>
-              <span className="truncate">{kpis?.assigned ?? 0} assigned</span>
+              <span className="truncate">Active work ({kpis?.assigned ?? 0} unstarted)</span>
               <Link href="/admin/tasks?status=in_progress" className="font-semibold inline-flex items-center hover:underline shrink-0" style={{ color: "#0284C7" }}>
                 Filter <ArrowUpRight className="w-3 h-3 ml-0.5" />
               </Link>
