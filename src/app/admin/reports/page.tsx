@@ -92,44 +92,44 @@ export default function AdminReportsPage() {
         description="Comprehensive operational reporting, lifecycle telemetry, and CSV data exports"
       />
 
-      <main className="p-8 space-y-8">
+      <main className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 lg:space-y-8">
         {/* KPI Strip */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-xl border border-slate-200">
-            <span className="text-xs font-semibold text-slate-500 uppercase">Active Interns</span>
-            <p className="text-2xl font-extrabold text-slate-900 mt-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Active Interns</span>
+            <p className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1 sm:mt-2">
               {kpis?.activeInterns ?? 0}
             </p>
           </div>
-          <div className="bg-white p-5 rounded-xl border border-slate-200">
-            <span className="text-xs font-semibold text-slate-500 uppercase">In Progress Tasks</span>
-            <p className="text-2xl font-extrabold text-indigo-600 mt-2">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">In Progress Tasks</span>
+            <p className="text-xl sm:text-2xl font-extrabold text-indigo-600 mt-1 sm:mt-2">
               {kpis?.inProgress ?? 0}
             </p>
           </div>
-          <div className="bg-white p-5 rounded-xl border border-slate-200">
-            <span className="text-xs font-semibold text-slate-500 uppercase">Approved Deliverables</span>
-            <p className="text-2xl font-extrabold text-emerald-600 mt-2">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Approved</span>
+            <p className="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-1 sm:mt-2">
               {kpis?.approved ?? 0}
             </p>
           </div>
-          <div className="bg-white p-5 rounded-xl border border-slate-200">
-            <span className="text-xs font-semibold text-slate-500 uppercase">Overdue Tasks</span>
-            <p className="text-2xl font-extrabold text-rose-600 mt-2">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Overdue Tasks</span>
+            <p className="text-xl sm:text-2xl font-extrabold text-rose-600 mt-1 sm:mt-2">
               {kpis?.overdue ?? 0}
             </p>
           </div>
         </div>
 
         {/* Filter Controls & CSV Export Bar */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <h3 className="font-bold text-slate-900 text-base">Report Customization & Export</h3>
+        <div className="bg-white rounded-xl border border-slate-200 p-3.5 sm:p-5 space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h3 className="font-bold text-slate-900 text-sm sm:text-base">Report Customization & Export</h3>
             <button
               onClick={handleExportCSV}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-colors shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-slate-900 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-slate-800 transition-colors shadow-sm w-full sm:w-auto"
             >
-              <Download className="w-4 h-4" /> Export Report to CSV
+              <Download className="w-4 h-4 shrink-0" /> Export CSV
             </button>
           </div>
 

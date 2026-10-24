@@ -199,13 +199,13 @@ export default function AdminInternsPage() {
         description="Create individual intern accounts, monitor onboarding statuses, and manage access"
       />
 
-      <main className="p-8 space-y-6">
+      <main className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
         {copiedLink && (
-          <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium flex items-center justify-between">
-            <span>{copiedLink}</span>
+          <div className="p-3 sm:p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-medium flex items-center justify-between gap-2">
+            <span className="truncate">{copiedLink}</span>
             <button
               onClick={() => setCopiedLink(null)}
-              className="text-emerald-600 hover:text-emerald-800 text-xs"
+              className="text-emerald-600 hover:text-emerald-800 text-xs shrink-0"
             >
               Dismiss
             </button>
@@ -213,8 +213,8 @@ export default function AdminInternsPage() {
         )}
 
         {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200">
-          <form onSubmit={handleSearchSubmit} className="flex items-center gap-3 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200">
+          <form onSubmit={handleSearchSubmit} className="flex flex-col xs:flex-row sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <div className="relative flex-1 sm:w-72">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
@@ -222,33 +222,35 @@ export default function AdminInternsPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search name, email, ID..."
-                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            >
-              <option value="all">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="pending_setup">Pending Setup</option>
-            </select>
-            <button
-              type="submit"
-              className="px-3 py-2 text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg"
-            >
-              Search
-            </button>
+            <div className="flex items-center gap-2">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="flex-1 xs:flex-none px-2.5 py-2 text-xs sm:text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                <option value="all">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="pending_setup">Pending Setup</option>
+              </select>
+              <button
+                type="submit"
+                className="px-3 py-2 text-xs sm:text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg"
+              >
+                Search
+              </button>
+            </div>
           </form>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
             <Link
               href="/admin/import"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-center"
             >
-              <FileSpreadsheet className="w-4 h-4 text-slate-500" /> Bulk Import
+              <FileSpreadsheet className="w-4 h-4 text-slate-500 shrink-0" /> Bulk Import
             </Link>
             <button
               onClick={() => {
@@ -256,9 +258,9 @@ export default function AdminInternsPage() {
                 setModalError(null);
                 setModalSuccessLink(null);
               }}
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm text-center"
             >
-              <UserPlus className="w-4 h-4" /> Add Intern
+              <UserPlus className="w-4 h-4 shrink-0" /> Add Intern
             </button>
           </div>
         </div>
@@ -415,7 +417,7 @@ export default function AdminInternsPage() {
               </div>
             ) : (
               <form onSubmit={handleCreateIntern} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
                       Full Name *
@@ -471,7 +473,7 @@ export default function AdminInternsPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
                       Start Date
