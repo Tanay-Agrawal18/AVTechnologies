@@ -33,7 +33,7 @@ export function DashboardHeader({ title, description }: HeaderProps) {
 
   return (
     <header
-      className="px-4 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-5 transition-all"
+      className="px-3 py-2.5 sm:px-5 sm:py-3.5 lg:px-8 lg:py-5 transition-all"
       style={{
         background: "var(--iwms-white)",
         borderBottom: "1px solid var(--iwms-border)",
@@ -47,7 +47,7 @@ export function DashboardHeader({ title, description }: HeaderProps) {
           
           <div className="min-w-0 flex-1">
             <h1
-              className="text-lg sm:text-xl lg:text-2xl font-bold tracking-tight truncate leading-tight"
+              className="text-base sm:text-xl lg:text-2xl font-bold tracking-tight truncate leading-tight"
               style={{ color: "var(--iwms-navy)" }}
               title={title}
             >

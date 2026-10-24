@@ -80,46 +80,46 @@ export default function InternDashboardPage() {
         description="Your assigned assignments, current deliverable statuses, and pending tasks"
       />
 
-      <main className="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
+      <main className="p-3 sm:p-5 lg:p-8 space-y-3 sm:space-y-5 lg:space-y-8">
         {/* ── KPI Strip ──────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
           {kpis.map((kpi) => {
             const Icon = kpi.icon;
             return (
               <div
                 key={kpi.label}
-                className="iwms-card p-5 flex flex-col gap-3"
-                style={{ borderRadius: "14px" }}
+                className="iwms-card flex md:flex-col items-center md:items-start gap-3 px-3 py-3 md:p-5"
+                style={{ borderRadius: "12px" }}
               >
-                <div className="flex items-center justify-between">
-                  <span
-                    className="text-xs font-bold uppercase tracking-wider"
-                    style={{ color: "rgba(11,31,58,.50)" }}
+                {/* Icon badge */}
+                <span
+                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                  style={{ background: `${kpi.accent}18` }}
+                >
+                  <Icon className="w-4 h-4" style={{ color: kpi.accent }} />
+                </span>
+
+                {/* Text group */}
+                <div className="min-w-0 flex-1 md:w-full">
+                  <p
+                    className="text-[10px] font-bold uppercase tracking-wide leading-tight"
+                    style={{ color: "rgba(11,31,58,.45)" }}
                   >
                     {kpi.label}
-                  </span>
-                  <span
-                    className="w-8 h-8 rounded-lg flex items-center justify-center"
-                    style={{ background: `${kpi.accent}18` }}
+                  </p>
+                  <p
+                    className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight"
+                    style={{ color: kpi.accent }}
                   >
-                    <Icon
-                      className="w-4 h-4"
-                      style={{ color: kpi.accent }}
-                    />
-                  </span>
+                    {kpi.value}
+                  </p>
+                  <p
+                    className="hidden sm:block text-[10px] leading-tight mt-0.5"
+                    style={{ color: "rgba(11,31,58,.40)" }}
+                  >
+                    {kpi.sublabel}
+                  </p>
                 </div>
-                <p
-                  className="text-3xl font-extrabold leading-none"
-                  style={{ color: kpi.accent }}
-                >
-                  {kpi.value}
-                </p>
-                <p
-                  className="text-xs"
-                  style={{ color: "rgba(11,31,58,.40)" }}
-                >
-                  {kpi.sublabel}
-                </p>
               </div>
             );
           })}
@@ -128,36 +128,35 @@ export default function InternDashboardPage() {
         {/* ── Changes-requested alert ────────────────────────── */}
         {changesCount > 0 && (
           <div
-            className="iwms-card flex items-center justify-between gap-4 px-5 py-4"
+            className="iwms-card flex items-start sm:items-center justify-between gap-3 px-3.5 py-3"
             style={{
-              borderRadius: "12px",
+              borderRadius: "10px",
               borderLeft: "3px solid #ef4444",
               background: "rgba(239,68,68,.04)",
             }}
           >
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-              <div>
+            <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5 sm:mt-0" />
+              <div className="min-w-0">
                 <p
-                  className="font-semibold text-sm"
+                  className="font-semibold text-xs sm:text-sm leading-tight"
                   style={{ color: "#991b1b" }}
                 >
-                  {changesCount} task{changesCount > 1 ? "s" : ""}{" "}
-                  require{changesCount === 1 ? "s" : ""} revisions!
+                  {changesCount} task{changesCount > 1 ? "s" : ""} require{changesCount === 1 ? "s" : ""} revisions!
                 </p>
                 <p
-                  className="text-xs mt-0.5"
+                  className="text-[10px] sm:text-xs mt-0.5 leading-tight"
                   style={{ color: "#b91c1c" }}
                 >
-                  Supervisor has provided feedback. Please review and revise.
+                  Supervisor feedback pending review.
                 </p>
               </div>
             </div>
             <Link
               href="/intern/tasks?status=changes_requested"
-              className="text-xs font-bold text-red-700 hover:underline inline-flex items-center gap-1 whitespace-nowrap"
+              className="text-[10px] sm:text-xs font-bold text-red-700 hover:underline inline-flex items-center gap-0.5 whitespace-nowrap shrink-0"
             >
-              View Feedback <ArrowRight className="w-3.5 h-3.5" />
+              View <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
         )}
@@ -165,50 +164,50 @@ export default function InternDashboardPage() {
         {/* ── Current Assigned Tasks table ───────────────────── */}
         <div
           className="iwms-card overflow-hidden"
-          style={{ borderRadius: "14px" }}
+          style={{ borderRadius: "12px" }}
         >
           {/* Table header */}
           <div
-            className="px-6 py-4 flex items-center justify-between"
+            className="px-4 sm:px-5 py-3 flex items-center justify-between"
             style={{ borderBottom: "1px solid var(--iwms-border)" }}
           >
             <h3
-              className="font-bold text-base"
+              className="font-bold text-sm sm:text-base"
               style={{ color: "var(--iwms-black)" }}
             >
-              Current Assigned Tasks
+              Current Tasks
             </h3>
             <Link
               href="/intern/tasks"
-              className="text-xs font-semibold hover:underline"
+              className="text-[11px] sm:text-xs font-semibold hover:underline inline-flex items-center gap-0.5"
               style={{ color: "var(--iwms-sky)" }}
             >
-              View All Tasks →
+              View All <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
 
           <div>
             {isLoading ? (
               <div
-                className="p-8 text-center text-sm"
+                className="p-6 text-center text-xs sm:text-sm"
                 style={{ color: "rgba(11,31,58,.45)" }}
               >
                 Loading tasks…
               </div>
             ) : tasks.length === 0 ? (
-              <div className="p-10 text-center">
+              <div className="py-8 text-center">
                 <CheckSquare
-                  className="w-10 h-10 mx-auto mb-2"
+                  className="w-8 h-8 mx-auto mb-2"
                   style={{ color: "rgba(56,189,248,.3)" }}
                 />
                 <p
-                  className="font-semibold text-sm"
+                  className="font-semibold text-xs sm:text-sm"
                   style={{ color: "var(--iwms-navy)" }}
                 >
                   No active tasks
                 </p>
                 <p
-                  className="text-xs mt-1"
+                  className="text-[10px] sm:text-xs mt-1"
                   style={{ color: "rgba(11,31,58,.4)" }}
                 >
                   You are all caught up!
@@ -218,57 +217,47 @@ export default function InternDashboardPage() {
               tasks.slice(0, 5).map((task) => (
                 <div
                   key={task._id}
-                  className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-sky-50/40"
+                  className="px-4 sm:px-5 py-3 flex flex-col gap-2 transition-colors hover:bg-sky-50/40"
                   style={{ borderBottom: "1px solid var(--iwms-border)" }}
                 >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span
-                        className="font-bold text-sm"
-                        style={{ color: "var(--iwms-black)" }}
-                      >
-                        {task.title}
-                      </span>
-                      <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize ${getStatusBadgeClass(
-                          task.status
-                        )}`}
-                      >
-                        {task.status.replace("_", " ")}
-                      </span>
-                      <span
-                        className={`inline-block px-2 py-0.5 rounded text-xs font-semibold uppercase ${getPriorityBadgeClass(
-                          task.priority
-                        )}`}
-                      >
-                        {task.priority}
-                      </span>
-                    </div>
-                    <p
-                      className="text-xs line-clamp-1 max-w-xl"
-                      style={{ color: "rgba(11,31,58,.50)" }}
+                  {/* Row 1: title + badges */}
+                  <div className="flex items-start justify-between gap-2">
+                    <span
+                      className="font-semibold text-xs sm:text-sm leading-tight"
+                      style={{ color: "var(--iwms-black)" }}
                     >
-                      {task.description}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-3 text-xs flex-shrink-0">
-                    <span style={{ color: "rgba(11,31,58,.50)" }}>
-                      Due:{" "}
-                      <strong style={{ color: "var(--iwms-black)" }}>
-                        {formatDate(task.dueDate)}
-                      </strong>
+                      {task.title}
                     </span>
                     <Link
                       href={`/intern/tasks/${task._id}`}
-                      className="px-3.5 py-1.5 rounded-lg font-semibold transition-colors inline-flex items-center gap-1"
+                      className="px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-semibold transition-colors inline-flex items-center gap-1 shrink-0"
                       style={{
                         background: "rgba(56,189,248,.12)",
                         color: "var(--iwms-sky)",
                       }}
                     >
-                      Open Task <ArrowRight className="w-3.5 h-3.5" />
+                      Open <ArrowRight className="w-3 h-3" />
                     </Link>
+                  </div>
+
+                  {/* Row 2: badges + due date */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium border capitalize ${getStatusBadgeClass(task.status)}`}
+                    >
+                      {task.status.replace("_", " ")}
+                    </span>
+                    <span
+                      className={`inline-block px-1.5 py-0.5 rounded text-[10px] sm:text-xs font-semibold uppercase ${getPriorityBadgeClass(task.priority)}`}
+                    >
+                      {task.priority}
+                    </span>
+                    <span
+                      className="ml-auto text-[10px] sm:text-xs"
+                      style={{ color: "rgba(11,31,58,.50)" }}
+                    >
+                      Due <strong style={{ color: "var(--iwms-black)" }}>{formatDate(task.dueDate)}</strong>
+                    </span>
                   </div>
                 </div>
               ))
