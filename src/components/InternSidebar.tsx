@@ -83,10 +83,13 @@ export function InternSidebar() {
         >
           {/* Logo mark */}
           <div
-            className="h-9 w-9 rounded-xl flex items-center justify-center text-white font-bold text-sm tracking-tight shadow-xs flex-shrink-0"
-            style={{ background: "#38BDF8" }}
+            className="h-9 w-9 rounded-xl flex items-center justify-center p-1 bg-white shadow-xs flex-shrink-0 border border-slate-200 overflow-hidden"
           >
-            V
+            <img
+              src="/icons/icon-192.png"
+              alt="Vyorai"
+              className="w-full h-full object-contain"
+            />
           </div>
 
           <div className="flex-1 min-w-0">

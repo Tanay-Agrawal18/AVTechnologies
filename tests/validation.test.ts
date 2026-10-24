@@ -21,6 +21,13 @@ describe("Validation Schemas & Boundaries", () => {
       department: "Engineering",
     });
     expect(valid.success).toBe(true);
+
+    const validAutoId = CreateInternSchema.safeParse({
+      name: "Bob Builder",
+      email: "bob@company.com",
+      department: "Engineering",
+    });
+    expect(validAutoId.success).toBe(true);
   });
 
   it("enforces strong password policy on account setup", () => {

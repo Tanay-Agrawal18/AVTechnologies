@@ -211,10 +211,10 @@ export class ImportService {
       }
 
       try {
-        const { activationToken } = await UserService.createIntern({
+        const { intern, activationToken } = await UserService.createIntern({
           name: row.name,
           email: row.email,
-          internId: row.internId,
+          internId: row.internId || undefined,
           department: row.department,
           startDate: row.startDate,
           endDate: row.endDate,
@@ -225,7 +225,7 @@ export class ImportService {
         createdInterns.push({
           name: row.name,
           email: row.email,
-          internId: row.internId,
+          internId: intern.internId || row.internId,
           activationLink,
         });
       } catch (err: unknown) {

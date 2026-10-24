@@ -13,6 +13,13 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
+    pathname.startsWith("/icons/") ||
+    pathname === "/sw.js" ||
+    pathname === "/manifest.json" ||
+    pathname === "/manifest.webmanifest" ||
+    pathname === "/offline.html" ||
+    pathname === "/apple-touch-icon.png" ||
+    pathname === "/image.png" ||
     pathname === "/login" ||
     pathname === "/setup-password" ||
     pathname.startsWith("/api/health") ||

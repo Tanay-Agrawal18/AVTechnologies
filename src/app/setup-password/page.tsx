@@ -155,8 +155,12 @@ export default function SetupPasswordPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-blue-600 text-white shadow-md mb-4">
-          <ShieldCheck className="h-6 w-6" />
+        <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-white p-2 shadow-sm border border-slate-200 mb-4 overflow-hidden">
+          <img
+            src="/icons/icon-192.png"
+            alt="Vyorai"
+            className="w-full h-full object-contain"
+          />
         </div>
         <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
           Account Setup

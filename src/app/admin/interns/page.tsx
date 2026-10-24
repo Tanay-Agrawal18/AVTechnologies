@@ -28,7 +28,6 @@ export default function AdminInternsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [internId, setInternId] = useState("");
   const [department, setDepartment] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -89,7 +88,6 @@ export default function AdminInternsPage() {
         body: JSON.stringify({
           name,
           email,
-          internId,
           department: department || undefined,
           startDate: startDate || undefined,
           endDate: endDate || undefined,
@@ -406,7 +404,6 @@ export default function AdminInternsPage() {
                       setIsModalOpen(false);
                       setName("");
                       setEmail("");
-                      setInternId("");
                       setDepartment("");
                     }}
                     className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800"
@@ -417,33 +414,18 @@ export default function AdminInternsPage() {
               </div>
             ) : (
               <form onSubmit={handleCreateIntern} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g. Maya Patel"
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Intern ID *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={internId}
-                      onChange={(e) => setInternId(e.target.value)}
-                      placeholder="e.g. AV-001 or AV-2026-001"
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g. Maya Patel"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
                 </div>
 
                 <div>
