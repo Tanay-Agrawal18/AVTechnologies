@@ -42,10 +42,10 @@ export default function LoginPage() {
     <div className="min-h-screen iwms-workspace flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8" style={{ background: "var(--iwms-bg)" }}>
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <div
-          className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-white p-2 shadow-sm border border-slate-200/80 mb-4 overflow-hidden"
+          className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-white p-1 shadow-sm border border-slate-200/80 mb-4 overflow-hidden"
         >
           <img
-            src="/icons/icon-192.png"
+            src="/image.png"
             alt="Vyorai"
             className="w-full h-full object-contain"
           />

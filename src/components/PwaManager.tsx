@@ -128,9 +128,9 @@ export default function PwaManager() {
           className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-md z-50 bg-[#0B1F3A] text-white p-4 rounded-2xl shadow-2xl border border-sky-400/20 backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-300"
         >
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white p-1 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-white p-0.5 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
               <img
-                src="/icons/icon-192.png"
+                src="/image.png"
                 alt="Vyorai App Icon"
                 className="w-full h-full object-contain"
               />
