@@ -140,26 +140,48 @@ export default function AdminImportPage() {
 
       <main className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
         {/* Instructions & Template Downloads */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
-          <div>
-            <h3 className="font-bold text-slate-900 text-sm sm:text-base">Standardized Import Formats</h3>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
-              Ensure headers match the template. Plaintext passwords are strictly rejected; each intern will be provisioned with an individual, one-time expiring activation link.
-            </p>
+        <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 space-y-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
+            <div>
+              <h3 className="font-bold text-slate-900 text-sm sm:text-base">Standardized Import Formats</h3>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
+                Upload a CSV or Excel spreadsheet. Plaintext passwords are strictly rejected; each intern will be provisioned with an individual, one-time expiring activation link.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 w-full md:w-auto">
+              <a
+                href="/api/admin/import?format=csv"
+                className="inline-flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-center"
+              >
+                <Download className="w-4 h-4 text-slate-500 shrink-0" /> Download CSV Template
+              </a>
+              <a
+                href="/api/admin/import?format=xlsx"
+                className="inline-flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-center"
+              >
+                <Download className="w-4 h-4 text-slate-500 shrink-0" /> Download XLSX Template
+              </a>
+            </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 w-full md:w-auto">
-            <a
-              href="/api/admin/import?format=csv"
-              className="inline-flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-center"
-            >
-              <Download className="w-4 h-4 text-slate-500 shrink-0" /> Download CSV
-            </a>
-            <a
-              href="/api/admin/import?format=xlsx"
-              className="inline-flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-center"
-            >
-              <Download className="w-4 h-4 text-slate-500 shrink-0" /> Download XLSX
-            </a>
+
+          {/* Required columns cheatsheet */}
+          <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs text-slate-600">
+            <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+              <span className="font-bold text-slate-900 block mb-0.5">name <span className="text-rose-500">*Required</span></span>
+              <span>Full legal name of the intern (min 2 chars).</span>
+            </div>
+            <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+              <span className="font-bold text-slate-900 block mb-0.5">email <span className="text-rose-500">*Required</span></span>
+              <span>Valid corporate or personal email (must be unique).</span>
+            </div>
+            <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+              <span className="font-bold text-slate-900 block mb-0.5">internId <span className="text-slate-400">Optional</span></span>
+              <span>Company ID starting with &apos;AV&apos; (e.g. AV-2026-001).</span>
+            </div>
+            <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+              <span className="font-bold text-slate-900 block mb-0.5">department <span className="text-slate-400">Optional</span></span>
+              <span>Assigned division (e.g. Engineering, Design).</span>
+            </div>
           </div>
         </div>
 

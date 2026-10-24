@@ -437,6 +437,30 @@ export default function InternTaskDetailPage({
               </div>
             )}
 
+            {/* Feedback alert when revisions are requested */}
+            {task.status === "changes_requested" && submissions.length > 0 && submissions[0].adminFeedback && (
+              <div
+                className="iwms-card p-4 rounded-xl space-y-1.5"
+                style={{
+                  borderLeft: "4px solid #ef4444",
+                  background: "rgba(239,68,68,.04)",
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <h4 className="text-xs sm:text-sm font-bold text-red-900">
+                    Supervisor Feedback for Revision
+                  </h4>
+                </div>
+                <p className="text-xs text-red-800 leading-relaxed pl-6">
+                  {submissions[0].adminFeedback}
+                </p>
+                <p className="text-[10px] text-red-700/80 pl-6">
+                  Please address this feedback and submit your revised deliverables below.
+                </p>
+              </div>
+            )}
+
             {canSubmit ? (
               <div className="iwms-card p-3.5 sm:p-6 space-y-3 sm:space-y-5" style={{ borderRadius: "14px" }}>
                 <div>
@@ -444,7 +468,7 @@ export default function InternTaskDetailPage({
                     {submissions.length > 0 ? "Submit Work Revision" : "Submit Deliverables"}
                   </h3>
                   <p className="text-[10px] sm:text-xs mt-0.5" style={{ color: "rgba(11,31,58,.50)" }}>
-                    Provide completion notes, repository/demo URLs, and upload documents.
+                    Provide completion notes, repository/demo URLs, and upload documents (Max 10MB per file).
                   </p>
                 </div>
 
@@ -510,14 +534,18 @@ export default function InternTaskDetailPage({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] sm:text-xs font-semibold mb-1" style={{ color: "var(--iwms-navy)" }}>
-                      Upload Private Files (PDF, ZIP, DOCX, Images)
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-[11px] sm:text-xs font-semibold" style={{ color: "var(--iwms-navy)" }}>
+                        Upload Private Files (PDF, ZIP, DOCX, XLSX, Images, TXT)
+                      </label>
+                      <span className="text-[10px] text-slate-400">Max 10MB</span>
+                    </div>
                     <div className="flex items-center gap-2.5">
                       <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-lg bg-white text-xs font-semibold transition-colors hover:bg-sky-50" style={{ border: "1px solid var(--iwms-border)", color: "var(--iwms-navy)" }}>
                         <Upload className="w-3.5 h-3.5" /> Select File
                         <input
                           type="file"
+                          accept=".pdf,.zip,.docx,.xlsx,.png,.jpg,.jpeg,.txt"
                           className="sr-only"
                           onChange={handleFileUpload}
                           disabled={isUploadingFile}
@@ -566,15 +594,42 @@ export default function InternTaskDetailPage({
                   </div>
                 </form>
               </div>
+            ) : task.status === "assigned" ? (
+              <div className="iwms-card p-4 sm:p-6 text-center space-y-3" style={{ borderRadius: "14px" }}>
+                <Clock className="w-6 h-6 sm:w-8 sm:h-8 mx-auto text-sky-600" />
+                <div>
+                  <h4 className="font-bold text-xs sm:text-sm" style={{ color: "var(--iwms-navy)" }}>
+                    Ready to Start Working?
+                  </h4>
+                  <p className="text-[11px] sm:text-xs mt-1 max-w-md mx-auto" style={{ color: "rgba(11,31,58,.55)" }}>
+                    This task is assigned to you and awaiting your kickoff. Click &ldquo;Start Working&rdquo; to transition the task into progress and unlock the deliverables submission form.
+                  </p>
+                </div>
+                <button
+                  onClick={handleStartTask}
+                  disabled={isUpdatingStatus}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-white shadow-sm transition-all hover:opacity-90"
+                  style={{ background: "#1D6CE5" }}
+                >
+                  <Play className="w-4 h-4" /> {isUpdatingStatus ? "Starting…" : "Start Working Now"}
+                </button>
+              </div>
             ) : (
               <div className="iwms-card p-4 sm:p-6 text-center" style={{ borderRadius: "14px" }}>
-                <Clock className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1.5 sm:mb-2" style={{ color: "rgba(56,189,248,.40)" }} />
+                {task.status === "approved" ? (
+                  <CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1.5 text-emerald-500" />
+                ) : (
+                  <Clock className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1.5 sm:mb-2" style={{ color: "rgba(56,189,248,.40)" }} />
+                )}
                 <p className="font-semibold text-xs sm:text-sm" style={{ color: "var(--iwms-navy)" }}>
-                  {task.status === "assigned"
-                    ? "Click 'Start Working' above to begin."
-                    : task.status === "submitted"
-                    ? "Deliverables submitted and currently under review."
-                    : "Task has been approved and completed!"}
+                  {task.status === "submitted"
+                    ? "Deliverables submitted and currently under supervisor review."
+                    : "Task has been approved and successfully completed!"}
+                </p>
+                <p className="text-[10px] sm:text-xs mt-1 text-slate-500">
+                  {task.status === "submitted"
+                    ? "Your supervisor has been notified. You will be able to review feedback or make revisions if requested."
+                    : "Great job! Your deliverables were verified and marked as complete."}
                 </p>
               </div>
             )}
