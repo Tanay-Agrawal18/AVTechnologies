@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from "vitest";
 import { CreateTaskSchema, ReviewSubmissionSchema, CreateProjectSchema } from "@/validators";
 import { ITask } from "@/types";
