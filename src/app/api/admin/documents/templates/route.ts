@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/apiAuth";
 import { connectDB } from "@/lib/db";
-import { DocumentTemplate } from "@/models/DocumentTemplate";
+import { DocumentTemplate, DocumentType } from "@/models/DocumentTemplate";
 import { IssuedDocument } from "@/models/IssuedDocument";
 import { AuditLog } from "@/models/AuditLog";
 import fs from "fs";
@@ -90,7 +90,10 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const name = formData.get("name") as string;
-    const type = (formData.get("type") as string) || "offer_letter";
+    const rawType = (formData.get("type") as string) || "offer_letter";
+    const type: DocumentType = ["offer_letter", "completion_certificate", "recommendation_letter"].includes(rawType)
+      ? (rawType as DocumentType)
+      : "offer_letter";
     const signatoryName = (formData.get("signatoryName") as string) || "Hritik Jaiswal";
     const signatoryTitle = (formData.get("signatoryTitle") as string) || "Founder & CEO — VYORAI";
 
@@ -117,7 +120,7 @@ export async function POST(req: NextRequest) {
     const targetPath = path.join(uploadDir, savedFilename);
     fs.writeFileSync(targetPath, buffer);
 
-    const newTemplate = await DocumentTemplate.create({
+    const newTemplate = (await DocumentTemplate.create({
       name,
       type,
       title: `${name} (v${versionNum})`,
@@ -129,7 +132,7 @@ export async function POST(req: NextRequest) {
       isActive: false, // Uploaded templates are inactive until tested & activated
       createdByAdminId: auth.user.id,
       content: `VyorAI Template v${versionNum}`,
-    });
+    })) as unknown as { _id: import("mongoose").Types.ObjectId };
 
     await AuditLog.create({
       action: "template_uploaded",
