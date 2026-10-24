@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline — Vyorai</title>
+  <style>
+    :root {
+      --iwms-navy: #0B1F3A;
+      --iwms-sky: #38BDF8;
+      --iwms-bg: #F5F8FF;
+      --iwms-text: #1E293B;
+      --iwms-muted: #64748B;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--iwms-bg);
+      color: var(--iwms-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+    .card {
+      background: #FFFFFF;
+      max-width: 440px;
+      width: 100%;
+      padding: 2.25rem 2rem;
+      border-radius: 1.25rem;
+      box-shadow: 0 10px 25px -5px rgba(11, 31, 58, 0.08), 0 8px 10px -6px rgba(11, 31, 58, 0.04);
+      border: 1px solid rgba(11, 31, 58, 0.08);
+      text-align: center;
+    }
+    .icon-wrapper {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.12);
+      color: #0284C7;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+    .icon-wrapper svg {
+      width: 32px;
+      height: 32px;
+      stroke-width: 2;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--iwms-navy);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    p {
+      color: var(--iwms-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 1.75rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 0.75rem 1.25rem;
+      background-color: var(--iwms-navy);
+      color: #FFFFFF;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 0.75rem;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+    }
+    .btn:hover {
+      background-color: #162e52;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--iwms-muted);
+      background: #F1F5F9;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #EF4444;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="icon-wrapper" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
+        <line x1="2" y1="2" x2="22" y2="22" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+    <h1>You are currently offline</h1>
+    <p>
+      Vyorai requires an internet connection to sync tasks, projects, submissions, and secure account updates. Check your Wi-Fi or cellular data and try again.
+    </p>
+    <button class="btn" onclick="window.location.reload()">
+      Retry Connection
+    </button>
+    <div>
+      <span class="status-badge">
+        <span class="status-dot"></span>
+        Waiting for network signal
+      </span>
+    </div>
+  </main>
+</body>
+</html>

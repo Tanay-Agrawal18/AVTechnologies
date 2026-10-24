@@ -42,10 +42,13 @@ export default function LoginPage() {
     <div className="min-h-screen iwms-workspace flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8" style={{ background: "var(--iwms-bg)" }}>
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <div
-          className="inline-flex items-center justify-center h-12 w-12 rounded-xl text-white shadow-sm mb-4"
-          style={{ background: "linear-gradient(135deg, #38BDF8 0%, #0EA5E9 100%)" }}
+          className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-white p-2 shadow-sm border border-slate-200/80 mb-4 overflow-hidden"
         >
-          <ShieldCheck className="h-6 w-6" />
+          <img
+            src="/icons/icon-192.png"
+            alt="Vyorai"
+            className="w-full h-full object-contain"
+          />
         </div>
         <h2 className="text-3xl font-extrabold tracking-tight" style={{ color: "var(--iwms-navy)" }}>
           Vyorai Login

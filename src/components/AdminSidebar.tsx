@@ -83,8 +83,12 @@ export function AdminSidebar() {
       >
         <div className="p-4 sm:p-6 border-b border-slate-800 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm shrink-0">
-              V
+            <div className="h-9 w-9 rounded-lg bg-white p-1 flex items-center justify-center shadow-xs shrink-0 overflow-hidden border border-slate-700/50">
+              <img
+                src="/icons/icon-192.png"
+                alt="Vyorai"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div className="min-w-0">
               <h1 className="font-bold text-white text-base tracking-tight leading-none truncate">
