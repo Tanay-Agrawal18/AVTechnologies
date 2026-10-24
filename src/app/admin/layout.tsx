@@ -10,11 +10,11 @@ export default function AdminLayout({
 }) {
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-900">
-      <Suspense fallback={<div className="w-64 bg-slate-900 min-h-screen" />}>
+      <Suspense fallback={<div className="hidden lg:block w-64 bg-slate-900 min-h-screen" />}>
         <AdminSidebar />
       </Suspense>
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <Suspense fallback={<div className="p-8 text-slate-500">Loading view...</div>}>
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto w-full">
+        <Suspense fallback={<div className="p-4 sm:p-8 text-slate-500">Loading view...</div>}>
           {children}
         </Suspense>
       </div>

@@ -34,29 +34,29 @@ export default function AdminDashboardPage() {
         description="Key performance indicators and operational task metrics across the organization"
       />
 
-      <main className="p-8 space-y-8">
+      <main className="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
         {/* Quick action buttons */}
-        <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200">
           <div>
             <h3 className="font-semibold text-slate-900">Operational Actions</h3>
             <p className="text-xs text-slate-500">Quickly create tasks or manage intern cohorts</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col xs:flex-row flex-wrap items-stretch xs:items-center gap-2 sm:gap-3">
             <Link
               href="/admin/import"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
             >
               <FileSpreadsheet className="w-4 h-4 text-slate-500" /> Bulk Import
             </Link>
             <Link
               href="/admin/interns"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
             >
               <Users className="w-4 h-4 text-slate-500" /> Manage Interns
             </Link>
             <Link
               href="/admin/tasks"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
             >
               <PlusCircle className="w-4 h-4" /> Create New Task
             </Link>
@@ -64,7 +64,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* KPI Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-slate-500">Active Interns</span>
@@ -141,7 +141,7 @@ export default function AdminDashboardPage() {
         {/* Operational Status Breakdown */}
         <div className="bg-white rounded-xl border border-slate-200 p-6">
           <h3 className="font-bold text-slate-900 text-lg mb-4">Task Lifecycle Overview</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 text-center">
               <span className="text-xs text-slate-500 uppercase font-semibold">Assigned</span>
               <p className="text-2xl font-bold text-slate-800 mt-1">{kpis?.assigned ?? 0}</p>

@@ -80,9 +80,9 @@ export default function InternDashboardPage() {
         description="Your assigned assignments, current deliverable statuses, and pending tasks"
       />
 
-      <main className="p-8 space-y-8">
+      <main className="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
         {/* ── KPI Strip ──────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
           {kpis.map((kpi) => {
             const Icon = kpi.icon;
             return (
@@ -252,7 +252,7 @@ export default function InternDashboardPage() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-4 text-xs flex-shrink-0">
+                  <div className="flex flex-wrap items-center gap-3 text-xs flex-shrink-0">
                     <span style={{ color: "rgba(11,31,58,.50)" }}>
                       Due:{" "}
                       <strong style={{ color: "var(--iwms-black)" }}>

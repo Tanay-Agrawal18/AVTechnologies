@@ -119,101 +119,170 @@ export default function InternProjectsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {projects.map((proj) => (
-              <div
-                key={proj._id}
-                className="iwms-card flex flex-col justify-between transition-shadow hover:shadow-md"
-                style={{
-                  padding: "1.5rem",
-                  borderRadius: "14px",
-                  borderLeft: "3.5px solid #0284C7",
-                }}
-              >
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${getStatusBadgeClass(
-                        proj.status
-                      )}`}
-                    >
-                      {proj.status.replace("_", " ")}
-                    </span>
-                    <span
-                      className="text-xs flex items-center gap-1"
-                      style={{ color: "rgba(11,31,58,.55)" }}
-                    >
-                      <Calendar className="w-3.5 h-3.5" style={{ color: "var(--iwms-sky)" }} /> Due {formatDate(proj.dueDate)}
-                    </span>
-                  </div>
+            {projects.map((proj) => {
+              const members = proj.teamMembers || [];
+              const visibleMembers = members.slice(0, 4);
+              const remainingCount = Math.max(0, members.length - 4);
 
-                  <div>
-                    <h3
-                      className="font-bold text-base line-clamp-1"
-                      style={{ color: "var(--iwms-black)" }}
-                    >
-                      {proj.title}
-                    </h3>
-                    <p
-                      className="text-xs line-clamp-2 mt-1 leading-relaxed"
-                      style={{ color: "rgba(11,31,58,.55)" }}
-                    >
-                      {proj.description}
-                    </p>
-                  </div>
+              // Distinct status colors & accent badges
+              const statusConfig: Record<string, { bg: string; text: string; border: string; dot: string; bar: string }> = {
+                planning: {
+                  bg: "bg-indigo-50/80",
+                  text: "text-indigo-700",
+                  border: "border-indigo-200/70",
+                  dot: "bg-indigo-500",
+                  bar: "from-indigo-500 to-sky-500",
+                },
+                in_progress: {
+                  bg: "bg-sky-50/80",
+                  text: "text-sky-700",
+                  border: "border-sky-200/70",
+                  dot: "bg-sky-500 animate-pulse",
+                  bar: "from-sky-500 to-blue-600",
+                },
+                completed: {
+                  bg: "bg-emerald-50/80",
+                  text: "text-emerald-700",
+                  border: "border-emerald-200/70",
+                  dot: "bg-emerald-500",
+                  bar: "from-emerald-400 to-teal-500",
+                },
+                on_hold: {
+                  bg: "bg-amber-50/80",
+                  text: "text-amber-700",
+                  border: "border-amber-200/70",
+                  dot: "bg-amber-500",
+                  bar: "from-amber-400 to-orange-500",
+                },
+              };
 
-                  <div className="pt-2">
-                    <div
-                      className="flex items-center gap-1.5 text-xs mb-1.5 font-medium"
-                      style={{ color: "var(--iwms-navy)" }}
-                    >
-                      <Users className="w-3.5 h-3.5" style={{ color: "var(--iwms-sky)" }} />
-                      {proj.teamMembers?.length || 0} Team Members
-                    </div>
+              const currentStatus = statusConfig[proj.status] || {
+                bg: "bg-slate-50",
+                text: "text-slate-700",
+                border: "border-slate-200",
+                dot: "bg-slate-400",
+                bar: "from-slate-400 to-slate-500",
+              };
 
-                    <div className="flex flex-wrap gap-1.5">
-                      {(proj.teamMembers || []).map((m) => {
-                        const memberInfo = m.internId as unknown as { name?: string; internId?: string };
-                        return (
-                          <span
-                            key={typeof m.internId === "object" ? (m.internId as unknown as { _id: string })._id : String(m.internId)}
-                            className="inline-block px-2 py-0.5 text-xs rounded font-medium"
-                            style={{
-                              background: "rgba(56,189,248,.10)",
-                              color: "var(--iwms-navy)",
-                              border: "1px solid var(--iwms-border)",
-                            }}
-                          >
-                            {memberInfo?.name || "Intern"}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
+              const avatarColors = [
+                { bg: "bg-sky-100 text-sky-700 border-white ring-2 ring-sky-50" },
+                { bg: "bg-indigo-100 text-indigo-700 border-white ring-2 ring-indigo-50" },
+                { bg: "bg-emerald-100 text-emerald-700 border-white ring-2 ring-emerald-50" },
+                { bg: "bg-violet-100 text-violet-700 border-white ring-2 ring-violet-50" },
+              ];
 
+              return (
                 <div
-                  className="pt-4 mt-4 flex items-center justify-between"
-                  style={{ borderTop: "1px solid var(--iwms-border)" }}
+                  key={proj._id}
+                  className="group relative bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-sky-300/80 transition-all duration-300 flex flex-col justify-between overflow-hidden"
                 >
-                  <span
-                    className="text-xs"
-                    style={{ color: "rgba(11,31,58,.50)" }}
-                  >
-                    Started: {formatDate(proj.startDate)}
-                  </span>
-                  <Link
-                    href={`/intern/projects/${proj._id}`}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
-                    style={{
-                      background: "rgba(56,189,248,.12)",
-                      color: "var(--iwms-sky)",
-                    }}
-                  >
-                    View Project <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                  <div className="p-6 space-y-5">
+                    {/* Header: Status pill + Due date badge */}
+                    <div className="flex items-center justify-between gap-3">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${currentStatus.bg} ${currentStatus.text} ${currentStatus.border} shadow-2xs backdrop-blur-xs`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${currentStatus.dot}`} />
+                        {proj.status.replace("_", " ")}
+                      </span>
+
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/60 text-slate-600 text-xs font-medium">
+                        <Calendar className="w-3.5 h-3.5 text-sky-500" />
+                        <span>Due {formatDate(proj.dueDate)}</span>
+                      </div>
+                    </div>
+
+                    {/* Title & Description */}
+                    <div>
+                      <Link
+                        href={`/intern/projects/${proj._id}`}
+                        className="font-bold text-lg text-slate-900 group-hover:text-sky-600 transition-colors line-clamp-1 tracking-tight"
+                      >
+                        {proj.title}
+                      </Link>
+                      <p className="text-xs text-slate-500 line-clamp-2 mt-1.5 leading-relaxed font-normal">
+                        {proj.description || "No project description provided."}
+                      </p>
+                    </div>
+
+                    {/* Team Members Section */}
+                    <div className="pt-2 border-t border-slate-100/80">
+                      <div className="flex items-center justify-between text-xs mb-3">
+                        <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                          <Users className="w-4 h-4 text-sky-500" />
+                          Team Collaboration
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 font-semibold text-[11px]">
+                          {members.length} {members.length === 1 ? "Member" : "Members"}
+                        </span>
+                      </div>
+
+                      {/* Avatar stack + interactive chips */}
+                      <div className="flex items-center gap-3">
+                        {/* Overlapping Avatar Stack */}
+                        <div className="flex -space-x-2 overflow-hidden py-1">
+                          {visibleMembers.map((m, idx) => {
+                            const memberInfo = m.internId as unknown as { name?: string; internId?: string };
+                            const name = memberInfo?.name || "Intern";
+                            const initial = name.charAt(0).toUpperCase();
+                            const colorClass = avatarColors[idx % avatarColors.length];
+
+                            return (
+                              <div
+                                key={typeof m.internId === "object" ? (m.internId as unknown as { _id: string })._id : String(m.internId)}
+                                title={name}
+                                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 ${colorClass.bg} shadow-xs transition-transform transform group-hover:scale-105`}
+                              >
+                                {initial}
+                              </div>
+                            );
+                          })}
+                          {remainingCount > 0 && (
+                            <div
+                              title={`${remainingCount} more members`}
+                              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white bg-slate-100 text-slate-600 shadow-xs ring-2 ring-slate-100"
+                            >
+                              +{remainingCount}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Name tags list */}
+                        <div className="flex flex-wrap gap-1.5 flex-1 min-w-0">
+                          {visibleMembers.map((m) => {
+                            const memberInfo = m.internId as unknown as { name?: string; internId?: string };
+                            return (
+                              <span
+                                key={typeof m.internId === "object" ? (m.internId as unknown as { _id: string })._id : String(m.internId)}
+                                className="inline-flex items-center px-2.5 py-0.5 text-[11px] rounded-md font-medium bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-200 transition-colors"
+                              >
+                                {memberInfo?.name?.split(" ")[0] || "Intern"}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card Footer */}
+                  <div className="px-6 py-4 bg-gradient-to-b from-white to-slate-50/60 border-t border-slate-100 flex items-center justify-between">
+                    <div className="text-[11px] text-slate-400 font-medium flex items-center gap-1.5">
+                      <span>Started:</span>
+                      <span className="text-slate-600 font-semibold">{formatDate(proj.startDate)}</span>
+                    </div>
+
+                    <Link
+                      href={`/intern/projects/${proj._id}`}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-sky-500 hover:bg-sky-600 active:bg-sky-700 shadow-sm hover:shadow-sky-500/25 transition-all transform hover:-translate-y-0.5"
+                    >
+                      <span>View Project</span>
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>

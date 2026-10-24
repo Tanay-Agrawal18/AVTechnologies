@@ -262,7 +262,7 @@ export default function InternProjectDetailPage({
                   return (
                     <div
                       key={t._id}
-                      className="iwms-card iwms-task-card p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-shadow hover:shadow-md"
+                      className="iwms-card p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-200 hover:shadow-md hover:border-slate-300"
                       style={{ borderRadius: "14px" }}
                     >
                       <div className="space-y-1.5 flex-1 min-w-0">
