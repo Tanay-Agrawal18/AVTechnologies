@@ -5,6 +5,7 @@ import { DocumentTemplate } from "@/models/DocumentTemplate";
 import { IssuedDocument } from "@/models/IssuedDocument";
 import { DocumentService, VyoraiOfferLetterData } from "@/services/documentService";
 import { AuditLog } from "@/models/AuditLog";
+import crypto from "crypto";
 import JSZip from "jszip";
 import { z } from "zod";
 
