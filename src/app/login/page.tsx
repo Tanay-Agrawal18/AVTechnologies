@@ -93,7 +93,7 @@ export default function LoginPage() {
                     border: "1px solid var(--iwms-border)",
                     color: "var(--iwms-black)",
                   }}
-                  placeholder="admin@iwms.company.com or intern@company.com"
+                  placeholder="admin@vyorai.com or intern@vyorai.com"
                 />
               </div>
             </div>
@@ -141,7 +141,7 @@ export default function LoginPage() {
                 "Signing In..."
               ) : (
                 <>
-                  Sign In to IWMS <ArrowRight className="w-4 h-4" />
+                  Sign In to Vyorai <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
