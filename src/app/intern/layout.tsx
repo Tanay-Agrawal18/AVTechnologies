@@ -9,11 +9,11 @@ export default function InternLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen" style={{ background: "var(--iwms-bg)" }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: "var(--iwms-bg)" }}>
       {/* Sidebar */}
       <Suspense
         fallback={
-          <div className="w-64 min-h-screen bg-white border-r" style={{ borderColor: "var(--iwms-border)" }} />
+          <div className="w-64 h-screen bg-white border-r" style={{ borderColor: "var(--iwms-border)" }} />
         }
       >
         <InternSidebar />

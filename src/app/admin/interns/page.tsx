@@ -375,9 +375,9 @@ export default function AdminInternsPage() {
 
       {/* Manual Creation Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-1">Add Intern Account</h3>
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1">Add Intern Account</h3>
             <p className="text-xs text-slate-500 mb-5">
               An expiring one-time link will be generated for password setup. Plaintext passwords are never accepted.
             </p>
@@ -508,9 +508,9 @@ export default function AdminInternsPage() {
 
       {/* Edit Intern Modal */}
       {editingIntern && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-1">Edit Member Profile</h3>
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1">Edit Member Profile</h3>
             <p className="text-xs text-slate-500 mb-5">
               Update intern details. Roles, credentials, and authentication secrets are strictly protected.
             </p>

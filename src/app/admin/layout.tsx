@@ -9,8 +9,8 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen" style={{ background: "var(--iwms-bg)" }}>
-      <Suspense fallback={<div className="hidden lg:block w-64 min-h-screen bg-white border-r" style={{ borderColor: "var(--iwms-border)" }} />}>
+    <div className="flex h-screen overflow-hidden" style={{ background: "var(--iwms-bg)" }}>
+      <Suspense fallback={<div className="hidden lg:block w-64 h-screen bg-white border-r" style={{ borderColor: "var(--iwms-border)" }} />}>
         <AdminSidebar />
       </Suspense>
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto w-full iwms-workspace">
