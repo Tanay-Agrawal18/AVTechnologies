@@ -7,9 +7,10 @@ import { SessionUser } from "@/types";
 interface HeaderProps {
   title: string;
   description?: string;
+  action?: React.ReactNode;
 }
 
-export function DashboardHeader({ title, description }: HeaderProps) {
+export function DashboardHeader({ title, description, action }: HeaderProps) {
   const [currentUser, setCurrentUser] = useState<SessionUser | null>(null);
 
   useEffect(() => {
@@ -78,8 +79,10 @@ export function DashboardHeader({ title, description }: HeaderProps) {
           </div>
         </div>
 
-        {/* Right: Notifications & Profile Pill */}
+        {/* Right: Actions, Notifications & Profile Pill */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          {action && <div className="hidden sm:flex items-center gap-2 mr-1">{action}</div>}
+
           {/* Notification bell */}
           <button
             className="relative p-2 rounded-xl transition-colors hover:bg-slate-100 active:scale-95 text-slate-600 hover:text-slate-900"

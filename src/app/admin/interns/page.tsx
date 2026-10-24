@@ -211,23 +211,25 @@ export default function AdminInternsPage() {
         )}
 
         {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200">
+        <div className="iwms-card p-3.5 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
           <form onSubmit={handleSearchSubmit} className="flex flex-col xs:flex-row sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <div className="relative flex-1 sm:w-72">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(11,31,58,0.4)" }} />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search name, email, ID..."
-                className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+                style={{ borderColor: "var(--iwms-border)", color: "var(--iwms-black)" }}
               />
             </div>
             <div className="flex items-center gap-2">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="flex-1 xs:flex-none px-2.5 py-2 text-xs sm:text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="flex-1 xs:flex-none px-3 py-2 text-xs sm:text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+                style={{ borderColor: "var(--iwms-border)", color: "var(--iwms-navy)" }}
               >
                 <option value="all">All Statuses</option>
                 <option value="active">Active</option>
@@ -236,19 +238,21 @@ export default function AdminInternsPage() {
               </select>
               <button
                 type="submit"
-                className="px-3 py-2 text-xs sm:text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg"
+                className="px-3 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-colors hover:bg-slate-100"
+                style={{ background: "rgba(11,31,58,0.05)", color: "var(--iwms-navy)" }}
               >
                 Search
               </button>
             </div>
           </form>
 
-          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto justify-end">
             <Link
               href="/admin/import"
-              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-center"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-2 text-xs sm:text-sm font-medium rounded-xl border transition-colors hover:bg-slate-50 text-center"
+              style={{ borderColor: "var(--iwms-border)", color: "var(--iwms-navy)" }}
             >
-              <FileSpreadsheet className="w-4 h-4 text-slate-500 shrink-0" /> Bulk Import
+              <FileSpreadsheet className="w-4 h-4 text-sky-600 shrink-0" /> Bulk Import
             </Link>
             <button
               onClick={() => {
@@ -256,7 +260,8 @@ export default function AdminInternsPage() {
                 setModalError(null);
                 setModalSuccessLink(null);
               }}
-              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm text-center"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white rounded-xl shadow-xs transition-all hover:opacity-95 active:scale-95 text-center"
+              style={{ background: "#0284C7" }}
             >
               <UserPlus className="w-4 h-4 shrink-0" /> Add Intern
             </button>
@@ -264,11 +269,11 @@ export default function AdminInternsPage() {
         </div>
 
         {/* Interns Table */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+        <div className="iwms-card overflow-hidden shadow-xs" style={{ borderRadius: "14px" }}>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <tr className="border-b text-xs font-semibold uppercase tracking-wider" style={{ background: "rgba(11,31,58,0.02)", borderColor: "var(--iwms-border)", color: "rgba(11,31,58,0.55)" }}>
                   <th className="py-3 px-4">Intern ID</th>
                   <th className="py-3 px-4">Name & Email</th>
                   <th className="py-3 px-4">Department</th>
@@ -277,10 +282,10 @@ export default function AdminInternsPage() {
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
+              <tbody className="divide-y text-sm" style={{ borderColor: "var(--iwms-border)" }}>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-500">
+                    <td colSpan={6} className="py-8 text-center text-xs sm:text-sm" style={{ color: "rgba(11,31,58,0.45)" }}>
                       Loading roster...
                     </td>
                   </tr>

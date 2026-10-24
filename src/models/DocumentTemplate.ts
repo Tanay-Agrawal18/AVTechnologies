@@ -12,6 +12,12 @@ export interface IDocumentTemplateDocument extends Document {
   signatoryTitle: string;
   version: number;
   isActive: boolean;
+  pdfTemplatePath?: string;
+  pageDimensions?: {
+    width: number;
+    height: number;
+  };
+  dynamicFields?: string[];
   createdByAdminId: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -63,6 +69,34 @@ const DocumentTemplateSchema = new Schema<IDocumentTemplateDocument>(
       type: Boolean,
       default: true,
       index: true,
+    },
+    pdfTemplatePath: {
+      type: String,
+      default: "public/vyorai_base_template.pdf",
+    },
+    pageDimensions: {
+      width: { type: Number, default: 1296 },
+      height: { type: Number, default: 1836 },
+    },
+    dynamicFields: {
+      type: [String],
+      default: [
+        "candidate_name",
+        "intern_id",
+        "date",
+        "role",
+        "work_mode",
+        "start_date",
+        "end_date",
+        "responsibilities",
+        "company_name",
+        "signatory_name",
+        "signatory_title",
+        "company_address",
+        "company_email",
+        "company_phone",
+        "company_website",
+      ],
     },
     createdByAdminId: {
       type: Schema.Types.ObjectId,
