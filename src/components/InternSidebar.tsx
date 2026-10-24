@@ -83,10 +83,10 @@ export function InternSidebar() {
         >
           {/* Logo mark */}
           <div
-            className="h-9 w-9 rounded-xl flex items-center justify-center p-1 bg-white shadow-xs flex-shrink-0 border border-slate-200 overflow-hidden"
+            className="h-9 w-9 rounded-xl flex items-center justify-center p-0.5 bg-white shadow-xs flex-shrink-0 border border-slate-200 overflow-hidden"
           >
             <img
-              src="/icons/icon-192.png"
+              src="/image.png"
               alt="Vyorai"
               className="w-full h-full object-contain"
             />
