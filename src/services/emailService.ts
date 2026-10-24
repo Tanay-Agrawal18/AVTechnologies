@@ -57,6 +57,7 @@ class SmtpEmailProvider implements EmailProvider {
     try {
       // In production with nodemailer installed, this connects to SMTP host
       // Here we validate configuration and simulate provider dispatch
+      void payload.to;
       const simulatedMessageId = `smtp_${crypto.randomUUID()}`;
       return {
         success: true,

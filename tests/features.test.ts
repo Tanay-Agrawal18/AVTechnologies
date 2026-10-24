@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { CreateTaskSchema, UpdateInternSchema } from "@/validators";
 import { EmailService, EMAIL_TEMPLATES } from "@/services/emailService";
 import { DocumentService } from "@/services/documentService";

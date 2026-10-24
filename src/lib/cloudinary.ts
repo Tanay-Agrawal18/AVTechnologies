@@ -60,7 +60,7 @@ export async function uploadToCloudinary(
         // Force private delivery if authenticated type is desired,
         // or standard upload with server-side proxy
       },
-      (error, result) => {
+      (error: unknown, result: { public_id: string; secure_url: string; bytes: number; format: string } | undefined) => {
         if (error || !result) {
           return reject(error || new Error("Unknown Cloudinary upload failure"));
         }

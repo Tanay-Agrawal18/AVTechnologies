@@ -2,7 +2,7 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import { User, IUserDocument } from "@/models/User";
-import { SessionUser, UserRole } from "@/types";
+import { SessionUser } from "@/types";
 
 export interface CreateInternInput {
   name: string;

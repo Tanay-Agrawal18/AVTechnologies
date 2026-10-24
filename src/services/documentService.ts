@@ -1,9 +1,9 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import crypto from "crypto";
 import { connectDB } from "@/lib/db";
-import { DocumentTemplate, IDocumentTemplateDocument } from "@/models/DocumentTemplate";
+import { DocumentTemplate } from "@/models/DocumentTemplate";
 import { IssuedDocument, IIssuedDocumentDocument } from "@/models/IssuedDocument";
-import { User, IUserDocument } from "@/models/User";
+import { User } from "@/models/User";
 import { SessionUser } from "@/types";
 
 export interface GeneratePdfOptions {
