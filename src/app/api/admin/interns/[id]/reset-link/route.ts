@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/apiAuth";
 import { UserService } from "@/services/userService";
+import { getBaseUrl } from "@/lib/getBaseUrl";
 
 export async function POST(
   req: NextRequest,
@@ -13,7 +14,7 @@ export async function POST(
 
   try {
     const resetToken = await UserService.generatePasswordResetLink(id);
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const baseUrl = getBaseUrl(req);
     const resetLink = `${baseUrl}/setup-password?token=${resetToken}`;
 
     return NextResponse.json({

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/apiAuth";
 import { ImportService, ParsedInternRow } from "@/services/importService";
+import { getBaseUrl } from "@/lib/getBaseUrl";
 
 export async function POST(req: NextRequest) {
   const auth = await requireAuth(["admin"]);
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const baseUrl = getBaseUrl(req);
     const result = await ImportService.executeImport(rows, baseUrl);
 
     return NextResponse.json({

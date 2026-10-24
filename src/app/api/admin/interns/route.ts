@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { UserService } from "@/services/userService";
 import { CreateInternSchema } from "@/validators";
+import { getBaseUrl } from "@/lib/getBaseUrl";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth(["admin"]);
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest) {
 
     const { intern, activationToken } = await UserService.createIntern(parsed.data);
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const baseUrl = getBaseUrl(req);
     const activationLink = `${baseUrl}/setup-password?token=${activationToken}`;
 
     return NextResponse.json(
