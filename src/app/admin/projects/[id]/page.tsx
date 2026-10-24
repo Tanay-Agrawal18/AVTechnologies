@@ -232,25 +232,25 @@ export default function AdminProjectDetailPage({
         description="Monitor team roster, inspect progress metrics, and allocate individual task responsibilities"
       />
 
-      <main className="p-8 space-y-8">
+      <main className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 lg:space-y-8">
         {/* Controls */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <Link
             href="/admin/projects"
-            className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Team Projects
+            <ArrowLeft className="w-4 h-4 shrink-0" /> Back to Team Projects
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3">
             <button
               onClick={() => {
                 setAddMemberError(null);
                 setIsAddMemberModalOpen(true);
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium border border-slate-300 rounded-lg bg-white hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-medium border border-slate-300 rounded-lg bg-white hover:bg-slate-50 transition-colors text-center"
             >
-              <UserPlus className="w-4 h-4 text-blue-600" /> Add Team Member
+              <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 shrink-0" /> Add Member
             </button>
 
             <button
@@ -258,15 +258,15 @@ export default function AdminProjectDetailPage({
                 setTaskModalError(null);
                 setIsTaskModalOpen(true);
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm text-center"
             >
-              <PlusCircle className="w-4 h-4" /> Assign Project Task
+              <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> Assign Task
             </button>
           </div>
         </div>
 
         {/* Project Summary Banner */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-6">
+        <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-4 sm:space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <span

@@ -81,18 +81,28 @@ export function AdminSidebar() {
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="p-6 border-b border-slate-800 flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
-            V
+        <div className="p-4 sm:p-6 border-b border-slate-800 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm shrink-0">
+              V
+            </div>
+            <div className="min-w-0">
+              <h1 className="font-bold text-white text-base tracking-tight leading-none truncate">
+                Vyorai
+              </h1>
+              <span className="text-xs text-blue-400 font-medium inline-flex items-center gap-1 mt-1 truncate">
+                <ShieldAlert className="w-3 h-3 shrink-0" /> Admin Portal
+              </span>
+            </div>
           </div>
-          <div>
-            <h1 className="font-bold text-white text-base tracking-tight leading-none">
-              Vyorai
-            </h1>
-            <span className="text-xs text-blue-400 font-medium inline-flex items-center gap-1 mt-1">
-              <ShieldAlert className="w-3 h-3" /> Admin Portal
-            </span>
-          </div>
+          {/* Close button — mobile only */}
+          <button
+            onClick={() => setIsOpen(false)}
+            aria-label="Close navigation menu"
+            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shrink-0"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
