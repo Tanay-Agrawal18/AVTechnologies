@@ -83,11 +83,11 @@ export function AdminSidebar() {
       >
         <div className="p-6 border-b border-slate-800 flex items-center gap-3">
           <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
-            IW
+            V
           </div>
           <div>
             <h1 className="font-bold text-white text-base tracking-tight leading-none">
-              IWMS Enterprise
+              Vyorai
             </h1>
             <span className="text-xs text-blue-400 font-medium inline-flex items-center gap-1 mt-1">
               <ShieldAlert className="w-3 h-3" /> Admin Portal

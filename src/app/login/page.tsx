@@ -48,10 +48,10 @@ export default function LoginPage() {
           <ShieldCheck className="h-6 w-6" />
         </div>
         <h2 className="text-3xl font-extrabold tracking-tight" style={{ color: "var(--iwms-navy)" }}>
-          IWMS Portal Login
+          Vyorai Login
         </h2>
         <p className="mt-2 text-sm" style={{ color: "rgba(11,31,58,0.65)" }}>
-          Intern Work Management System • Secure Role-Based Access
+          Vyorai Intern Workspace • Secure Role-Based Access
         </p>
       </div>
 

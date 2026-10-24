@@ -86,7 +86,7 @@ export function InternSidebar() {
             className="h-9 w-9 rounded-xl flex items-center justify-center text-white font-bold text-sm tracking-tight shadow-xs flex-shrink-0"
             style={{ background: "#38BDF8" }}
           >
-            IW
+            V
           </div>
 
           <div className="flex-1 min-w-0">
@@ -94,7 +94,7 @@ export function InternSidebar() {
               className="font-bold text-sm tracking-tight leading-none"
               style={{ color: "var(--iwms-navy)" }}
             >
-              IWMS Portal
+              Vyorai
             </h1>
             <span
               className="text-xs font-normal inline-flex items-center gap-1 mt-1"

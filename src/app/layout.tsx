@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "IWMS Portal — Intern Workspace Management",
-  description: "Intern Workspace Management System — manage tasks, deliverables, and work history.",
+  title: "Vyorai — Intern Workspace Management",
+  description: "Vyorai Intern Workspace Management System — manage tasks, deliverables, and work history.",
 };
 
 export const viewport: Viewport = {

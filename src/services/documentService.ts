@@ -106,7 +106,7 @@ We congratulate {{intern_name}} on this achievement and extend our highest recom
       color: rgb(0.09, 0.15, 0.28),
     });
 
-    page.drawText("INTERNSHIP & WORK MANAGEMENT SYSTEM (IWMS)", {
+    page.drawText("VYORAI INTERN WORKSPACE SYSTEM", {
       x: 40,
       y: height - 75,
       size: 8,
@@ -228,7 +228,7 @@ We congratulate {{intern_name}} on this achievement and extend our highest recom
     });
 
     // Verification Footer
-    page.drawText("Electronically certified document issued via IWMS. Verification reference on file.", {
+    page.drawText("Electronically certified document issued via Vyorai. Verification reference on file.", {
       x: 40,
       y: 40,
       size: 7.5,

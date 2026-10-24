@@ -94,7 +94,7 @@ class ResendEmailProvider implements EmailProvider {
 
     try {
       const fromEmail = process.env.EMAIL_FROM_ADDRESS || "noreply@iwms.company.com";
-      const fromName = process.env.EMAIL_FROM_NAME || "IWMS System";
+      const fromName = process.env.EMAIL_FROM_NAME || "Vyorai System";
 
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -152,19 +152,19 @@ export const EMAIL_TEMPLATES = [
     id: "general_announcement",
     name: "General Announcement",
     subject: "Important Announcement for Interns: {{subject_topic}}",
-    body: "Hello {{name}},\n\nPlease be advised of the following update regarding {{subject_topic}}.\n\n{{custom_message}}\n\nBest regards,\nIWMS Administration Team",
+    body: "Hello {{name}},\n\nPlease be advised of the following update regarding {{subject_topic}}.\n\n{{custom_message}}\n\nBest regards,\nVyorai Administration Team",
   },
   {
     id: "deadline_reminder",
     name: "Task Deadline Reminder",
     subject: "Reminder: Upcoming Submission Deadline for {{intern_id}}",
-    body: "Hi {{name}},\n\nThis is a friendly reminder that your task deliverables are due shortly. Please review your active task board and submit your work before the deadline.\n\n{{custom_message}}\n\nSincerely,\nIWMS Supervision Team",
+    body: "Hi {{name}},\n\nThis is a friendly reminder that your task deliverables are due shortly. Please review your active task board and submit your work before the deadline.\n\n{{custom_message}}\n\nSincerely,\nVyorai Supervision Team",
   },
   {
     id: "weekly_checkin",
     name: "Weekly Progress Check-in",
     subject: "Weekly Progress Review — {{department}} Cohort",
-    body: "Hello {{name}},\n\nAs we wrap up this week's sprint, please ensure all daily progress images and task status changes are up to date in the portal.\n\n{{custom_message}}\n\nThank you for your dedication,\nIWMS Program Managers",
+    body: "Hello {{name}},\n\nAs we wrap up this week's sprint, please ensure all daily progress images and task status changes are up to date in the portal.\n\n{{custom_message}}\n\nThank you for your dedication,\nVyorai Program Managers",
   },
 ];
 
