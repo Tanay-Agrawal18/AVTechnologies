@@ -89,37 +89,37 @@ export default function InternProjectDetailPage({
         description="Collaborate with your team members, track milestone progress, and deliver your assignments"
       />
 
-      <main className="p-8 space-y-8">
+      <main className="p-3 sm:p-5 lg:p-8 space-y-4 sm:space-y-6 lg:space-y-8">
         {/* Navigation */}
         <div>
           <Link
             href="/intern/projects"
-            className="inline-flex items-center gap-2 text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium transition-colors"
             style={{ color: "var(--iwms-navy)" }}
           >
-            <ArrowLeft className="w-4 h-4" /> Back to My Projects
+            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Back to My Projects
           </Link>
         </div>
 
         {/* Project Overview Card */}
         <div
-          className="iwms-card p-6 space-y-6"
+          className="iwms-card p-3.5 sm:p-6 space-y-4 sm:space-y-6"
           style={{ borderRadius: "14px" }}
         >
           <div
-            className="flex flex-wrap items-center justify-between gap-4 pb-4"
+            className="flex flex-wrap items-center justify-between gap-2 pb-3 sm:pb-4"
             style={{ borderBottom: "1px solid var(--iwms-border)" }}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <span
-                className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border capitalize ${getStatusBadgeClass(
+                className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold border capitalize ${getStatusBadgeClass(
                   project.status
                 )}`}
               >
                 {project.status.replace("_", " ")}
               </span>
               <span
-                className="text-xs"
+                className="text-[10px] sm:text-xs"
                 style={{ color: "rgba(11,31,58,.55)" }}
               >
                 Deadline: <strong style={{ color: "var(--iwms-black)" }}>{formatDate(project.dueDate)}</strong>
@@ -127,7 +127,7 @@ export default function InternProjectDetailPage({
             </div>
 
             <div
-              className="text-xs"
+              className="text-[10px] sm:text-xs"
               style={{ color: "rgba(11,31,58,.50)" }}
             >
               Started: {formatDate(project.startDate)}
@@ -136,13 +136,13 @@ export default function InternProjectDetailPage({
 
           <div>
             <h4
-              className="text-xs font-bold uppercase tracking-wider mb-1"
+              className="text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1"
               style={{ color: "rgba(11,31,58,.50)" }}
             >
               Project Description
             </h4>
             <p
-              className="text-sm leading-relaxed whitespace-pre-line"
+              className="text-xs sm:text-sm leading-relaxed whitespace-pre-line"
               style={{ color: "var(--iwms-black)" }}
             >
               {project.description}
@@ -151,27 +151,27 @@ export default function InternProjectDetailPage({
 
           {/* Progress Summary */}
           <div
-            className="space-y-3 pt-4"
+            className="space-y-2 pt-3 sm:pt-4"
             style={{ borderTop: "1px solid var(--iwms-border)" }}
           >
-            <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center justify-between text-[10px] sm:text-xs">
               <span
                 className="font-bold uppercase tracking-wider"
                 style={{ color: "var(--iwms-navy)" }}
               >
-                Team Milestone Progress: {progress.completionPercentage}%
+                Team Progress: {progress.completionPercentage}%
               </span>
               <span style={{ color: "rgba(11,31,58,.55)" }}>
-                {progress.approved} of {progress.totalTasks} task(s) completed
+                {progress.approved} of {progress.totalTasks} done
               </span>
             </div>
 
             <div
-              className="w-full h-2.5 rounded-full overflow-hidden"
+              className="w-full h-2 sm:h-2.5 rounded-full overflow-hidden"
               style={{ background: "rgba(11,31,58,.08)" }}
             >
               <div
-                className="bg-emerald-500 h-2.5 rounded-full transition-all duration-500"
+                className="bg-emerald-500 h-2 sm:h-2.5 rounded-full transition-all duration-500"
                 style={{ width: `${progress.completionPercentage}%` }}
               />
             </div>
@@ -179,18 +179,18 @@ export default function InternProjectDetailPage({
         </div>
 
         {/* Team Members & Tasks Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Team Members */}
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <h3
-              className="font-bold text-lg flex items-center gap-2"
+              className="font-bold text-xs sm:text-base flex items-center gap-1.5"
               style={{ color: "var(--iwms-navy)" }}
             >
-              <Users className="w-5 h-5" style={{ color: "var(--iwms-sky)" }} /> Team Members ({project.teamMembers.length})
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" style={{ color: "var(--iwms-sky)" }} /> Team Members ({project.teamMembers.length})
             </h3>
 
             <div
-              className="iwms-card p-4 space-y-3"
+              className="iwms-card p-3 sm:p-4 space-y-2 sm:space-y-3"
               style={{ borderRadius: "14px" }}
             >
               {project.teamMembers.map((m) => {
@@ -205,20 +205,20 @@ export default function InternProjectDetailPage({
                 return (
                   <div
                     key={intern._id || String(m.internId)}
-                    className="p-3 rounded-lg text-xs"
+                    className="p-2 sm:p-3 rounded-lg text-xs"
                     style={{
                       background: "rgba(56,189,248,.06)",
                       border: "1px solid var(--iwms-border)",
                     }}
                   >
                     <p
-                      className="font-bold text-sm"
+                      className="font-bold text-xs sm:text-sm"
                       style={{ color: "var(--iwms-black)" }}
                     >
                       {intern?.name || "Intern"}
                     </p>
                     <p
-                      className="text-[11px] mt-0.5"
+                      className="text-[10px] sm:text-[11px] mt-0.5 truncate"
                       style={{ color: "rgba(11,31,58,.55)" }}
                     >
                       {intern?.internId || intern?.email} • {intern?.department || "General"}
@@ -230,29 +230,29 @@ export default function InternProjectDetailPage({
           </div>
 
           {/* Project Task Breakdown */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-3 sm:space-y-4">
             <h3
-              className="font-bold text-lg flex items-center gap-2"
+              className="font-bold text-xs sm:text-base flex items-center gap-1.5"
               style={{ color: "var(--iwms-navy)" }}
             >
-              <FolderGit2 className="w-5 h-5" style={{ color: "var(--iwms-sky)" }} /> Project Tasks ({tasks.length})
+              <FolderGit2 className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" style={{ color: "var(--iwms-sky)" }} /> Project Tasks ({tasks.length})
             </h3>
 
             {tasks.length === 0 ? (
               <div
-                className="iwms-card p-8 text-center"
+                className="iwms-card p-6 sm:p-8 text-center"
                 style={{ borderRadius: "14px", color: "rgba(11,31,58,.50)" }}
               >
-                <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <Clock className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1.5 opacity-50" />
                 <p
-                  className="font-semibold text-sm"
+                  className="font-semibold text-xs sm:text-sm"
                   style={{ color: "var(--iwms-navy)" }}
                 >
                   No project tasks allocated yet
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2.5 sm:space-y-3">
                 {tasks.map((t) => {
                   const assignee = t.assignedInternId as unknown as {
                     name?: string;
@@ -262,20 +262,20 @@ export default function InternProjectDetailPage({
                   return (
                     <div
                       key={t._id}
-                      className="iwms-card iwms-task-card p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-shadow hover:shadow-md"
+                      className="iwms-card p-3 sm:p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 transition-all duration-200 hover:shadow-md hover:border-slate-300"
                       style={{ borderRadius: "14px" }}
                     >
-                      <div className="space-y-1.5 flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
+                      <div className="space-y-1 sm:space-y-1.5 flex-1 min-w-0 w-full sm:w-auto">
+                        <div className="flex items-center gap-1.5 sm:gap-2">
                           <span
-                            className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${getStatusBadgeClass(
+                            className={`inline-block px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold border capitalize ${getStatusBadgeClass(
                               t.status
                             )}`}
                           >
                             {t.status.replace("_", " ")}
                           </span>
                           <span
-                            className={`inline-block px-2 py-0.5 rounded text-xs font-semibold uppercase ${getPriorityBadgeClass(
+                            className={`inline-block px-1.5 py-0.5 rounded text-[10px] sm:text-xs font-semibold uppercase ${getPriorityBadgeClass(
                               t.priority
                             )}`}
                           >
@@ -284,20 +284,20 @@ export default function InternProjectDetailPage({
                         </div>
 
                         <h4
-                          className="font-bold text-sm truncate"
+                          className="font-bold text-xs sm:text-sm truncate"
                           style={{ color: "var(--iwms-black)" }}
                         >
                           {t.title}
                         </h4>
                         <p
-                          className="text-xs line-clamp-2"
+                          className="text-[11px] sm:text-xs line-clamp-2"
                           style={{ color: "rgba(11,31,58,.55)" }}
                         >
                           {t.description}
                         </p>
 
                         <div
-                          className="flex items-center gap-4 text-[11px] pt-1"
+                          className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-[11px] pt-0.5"
                           style={{ color: "rgba(11,31,58,.55)" }}
                         >
                           <span>
@@ -314,13 +314,13 @@ export default function InternProjectDetailPage({
 
                       <Link
                         href={`/intern/tasks/${t._id}`}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors shrink-0"
+                        className="w-full sm:w-auto justify-center inline-flex items-center gap-1 px-3 py-1.5 text-[10px] sm:text-xs font-semibold rounded-lg transition-colors shrink-0"
                         style={{
                           background: "rgba(56,189,248,.12)",
                           color: "var(--iwms-sky)",
                         }}
                       >
-                        View & Submit <ArrowRight className="w-3.5 h-3.5" />
+                        View & Submit <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                       </Link>
                     </div>
                   );

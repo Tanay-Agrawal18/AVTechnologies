@@ -35,28 +35,30 @@ export default function InternHistoryPage() {
         description="Comprehensive log of all deliverable submissions, feedback received, and approved milestones"
       />
 
-      <main className="p-8 space-y-8">
+      <main className="p-3 sm:p-5 lg:p-8 space-y-3 sm:space-y-5 lg:space-y-8">
         {/* ── KPI Strip ──────────────────────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 lg:gap-5">
           {/* Total */}
           <div
-            className="iwms-card p-6 flex flex-col gap-2"
-            style={{ borderRadius: "14px", borderLeft: "3px solid var(--iwms-sky)" }}
+            className="iwms-card p-3 sm:p-5 flex items-center sm:flex-col sm:items-start justify-between sm:justify-start gap-2"
+            style={{ borderRadius: "14px" }}
           >
             <div className="flex items-center gap-2">
-              <FileText
-                className="w-4 h-4"
-                style={{ color: "var(--iwms-sky)" }}
-              />
+              <div className="p-1.5 rounded-lg bg-sky-50 sm:p-0 sm:bg-transparent">
+                <FileText
+                  className="w-4 h-4 shrink-0"
+                  style={{ color: "var(--iwms-sky)" }}
+                />
+              </div>
               <span
-                className="text-xs font-bold uppercase tracking-wider"
+                className="text-[10px] sm:text-xs font-bold uppercase tracking-wider"
                 style={{ color: "rgba(11,31,58,.50)" }}
               >
-                Total Submissions Filed
+                Total Submissions
               </span>
             </div>
             <p
-              className="text-3xl font-extrabold leading-none"
+              className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-none"
               style={{ color: "var(--iwms-black)" }}
             >
               {stats?.totalSubmissions ?? 0}
@@ -65,38 +67,42 @@ export default function InternHistoryPage() {
 
           {/* Approved */}
           <div
-            className="iwms-card p-6 flex flex-col gap-2"
-            style={{ borderRadius: "14px", borderLeft: "3px solid #10b981" }}
+            className="iwms-card p-3 sm:p-5 flex items-center sm:flex-col sm:items-start justify-between sm:justify-start gap-2"
+            style={{ borderRadius: "14px" }}
           >
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-emerald-500" />
+              <div className="p-1.5 rounded-lg bg-emerald-50 sm:p-0 sm:bg-transparent">
+                <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+              </div>
               <span
-                className="text-xs font-bold uppercase tracking-wider"
+                className="text-[10px] sm:text-xs font-bold uppercase tracking-wider"
                 style={{ color: "rgba(11,31,58,.50)" }}
               >
                 Approved Milestones
               </span>
             </div>
-            <p className="text-3xl font-extrabold leading-none text-emerald-500">
+            <p className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-none text-emerald-500">
               {stats?.approvedTasks ?? 0}
             </p>
           </div>
 
           {/* Pending */}
           <div
-            className="iwms-card p-6 flex flex-col gap-2"
-            style={{ borderRadius: "14px", borderLeft: "3px solid #f59e0b" }}
+            className="iwms-card p-3 sm:p-5 flex items-center sm:flex-col sm:items-start justify-between sm:justify-start gap-2"
+            style={{ borderRadius: "14px" }}
           >
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-amber-500" />
+              <div className="p-1.5 rounded-lg bg-amber-50 sm:p-0 sm:bg-transparent">
+                <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+              </div>
               <span
-                className="text-xs font-bold uppercase tracking-wider"
+                className="text-[10px] sm:text-xs font-bold uppercase tracking-wider"
                 style={{ color: "rgba(11,31,58,.50)" }}
               >
-                Pending Supervisor Review
+                Pending Review
               </span>
             </div>
-            <p className="text-3xl font-extrabold leading-none text-amber-500">
+            <p className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-none text-amber-500">
               {stats?.pendingReviews ?? 0}
             </p>
           </div>
@@ -108,11 +114,11 @@ export default function InternHistoryPage() {
           style={{ borderRadius: "14px" }}
         >
           <div
-            className="px-6 py-4"
+            className="px-3.5 py-3 sm:px-6 sm:py-4"
             style={{ borderBottom: "1px solid var(--iwms-border)" }}
           >
             <h3
-              className="font-bold text-base"
+              className="font-bold text-xs sm:text-sm md:text-base"
               style={{ color: "var(--iwms-black)" }}
             >
               Submission Timeline
@@ -120,22 +126,22 @@ export default function InternHistoryPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full text-left border-collapse text-[11px] sm:text-xs min-w-[540px]">
               <thead>
                 <tr
-                  className="text-xs font-bold uppercase tracking-wider"
+                  className="text-[10px] sm:text-xs font-bold uppercase tracking-wider"
                   style={{
                     background: "rgba(11,31,58,.03)",
                     borderBottom: "1px solid var(--iwms-border)",
                     color: "rgba(11,31,58,.50)",
                   }}
                 >
-                  <th className="py-3 px-5">Task</th>
-                  <th className="py-3 px-4">Version</th>
-                  <th className="py-3 px-4">Review Status</th>
-                  <th className="py-3 px-4">Submission Date</th>
-                  <th className="py-3 px-4">Supervisor Feedback</th>
-                  <th className="py-3 px-4 text-right">Action</th>
+                  <th className="py-2.5 px-3 sm:px-4">Task</th>
+                  <th className="py-2.5 px-2.5 sm:px-3">Version</th>
+                  <th className="py-2.5 px-2.5 sm:px-3">Status</th>
+                  <th className="py-2.5 px-2.5 sm:px-3">Date</th>
+                  <th className="py-2.5 px-2.5 sm:px-3">Feedback</th>
+                  <th className="py-2.5 px-3 sm:px-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -143,7 +149,7 @@ export default function InternHistoryPage() {
                   <tr>
                     <td
                       colSpan={6}
-                      className="py-8 text-center"
+                      className="py-8 text-center text-xs"
                       style={{ color: "rgba(11,31,58,.40)" }}
                     >
                       Loading your work history…
@@ -151,12 +157,12 @@ export default function InternHistoryPage() {
                   </tr>
                 ) : submissions.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-10 text-center">
+                    <td colSpan={6} className="py-8 text-center">
                       <History
-                        className="w-8 h-8 mx-auto mb-2"
+                        className="w-6 h-6 mx-auto mb-1.5"
                         style={{ color: "rgba(56,189,248,.35)" }}
                       />
-                      <p style={{ color: "rgba(11,31,58,.45)" }}>
+                      <p className="text-xs" style={{ color: "rgba(11,31,58,.45)" }}>
                         No work submissions found in your history yet.
                       </p>
                     </td>
@@ -174,20 +180,21 @@ export default function InternHistoryPage() {
                         style={{ borderBottom: "1px solid var(--iwms-border)" }}
                       >
                         <td
-                          className="py-3 px-5 font-semibold"
+                          className="py-2.5 px-3 sm:px-4 font-semibold max-w-[140px] truncate"
                           style={{ color: "var(--iwms-black)" }}
+                          title={task?.title}
                         >
                           {task?.title || "Task"}
                         </td>
                         <td
-                          className="py-3 px-4 font-mono font-medium"
+                          className="py-2.5 px-2.5 sm:px-3 font-mono font-medium text-[10px] sm:text-xs"
                           style={{ color: "var(--iwms-navy)" }}
                         >
                           v{sub.version}
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-2.5 px-2.5 sm:px-3">
                           <span
-                            className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium border capitalize ${getStatusBadgeClass(
+                            className={`inline-block px-1.5 py-0.5 rounded-full text-[10px] font-medium border capitalize whitespace-nowrap ${getStatusBadgeClass(
                               sub.reviewStatus
                             )}`}
                           >
@@ -195,25 +202,26 @@ export default function InternHistoryPage() {
                           </span>
                         </td>
                         <td
-                          className="py-3 px-4 font-mono"
+                          className="py-2.5 px-2.5 sm:px-3 font-mono text-[10px] sm:text-xs whitespace-nowrap"
                           style={{ color: "rgba(11,31,58,.50)" }}
                         >
                           {formatDateTime(sub.createdAt)}
                         </td>
                         <td
-                          className="py-3 px-4 max-w-xs truncate"
+                          className="py-2.5 px-2.5 sm:px-3 max-w-[150px] truncate text-[10px] sm:text-xs"
                           style={{ color: "var(--iwms-navy)" }}
+                          title={sub.adminFeedback}
                         >
                           {sub.adminFeedback || "—"}
                         </td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-2.5 px-3 sm:px-4 text-right whitespace-nowrap">
                           {task?._id && (
                             <Link
                               href={`/intern/tasks/${task._id}`}
-                              className="font-semibold hover:underline"
+                              className="font-semibold hover:underline text-[10px] sm:text-xs"
                               style={{ color: "var(--iwms-sky)" }}
                             >
-                              View Task →
+                              View →
                             </Link>
                           )}
                         </td>

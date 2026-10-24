@@ -162,7 +162,7 @@ export default function SetupPasswordPage() {
           Account Setup
         </h2>
         <p className="mt-2 text-sm text-slate-600">
-          Establish your secure credentials for IWMS
+          Establish your secure credentials for Vyorai
         </p>
       </div>
 

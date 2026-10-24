@@ -4,13 +4,13 @@ test.describe("IWMS Core Workflows & Access Boundaries", () => {
   test("redirects unauthenticated users from admin dashboard to login", async ({ page }) => {
     await page.goto("/admin/dashboard");
     await expect(page).toHaveURL(/.*login/);
-    await expect(page.locator("h2")).toContainText("IWMS Portal Login");
+    await expect(page.locator("h2")).toContainText("Vyorai Login");
   });
 
   test("redirects unauthenticated users from intern portal to login", async ({ page }) => {
     await page.goto("/intern/dashboard");
     await expect(page).toHaveURL(/.*login/);
-    await expect(page.locator("h2")).toContainText("IWMS Portal Login");
+    await expect(page.locator("h2")).toContainText("Vyorai Login");
   });
 
   test("rejects invalid login credentials with clear error message", async ({ page }) => {

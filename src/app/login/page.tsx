@@ -39,7 +39,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen iwms-workspace flex flex-col justify-center py-12 sm:px-6 lg:px-8" style={{ background: "var(--iwms-bg)" }}>
+    <div className="min-h-screen iwms-workspace flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8" style={{ background: "var(--iwms-bg)" }}>
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <div
           className="inline-flex items-center justify-center h-12 w-12 rounded-xl text-white shadow-sm mb-4"
@@ -48,16 +48,16 @@ export default function LoginPage() {
           <ShieldCheck className="h-6 w-6" />
         </div>
         <h2 className="text-3xl font-extrabold tracking-tight" style={{ color: "var(--iwms-navy)" }}>
-          IWMS Portal Login
+          Vyorai Login
         </h2>
         <p className="mt-2 text-sm" style={{ color: "rgba(11,31,58,0.65)" }}>
-          Intern Work Management System • Secure Role-Based Access
+          Vyorai Intern Workspace • Secure Role-Based Access
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div
-          className="iwms-card py-8 px-6 shadow-sm sm:px-10"
+          className="iwms-card py-8 px-5 sm:px-10 shadow-sm"
           style={{ background: "var(--iwms-white)", borderRadius: "16px" }}
         >
           {error && (
@@ -131,7 +131,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg shadow-xs text-sm font-semibold iwms-btn-primary transition-all disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg shadow-xs text-sm font-semibold iwms-btn-primary transition-all disabled:opacity-60"
               style={{
                 background: "var(--iwms-sky)",
                 color: "var(--iwms-navy)",

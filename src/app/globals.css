@@ -48,46 +48,33 @@ body {
   font-family: var(--font-sans, 'Inter', system-ui, sans-serif);
 }
 
-/* ─── Wave background ────────────────────────────────── */
+/* ─── Geometric Low-Poly / Tech Angled Facets ─────────────── */
 /*
-   A pure-CSS SVG wave layer placed behind the main content.
-   Applied to the main workspace area (class .iwms-workspace).
+   Crisp, modern enterprise tech facets with multi-tone translucent polygons.
+   Anchored at the base, creating high-tech depth without interfering with content.
 */
 .iwms-workspace {
   position: relative;
   overflow-x: hidden;
+  background-color: var(--iwms-bg);
 }
 
-.iwms-workspace::before,
-.iwms-workspace::after {
+.iwms-workspace::before {
   content: '';
   position: fixed;
   bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 240px;
   pointer-events: none;
   z-index: 0;
-}
-
-/* Bottom-left wave */
-.iwms-workspace::before {
-  left: 0;
-  width: 580px;
-  height: 400px;
   background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 580 400' fill='none'%3E%3Cpath d='M0 400 C120 320, 220 360, 340 310 C440 270, 500 230, 580 200 L580 400 Z' fill='%2338BDF8' fill-opacity='0.08'/%3E%3Cpath d='M0 400 C140 340, 260 370, 380 320 C460 290, 520 270, 580 240 L580 400 Z' fill='%2338BDF8' fill-opacity='0.12'/%3E%3Cpath d='M0 400 C160 360, 280 380, 420 340 C490 320, 540 300, 580 270 L580 400 Z' fill='%2338BDF8' fill-opacity='0.15'/%3E%3C/svg%3E")
-    no-repeat bottom left / contain;
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 240' preserveAspectRatio='none'%3E%3Cpolygon points='0,240 0,160 220,110 420,180 0,240' fill='%2338BDF8' fill-opacity='0.08'/%3E%3Cpolygon points='220,110 420,180 640,90 220,110' fill='%230284C7' fill-opacity='0.06'/%3E%3Cpolygon points='420,180 640,90 820,170 600,240 420,240' fill='%2338BDF8' fill-opacity='0.12'/%3E%3Cpolygon points='640,90 940,60 820,170 640,90' fill='%230EA5E9' fill-opacity='0.09'/%3E%3Cpolygon points='940,60 1180,130 820,170 940,60' fill='%2338BDF8' fill-opacity='0.06'/%3E%3Cpolygon points='820,170 1180,130 1100,240 600,240' fill='%230284C7' fill-opacity='0.11'/%3E%3Cpolygon points='1180,130 1440,80 1440,190 1100,240' fill='%2338BDF8' fill-opacity='0.13'/%3E%3Cpolygon points='1440,190 1440,240 1100,240' fill='%230EA5E9' fill-opacity='0.08'/%3E%3Cpolygon points='0,240 420,240 420,180 0,240' fill='%230284C7' fill-opacity='0.05'/%3E%3C/svg%3E")
+    no-repeat bottom center / 100% 100%;
 }
 
-/* Bottom-right wave */
-.iwms-workspace::after {
-  right: 0;
-  width: 720px;
-  height: 420px;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 420' fill='none'%3E%3Cpath d='M720 420 C580 300, 420 340, 280 280 C160 220, 80 250, 0 200 L0 420 Z' fill='%2338BDF8' fill-opacity='0.08'/%3E%3Cpath d='M720 420 C540 330, 380 360, 220 300 C120 260, 60 280, 0 240 L0 420 Z' fill='%2338BDF8' fill-opacity='0.12'/%3E%3Cpath d='M720 420 C480 360, 320 380, 160 330 C90 300, 40 320, 0 280 L0 420 Z' fill='%2338BDF8' fill-opacity='0.15'/%3E%3C/svg%3E")
-    no-repeat bottom right / contain;
-}
-
-/* All page content must sit above the wave layer */
+/* All page content sits cleanly above the wave layer */
 .iwms-workspace > * {
   position: relative;
   z-index: 1;
