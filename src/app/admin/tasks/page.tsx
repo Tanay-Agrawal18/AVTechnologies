@@ -93,6 +93,11 @@ export default function AdminTasksPage() {
     e.preventDefault();
     setModalError(null);
 
+    if (new Date(dueDate) < new Date(assignmentDate)) {
+      setModalError("Due date cannot be before the assignment date.");
+      return;
+    }
+
     const payload: Record<string, unknown> = {
       title,
       description,

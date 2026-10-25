@@ -78,6 +78,11 @@ export default function AdminProjectsPage() {
     e.preventDefault();
     setModalError(null);
 
+    if (new Date(dueDate) < new Date(startDate)) {
+      setModalError("Project due date cannot be before the start date");
+      return;
+    }
+
     if (selectedMemberIds.length < 2) {
       setModalError("Collaborative projects require at least 2 team members selected");
       return;

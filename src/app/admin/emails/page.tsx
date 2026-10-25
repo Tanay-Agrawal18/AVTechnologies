@@ -332,15 +332,22 @@ export default function AdminBulkEmailPage() {
               />
             </div>
 
-            <div className="flex justify-end pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setShowConfirmModal(true)}
-                disabled={!subject.trim() || !message.trim() || targetRecipients.length === 0}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 shadow-sm disabled:opacity-50"
-              >
-                <Send className="w-4 h-4" /> Review & Send to {targetRecipients.length} Recipient(s)
-              </button>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100">
+              {!isConfigured && (
+                <span className="text-xs text-amber-700 font-medium flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Outbound emails disabled: Configure SMTP or Resend credentials in server environment.
+                </span>
+              )}
+              <div className="ml-auto">
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmModal(true)}
+                  disabled={!isConfigured || !subject.trim() || !message.trim() || targetRecipients.length === 0}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="w-4 h-4" /> Review & Send to {targetRecipients.length} Recipient(s)
+                </button>
+              </div>
             </div>
           </div>
 
