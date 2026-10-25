@@ -74,8 +74,8 @@ body {
     no-repeat bottom center / 100% 100%;
 }
 
-/* All page content sits cleanly above the wave layer */
-.iwms-workspace > * {
+/* All direct page content sits cleanly above the background facets, except fixed elements like modals/drawers */
+.iwms-workspace > *:not([class*="fixed"]) {
   position: relative;
   z-index: 1;
 }
