@@ -362,16 +362,56 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
                     </div>
                   ) : (
                     notifications.map((item) => {
-                      const ContentWrapper = item.link ? Link : "div";
-                      const contentProps = item.link
-                        ? {
-                            href: item.link,
-                            onClick: () => {
-                              if (!item.isRead) handleMarkAsRead(item._id);
-                              setIsOpen(false);
-                            },
-                          }
-                        : {};
+                      if (item.link) {
+                        return (
+                          <div
+                            key={item._id}
+                            className={`p-3 sm:p-3.5 transition-colors relative flex items-start gap-3 hover:bg-slate-50/90 ${
+                              !item.isRead ? "bg-sky-50/40" : "bg-white"
+                            }`}
+                          >
+                            {getNotificationIcon(item.type)}
+                            <Link
+                              href={item.link}
+                              onClick={() => {
+                                if (!item.isRead) handleMarkAsRead(item._id);
+                                setIsOpen(false);
+                              }}
+                              className="flex-1 min-w-0 cursor-pointer block text-left"
+                            >
+                              <div className="flex items-center justify-between gap-1 mb-1">
+                                <h4
+                                  className={`text-xs truncate leading-snug ${
+                                    !item.isRead
+                                      ? "font-bold text-slate-900"
+                                      : "font-medium text-slate-700"
+                                  }`}
+                                >
+                                  {item.title}
+                                </h4>
+                                <span className="text-[10px] text-slate-400 shrink-0 font-normal">
+                                  {formatRelativeTime(item.createdAt)}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                                {item.message}
+                              </p>
+                            </Link>
+                            {!item.isRead && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMarkAsRead(item._id);
+                                }}
+                                title="Mark as read"
+                                className="w-5 h-5 rounded-full flex items-center justify-center text-slate-300 hover:text-sky-600 hover:bg-sky-50 transition-colors shrink-0 mt-0.5"
+                              >
+                                <span className="w-2 h-2 rounded-full bg-sky-500 ring-2 ring-sky-100" />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      }
 
                       return (
                         <div
@@ -381,10 +421,7 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
                           }`}
                         >
                           {getNotificationIcon(item.type)}
-                          <ContentWrapper
-                            {...(contentProps as any)}
-                            className="flex-1 min-w-0 cursor-pointer block text-left"
-                          >
+                          <div className="flex-1 min-w-0 block text-left">
                             <div className="flex items-center justify-between gap-1 mb-1">
                               <h4
                                 className={`text-xs truncate leading-snug ${
@@ -399,18 +436,20 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
                                 {formatRelativeTime(item.createdAt)}
                               </span>
                             </div>
-                            <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                            <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
                               {item.message}
                             </p>
-                          </ContentWrapper>
+                          </div>
                           {!item.isRead && (
                             <button
-                              onClick={(e) => handleMarkAsRead(item._id, e)}
-                              className="text-slate-300 hover:text-sky-600 shrink-0 p-1 rounded-full transition-colors self-center"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMarkAsRead(item._id);
+                              }}
                               title="Mark as read"
-                              aria-label="Mark as read"
+                              className="w-5 h-5 rounded-full flex items-center justify-center text-slate-300 hover:text-sky-600 hover:bg-sky-50 transition-colors shrink-0 mt-0.5"
                             >
-                              <div className="w-2 h-2 rounded-full bg-sky-500 shadow-xs" />
+                              <span className="w-2 h-2 rounded-full bg-sky-500 ring-2 ring-sky-100" />
                             </button>
                           )}
                         </div>
