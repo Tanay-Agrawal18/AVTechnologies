@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IAuditLogDocument extends Document {
   action: string;
-  targetModel: "User" | "Task" | "Submission" | "DocumentTemplate" | "IssuedDocument" | "Project";
+  targetModel: "User" | "Task" | "Submission" | "DocumentTemplate" | "IssuedDocument" | "Project" | "TaskTemplate";
   targetId: mongoose.Types.ObjectId;
   actorId: mongoose.Types.ObjectId;
   actorName: string;
@@ -22,7 +22,7 @@ const AuditLogSchema = new Schema<IAuditLogDocument>(
     targetModel: {
       type: String,
       required: true,
-      enum: ["User", "Task", "Submission", "DocumentTemplate", "IssuedDocument", "Project"],
+      enum: ["User", "Task", "Submission", "DocumentTemplate", "IssuedDocument", "Project", "TaskTemplate"],
       index: true,
     },
     targetId: {

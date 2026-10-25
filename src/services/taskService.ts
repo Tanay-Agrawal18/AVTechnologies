@@ -17,6 +17,7 @@ export interface CreateTaskInput {
   assignedInternId?: string;
   assignedInternIds?: string[];
   projectId?: string;
+  templateId?: string;
   assignmentDate: string;
   dueDate: string;
 }
@@ -422,6 +423,16 @@ export class TaskService {
       NotificationService.notifyTaskAssigned(task, actor).catch((err) => {
         console.error(`[TaskService] Failed to notify intern for task ${task._id}:`, err);
       });
+    }
+
+    if (data.templateId) {
+      import("./taskTemplateService")
+        .then(({ TaskTemplateService }) => {
+          TaskTemplateService.recordUsage(data.templateId!);
+        })
+        .catch((err) => {
+          console.error(`[TaskService] Failed to record template usage for ${data.templateId}:`, err);
+        });
     }
 
     await invalidateKpiCache();

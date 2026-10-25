@@ -71,6 +71,7 @@ export const CreateTaskSchema = z
     assignedInternId: z.string().optional(),
     assignedInternIds: z.array(z.string().min(1)).optional(),
     projectId: z.string().optional(),
+    templateId: z.string().optional(),
     assignmentDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid assignment date"),
     dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid due date"),
   })
@@ -189,3 +190,39 @@ export const UpdateNotificationSchema = z.object({
     message: "Either notificationId or markAllAsRead must be provided",
   }
 );
+
+export const CreateTaskTemplateSchema = z.object({
+  title: z.string().trim().min(3, "Title must be at least 3 characters").max(200),
+  description: z.string().trim().min(10, "Description must be at least 10 characters"),
+  priority: TaskPrioritySchema.default("medium"),
+  defaultDueDaysOffset: z.coerce
+    .number()
+    .int("Offset must be an integer")
+    .min(0, "Offset cannot be negative")
+    .max(365, "Offset cannot exceed 365 days")
+    .nullable()
+    .optional(),
+  tags: z.array(z.string().trim().min(1)).optional().default([]),
+  isActive: z.boolean().optional().default(true),
+});
+
+export const UpdateTaskTemplateSchema = z.object({
+  title: z.string().trim().min(3, "Title must be at least 3 characters").max(200).optional(),
+  description: z.string().trim().min(10, "Description must be at least 10 characters").optional(),
+  priority: TaskPrioritySchema.optional(),
+  defaultDueDaysOffset: z.coerce
+    .number()
+    .int("Offset must be an integer")
+    .min(0, "Offset cannot be negative")
+    .max(365, "Offset cannot exceed 365 days")
+    .nullable()
+    .optional(),
+  tags: z.array(z.string().trim().min(1)).optional(),
+  isActive: z.boolean().optional(),
+});
+
+export const TaskTemplateQuerySchema = z.object({
+  search: z.string().trim().optional(),
+  priority: z.enum(["all", "low", "medium", "high", "urgent"]).optional(),
+  includeInactive: z.enum(["true", "false"]).optional(),
+});

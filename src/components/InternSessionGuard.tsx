@@ -6,9 +6,14 @@ export function InternSessionGuard() {
   useEffect(() => {
     let isMounted = true;
 
+    const controller = new AbortController();
+
     const verifySession = async () => {
       try {
-        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        const res = await fetch("/api/auth/me", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
         if (res.status === 401 || res.status === 403) {
           // Immediately log out and redirect to login page
           window.location.href = "/login?error=inactive";
@@ -19,8 +24,11 @@ export function InternSessionGuard() {
         if (data?.user?.status && data.user.status !== "active") {
           window.location.href = "/login?error=inactive";
         }
-      } catch (err) {
-        console.error("Session verification failed:", err);
+      } catch (err: unknown) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return;
+        }
+        // Network errors or tab switching should not spam or throw unhandled rejections
       }
     };
 
@@ -37,6 +45,7 @@ export function InternSessionGuard() {
 
     return () => {
       isMounted = false;
+      controller.abort();
       clearInterval(timer);
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onFocus);
