@@ -53,6 +53,38 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                if (typeof window === 'undefined') return;
+                const origWarn = console.warn;
+                const origError = console.error;
+                const origLog = console.log;
+                const isExtensionNoise = (args) => {
+                  return args.some(arg => {
+                    const str = typeof arg === 'string' ? arg : (arg && arg.message ? arg.message : '');
+                    return str.includes('contentscript.js') ||
+                           str.includes('ObjectMultiplex') ||
+                           str.includes('MaxListenersExceededWarning') ||
+                           str.includes('app-init-liveness') ||
+                           str.includes('background-liveness');
+                  });
+                };
+                console.warn = function(...args) {
+                  if (isExtensionNoise(args)) return;
+                  origWarn.apply(console, args);
+                };
+                console.error = function(...args) {
+                  if (isExtensionNoise(args)) return;
+                  origError.apply(console, args);
+                };
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         {children}
         <PwaManager />
