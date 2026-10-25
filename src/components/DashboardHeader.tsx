@@ -359,7 +359,8 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
                       <p className="text-[11px] text-slate-400 mt-0.5 max-w-[200px]">
                         You don&apos;t have any unread alerts or reminders.
                       </p>
-                    </div>                  ) : (
+                    </div>
+                  ) : (
                     notifications.map((item) => (
                       <div
                         key={item._id}
@@ -391,7 +392,7 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
                                 {formatRelativeTime(item.createdAt)}
                               </span>
                             </div>
-                            <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                            <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
                               {item.message}
                             </p>
                           </Link>
@@ -411,14 +412,17 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
                                 {formatRelativeTime(item.createdAt)}
                               </span>
                             </div>
-                            <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                            <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
                               {item.message}
                             </p>
                           </div>
                         )}
                         {!item.isRead && (
                           <button
-                            onClick={(e) => handleMarkAsRead(item._id, e)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMarkAsRead(item._id);
+                            }}
                             className="text-slate-300 hover:text-sky-600 shrink-0 p-1 rounded-full transition-colors self-center"
                             title="Mark as read"
                             aria-label="Mark as read"
