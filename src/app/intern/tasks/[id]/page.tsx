@@ -440,23 +440,28 @@ export default function InternTaskDetailPage({
             {/* Feedback alert when revisions are requested */}
             {task.status === "changes_requested" && submissions.length > 0 && submissions[0].adminFeedback && (
               <div
-                className="iwms-card p-4 rounded-xl space-y-1.5"
+                className="iwms-card p-4 sm:p-5 rounded-xl space-y-2 border border-rose-300"
                 style={{
-                  borderLeft: "4px solid #ef4444",
-                  background: "rgba(239,68,68,.04)",
+                  borderLeft: "5px solid #ef4444",
+                  background: "#FEF2F2",
                 }}
               >
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-                  <h4 className="text-xs sm:text-sm font-bold text-red-900">
-                    Supervisor Feedback for Revision
-                  </h4>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+                    <h4 className="text-xs sm:text-sm font-bold text-rose-950">
+                      Supervisor Feedback &amp; Required Revisions
+                    </h4>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full border border-rose-200">
+                    Action Required
+                  </span>
                 </div>
-                <p className="text-xs text-red-800 leading-relaxed pl-6">
+                <div className="p-3 bg-white/80 rounded-lg border border-rose-200 text-xs text-rose-900 leading-relaxed font-medium">
                   {submissions[0].adminFeedback}
-                </p>
-                <p className="text-[10px] text-red-700/80 pl-6">
-                  Please address this feedback and submit your revised deliverables below.
+                </div>
+                <p className="text-[11px] text-rose-800">
+                  Please update your work deliverables based on the instructions above, then submit Version {submissions[0].version + 1} below.
                 </p>
               </div>
             )}

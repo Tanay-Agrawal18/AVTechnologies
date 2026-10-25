@@ -208,18 +208,29 @@ export default function InternTasksPage() {
 
                   <Link
                     href={`/intern/tasks/${task._id}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold text-white transition-all shadow-xs hover:opacity-90 shrink-0"
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold text-white transition-all shadow-xs hover:opacity-90 shrink-0 ${
+                      task.status === "changes_requested"
+                        ? "animate-pulse"
+                        : ""
+                    }`}
                     style={{
-                      background: task.status === "approved" ? "#10b981" : "#1D6CE5",
+                      background:
+                        task.status === "approved"
+                          ? "#10b981"
+                          : task.status === "changes_requested"
+                          ? "#ef4444"
+                          : task.status === "submitted"
+                          ? "#f59e0b"
+                          : "#1D6CE5",
                       borderRadius: "7px",
                     }}
                   >
                     {task.status === "assigned"
                       ? "Start Task"
                       : task.status === "approved"
-                      ? "View Submission"
+                      ? "View Completed"
                       : task.status === "submitted"
-                      ? "View Status"
+                      ? "Awaiting Review"
                       : task.status === "changes_requested"
                       ? "Review & Revise"
                       : "Submit Work"} <ArrowRight className="w-3 h-3" />
