@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { IUser, ITask } from "@/types";
 import { formatDate, getStatusBadgeClass, getPriorityBadgeClass } from "@/lib/utils";
@@ -14,6 +15,7 @@ import {
   CheckSquare,
   AlertCircle,
   Edit2,
+  Trash2,
 } from "lucide-react";
 
 export default function AdminInternDetailPage({
@@ -22,10 +24,12 @@ export default function AdminInternDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
   const [intern, setIntern] = useState<IUser | null>(null);
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [resetMessage, setResetMessage] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Edit Member Modal State
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -88,6 +92,34 @@ export default function AdminInternDetailPage({
       if (res.ok) fetchDetail();
     } catch {
       alert("Failed to update status");
+    }
+  };
+
+  const handleDeleteIntern = async () => {
+    if (!intern) return;
+    const promptText = `⚠️ PERMANENT HARD DELETE\n\nAre you sure you want to completely delete intern "${intern.name}" (${intern.internId || intern.email})?\n\nThis will permanently delete:\n• The intern user profile\n• All tasks assigned or transferred to them\n• All their submissions, code files, and attachments\n• All daily progress images\n• All issued documents (offer letters, certificates)\n• All related email logs\n• Remove them from all project teams\n\nType DELETE to confirm:`;
+    const input = prompt(promptText);
+    if (input !== "DELETE") {
+      if (input !== null) {
+        alert("Deletion cancelled. You must type DELETE exactly to proceed.");
+      }
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/interns/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to delete intern");
+      }
+      alert(`Intern "${intern.name}" and all associated data have been permanently deleted.`);
+      router.push("/admin/interns");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to delete intern");
+      setIsDeleting(false);
     }
   };
 
@@ -197,19 +229,27 @@ export default function AdminInternDetailPage({
               onClick={handleToggleStatus}
               className={`col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-lg ${
                 intern.status === "active"
-                  ? "bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100"
+                  ? "bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200"
                   : "bg-emerald-600 text-white hover:bg-emerald-700"
               }`}
             >
               {intern.status === "active" ? (
                 <>
-                  <XCircle className="w-4 h-4" /> Deactivate Intern
+                  <XCircle className="w-4 h-4 text-slate-500" /> Deactivate
                 </>
               ) : (
                 <>
-                  <CheckCircle className="w-4 h-4" /> Activate Intern
+                  <CheckCircle className="w-4 h-4" /> Activate
                 </>
               )}
+            </button>
+            <button
+              onClick={handleDeleteIntern}
+              disabled={isDeleting}
+              className="col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-lg bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4 text-rose-600 shrink-0" />
+              {isDeleting ? "Deleting..." : "Delete Intern"}
             </button>
           </div>
         </div>
@@ -376,7 +416,7 @@ export default function AdminInternDetailPage({
                   required
                   value={editInternId}
                   onChange={(e) => setEditInternId(e.target.value)}
-                  placeholder="e.g. AV-2026-001"
+                  placeholder="e.g. VYOR-26-01"
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
                 />
               </div>

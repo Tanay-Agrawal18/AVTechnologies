@@ -38,7 +38,7 @@ export const CreateInternSchema = z.object({
   internId: z
     .string()
     .trim()
-    .regex(/^AV/i, "Intern ID must start with 'AV' (e.g. AV-001 or AV-2026-001)")
+    .regex(/^(?:VYOR|AV)/i, "Intern ID must start with 'VYOR' or 'AV' (e.g. VYOR-26-01)")
     .optional(),
   department: z.string().trim().optional(),
   designation: z.string().trim().optional(),
@@ -53,7 +53,7 @@ export const UpdateInternSchema = z.object({
   internId: z
     .string()
     .trim()
-    .regex(/^AV/i, "Intern ID must start with 'AV' (e.g. AV-001 or AV-2026-001)")
+    .regex(/^(?:VYOR|AV)/i, "Intern ID must start with 'VYOR' or 'AV' (e.g. VYOR-26-01)")
     .optional(),
   department: z.string().trim().optional(),
   designation: z.string().trim().optional(),

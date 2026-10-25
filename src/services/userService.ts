@@ -32,7 +32,8 @@ export class UserService {
   static async generateNextInternId(): Promise<string> {
     await connectDB();
     const currentYear = new Date().getFullYear();
-    const prefix = `AV-${currentYear}-`;
+    const shortYear = String(currentYear).slice(-2); // e.g. "26" for 2026
+    const prefix = `VYOR-${shortYear}-`;
 
     // Fetch all interns who have an internId
     const interns = await User.find(
@@ -43,17 +44,17 @@ export class UserService {
     let maxNum = 0;
     for (const intern of interns) {
       if (!intern.internId) continue;
-      // Match AV-YYYY-XXX or AV-XXX
-      const matchYear = intern.internId.match(new RegExp(`^AV-${currentYear}-(\\d+)$`, "i"));
-      if (matchYear) {
-        const num = parseInt(matchYear[1], 10);
+      // Match VYOR-YY-NN (or VYOR-YYYY-NN, or legacy prefixes)
+      const matchVyor = intern.internId.match(new RegExp(`^VYOR-(?:${shortYear}|${currentYear})-(\\d+)$`, "i"));
+      if (matchVyor) {
+        const num = parseInt(matchVyor[1], 10);
         if (!isNaN(num) && num > maxNum) {
           maxNum = num;
         }
       } else {
-        const matchShort = intern.internId.match(/^AV-(\d+)$/i);
-        if (matchShort) {
-          const num = parseInt(matchShort[1], 10);
+        const matchAnyVyor = intern.internId.match(/^VYOR-\d+-(\d+)$/i);
+        if (matchAnyVyor) {
+          const num = parseInt(matchAnyVyor[1], 10);
           if (!isNaN(num) && num > maxNum) {
             maxNum = num;
           }
@@ -62,12 +63,13 @@ export class UserService {
     }
 
     let nextNum = maxNum + 1;
-    let candidate = `${prefix}${String(nextNum).padStart(3, "0")}`;
+    // Format as 2-digit padded number (01, 02, ... 10, etc.)
+    let candidate = `${prefix}${String(nextNum).padStart(2, "0")}`;
 
     // Ensure uniqueness in case of race condition or custom formatted ids
     while (await User.exists({ internId: candidate })) {
       nextNum++;
-      candidate = `${prefix}${String(nextNum).padStart(3, "0")}`;
+      candidate = `${prefix}${String(nextNum).padStart(2, "0")}`;
     }
 
     return candidate;
@@ -200,5 +202,195 @@ export class UserService {
     user.status = targetStatus;
     await user.save();
     return user;
+  }
+
+  static async deleteIntern(
+    internId: string,
+    actorAdmin: { id: string; name: string; role: "admin" }
+  ): Promise<{
+    deletedIntern: { id: string; name: string; email: string; internId?: string };
+    deletedTasksCount: number;
+    deletedSubmissionsCount: number;
+    deletedFilesCount: number;
+    deletedImagesCount: number;
+    deletedDocsCount: number;
+  }> {
+    await connectDB();
+    const { Task } = await import("@/models/Task");
+    const { TaskEvent } = await import("@/models/TaskEvent");
+    const { Submission } = await import("@/models/Submission");
+    const { DailyProgressImage } = await import("@/models/DailyProgressImage");
+    const { IssuedDocument } = await import("@/models/IssuedDocument");
+    const { EmailLog } = await import("@/models/EmailLog");
+    const { Project } = await import("@/models/Project");
+    const { AuditLog } = await import("@/models/AuditLog");
+    const { getStorageAdapter } = await import("@/lib/storage");
+    const { deleteFromCloudinary, isCloudinaryConfigured } = await import("@/lib/cloudinary");
+
+    const intern = await User.findOne({ _id: internId, role: "intern" });
+    if (!intern) {
+      throw new Error("Intern not found");
+    }
+
+    const storage = getStorageAdapter();
+    let deletedFilesCount = 0;
+    let deletedImagesCount = 0;
+
+    // 1. Find all submissions by this intern or linked to their tasks to clean up files
+    const internTasks = await Task.find({
+      $or: [{ assignedInternId: intern._id }, { transferredToInternId: intern._id }],
+    }).select("_id");
+    const taskIds = internTasks.map((t) => t._id);
+
+    const submissions = await Submission.find({
+      $or: [{ internId: intern._id }, { taskId: { $in: taskIds } }],
+    });
+
+    for (const sub of submissions) {
+      if (sub.attachments && sub.attachments.length > 0) {
+        for (const att of sub.attachments) {
+          if (att.fileKey) {
+            try {
+              await storage.deleteFile(att.fileKey);
+              deletedFilesCount++;
+            } catch (err) {
+              console.error(`Failed to delete storage file ${att.fileKey}:`, err);
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Find and delete daily progress images from Cloudinary & DB
+    const progressImages = await DailyProgressImage.find({
+      $or: [{ internId: intern._id }, { taskId: { $in: taskIds } }],
+    });
+
+    const hasCloudinary = isCloudinaryConfigured();
+    for (const img of progressImages) {
+      if (hasCloudinary && img.cloudinaryPublicId) {
+        try {
+          await deleteFromCloudinary(img.cloudinaryPublicId);
+        } catch (err) {
+          console.error(`Failed to delete Cloudinary image ${img.cloudinaryPublicId}:`, err);
+        }
+      }
+      deletedImagesCount++;
+    }
+    await DailyProgressImage.deleteMany({
+      $or: [{ internId: intern._id }, { taskId: { $in: taskIds } }],
+    });
+
+    // 3. Delete Submissions
+    const subRes = await Submission.deleteMany({
+      $or: [{ internId: intern._id }, { taskId: { $in: taskIds } }],
+    });
+
+    // 4. Delete TaskEvents for these tasks or where intern was actor
+    await TaskEvent.deleteMany({
+      $or: [{ taskId: { $in: taskIds } }, { actorId: intern._id }],
+    });
+
+    // 5. Delete Tasks
+    const taskRes = await Task.deleteMany({
+      $or: [{ assignedInternId: intern._id }, { transferredToInternId: intern._id }],
+    });
+
+    // 6. Delete IssuedDocuments (Offer letters, certificates, etc.)
+    const docRes = await IssuedDocument.deleteMany({ recipientInternId: intern._id });
+
+    // 7. Delete Email Logs
+    await EmailLog.deleteMany({
+      $or: [{ recipientId: intern._id }, { recipientEmail: intern.email.toLowerCase() }],
+    });
+
+    // 8. Remove intern from Project teamMembers and removedMembers arrays
+    await Project.updateMany(
+      {
+        $or: [
+          { "teamMembers.internId": intern._id },
+          { "removedMembers.internId": intern._id },
+        ],
+      },
+      {
+        $pull: {
+          teamMembers: { internId: intern._id },
+          removedMembers: { internId: intern._id },
+        },
+      }
+    );
+
+    // 9. Delete the User record
+    await User.findByIdAndDelete(intern._id);
+
+    // 10. Audit Log
+    await AuditLog.create({
+      action: "intern_deleted",
+      targetModel: "User",
+      targetId: intern._id,
+      actorId: actorAdmin.id,
+      actorName: actorAdmin.name,
+      actorRole: actorAdmin.role,
+      metadata: {
+        deletedInternName: intern.name,
+        deletedInternEmail: intern.email,
+        deletedInternId: intern.internId,
+        tasksDeleted: taskRes.deletedCount,
+        submissionsDeleted: subRes.deletedCount,
+        docsDeleted: docRes.deletedCount,
+        filesDeleted: deletedFilesCount,
+      },
+    });
+
+    return {
+      deletedIntern: {
+        id: intern._id.toString(),
+        name: intern.name,
+        email: intern.email,
+        internId: intern.internId,
+      },
+      deletedTasksCount: taskRes.deletedCount,
+      deletedSubmissionsCount: subRes.deletedCount,
+      deletedFilesCount,
+      deletedImagesCount,
+      deletedDocsCount: docRes.deletedCount,
+    };
+  }
+
+  static async deleteAllInterns(
+    actorAdmin: { id: string; name: string; role: "admin" }
+  ): Promise<{
+    deletedInternsCount: number;
+    deletedTasksCount: number;
+    deletedSubmissionsCount: number;
+    deletedFilesCount: number;
+    deletedImagesCount: number;
+    deletedDocsCount: number;
+  }> {
+    await connectDB();
+    const interns = await User.find({ role: "intern" }).select("_id");
+    let totalTasks = 0;
+    let totalSubmissions = 0;
+    let totalFiles = 0;
+    let totalImages = 0;
+    let totalDocs = 0;
+
+    for (const intern of interns) {
+      const res = await this.deleteIntern(intern._id.toString(), actorAdmin);
+      totalTasks += res.deletedTasksCount;
+      totalSubmissions += res.deletedSubmissionsCount;
+      totalFiles += res.deletedFilesCount;
+      totalImages += res.deletedImagesCount;
+      totalDocs += res.deletedDocsCount;
+    }
+
+    return {
+      deletedInternsCount: interns.length,
+      deletedTasksCount: totalTasks,
+      deletedSubmissionsCount: totalSubmissions,
+      deletedFilesCount: totalFiles,
+      deletedImagesCount: totalImages,
+      deletedDocsCount: totalDocs,
+    };
   }
 }

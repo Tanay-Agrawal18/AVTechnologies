@@ -142,3 +142,31 @@ export async function PATCH(
     return NextResponse.json({ error: errorMsg }, { status: 400 });
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const auth = await requireAuth(["admin"]);
+  if (!auth.ok) return auth.response;
+
+  const { id } = await params;
+
+  try {
+    const result = await UserService.deleteIntern(id, {
+      id: auth.user.id,
+      name: auth.user.name,
+      role: "admin",
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Intern ${result.deletedIntern.name} and all associated data successfully deleted.`,
+      result,
+    });
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Failed to delete intern";
+    const status = errorMsg === "Intern not found" ? 404 : 500;
+    return NextResponse.json({ error: errorMsg }, { status });
+  }
+}

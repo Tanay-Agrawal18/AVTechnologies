@@ -81,3 +81,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: errorMsg }, { status: 400 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  const auth = await requireAuth(["admin"]);
+  if (!auth.ok) return auth.response;
+
+  try {
+    const result = await UserService.deleteAllInterns({
+      id: auth.user.id,
+      name: auth.user.name,
+      role: "admin",
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Successfully deleted ${result.deletedInternsCount} intern(s) and all associated data.`,
+      result,
+    });
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Failed to delete interns";
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
+  }
+}

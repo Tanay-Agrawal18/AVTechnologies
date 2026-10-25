@@ -17,10 +17,18 @@ describe("Validation Schemas & Boundaries", () => {
     const valid = CreateInternSchema.safeParse({
       name: "Alice Johnson",
       email: "alice@company.com",
-      internId: "AV-101",
+      internId: "VYOR-26-01",
       department: "Engineering",
     });
     expect(valid.success).toBe(true);
+
+    const validLegacy = CreateInternSchema.safeParse({
+      name: "Alice Legacy",
+      email: "alice2@company.com",
+      internId: "AV-101",
+      department: "Engineering",
+    });
+    expect(validLegacy.success).toBe(true);
 
     const validAutoId = CreateInternSchema.safeParse({
       name: "Bob Builder",

@@ -176,7 +176,7 @@ export default function AdminImportPage() {
             </div>
             <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
               <span className="font-bold text-slate-900 block mb-0.5">internId <span className="text-slate-400">Optional</span></span>
-              <span>Company ID starting with &apos;AV&apos; (e.g. AV-2026-001).</span>
+              <span>Company ID starting with &apos;VYOR&apos; or &apos;AV&apos; (e.g. VYOR-26-01).</span>
             </div>
             <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
               <span className="font-bold text-slate-900 block mb-0.5">department <span className="text-slate-400">Optional</span></span>

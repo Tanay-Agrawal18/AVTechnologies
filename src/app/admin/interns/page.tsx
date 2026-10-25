@@ -16,6 +16,7 @@ import {
   AlertCircle,
   ExternalLink,
   Edit2,
+  Trash2,
 } from "lucide-react";
 
 export default function AdminInternsPage() {
@@ -143,6 +144,63 @@ export default function AdminInternsPage() {
     }
   };
 
+  const handleDeleteIntern = async (intern: IUser) => {
+    const promptText = `⚠️ PERMANENT HARD DELETE\n\nAre you sure you want to completely delete intern "${intern.name}" (${intern.internId || intern.email})?\n\nThis will permanently delete:\n• The intern user profile\n• All tasks assigned or transferred to them\n• All their submissions, code files, and attachments\n• All daily progress images\n• All issued documents (offer letters, certificates)\n• All related email logs\n• Remove them from all project teams\n\nType DELETE to confirm:`;
+    const input = prompt(promptText);
+    if (input !== "DELETE") {
+      if (input !== null) {
+        alert("Deletion cancelled. You must type DELETE exactly to proceed.");
+      }
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/interns/${intern._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to delete intern");
+      }
+      setCopiedLink(`Intern "${intern.name}" and all data permanently deleted.`);
+      setTimeout(() => setCopiedLink(null), 5000);
+      fetchInterns();
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to delete intern");
+    }
+  };
+
+  const handleDeleteAllInterns = async () => {
+    if (interns.length === 0) {
+      alert("There are no interns to delete.");
+      return;
+    }
+
+    const promptText = `🚨 DANGER: DELETE ALL INTERNS & ALL DATA\n\nYou are about to permanently delete ALL ${interns.length} interns and ALL their associated data (tasks, submissions, files, images, documents, and email logs) from the entire database!\n\nThis action CANNOT be undone.\n\nType DELETE ALL to confirm:`;
+    const input = prompt(promptText);
+    if (input !== "DELETE ALL") {
+      if (input !== null) {
+        alert("Deletion cancelled. You must type DELETE ALL exactly to proceed.");
+      }
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/interns", {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to delete all interns");
+      }
+      setCopiedLink(data.message || "All interns and all associated data have been permanently deleted.");
+      setTimeout(() => setCopiedLink(null), 6000);
+      fetchInterns();
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to delete all interns");
+    }
+  };
+
   const openEditModal = (intern: IUser) => {
     setEditingIntern(intern);
     setEditName(intern.name);
@@ -267,6 +325,13 @@ export default function AdminInternsPage() {
             >
               <UserPlus className="w-4 h-4 shrink-0" /> Add Intern
             </button>
+            <button
+              onClick={handleDeleteAllInterns}
+              title="Delete all interns and all their data"
+              className="col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all active:scale-95 text-center"
+            >
+              <Trash2 className="w-4 h-4 shrink-0 text-rose-600" /> Delete All Interns
+            </button>
           </div>
         </div>
 
@@ -363,6 +428,13 @@ export default function AdminInternsPage() {
                             ) : (
                               <CheckCircle className="w-4 h-4" />
                             )}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteIntern(intern)}
+                            title="Delete intern and all associated data permanently"
+                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded hover:bg-rose-50 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
@@ -534,7 +606,7 @@ export default function AdminInternsPage() {
                   required
                   value={editInternId}
                   onChange={(e) => setEditInternId(e.target.value)}
-                  placeholder="e.g. AV-2026-001"
+                  placeholder="e.g. VYOR-26-01"
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
                 />
               </div>
