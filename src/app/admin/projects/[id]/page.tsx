@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { IProject, ITask, IUser } from "@/types";
 import { formatDate, getStatusBadgeClass, getPriorityBadgeClass } from "@/lib/utils";
@@ -17,6 +18,7 @@ import {
   UserMinus,
   AlertCircle,
   ExternalLink,
+  Trash2,
 } from "lucide-react";
 
 interface ProjectDetailData {
@@ -41,9 +43,33 @@ export default function AdminProjectDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
   const [data, setData] = useState<ProjectDetailData | null>(null);
   const [interns, setInterns] = useState<IUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteProject = async () => {
+    if (!data?.project) return;
+    if (!confirm(`Are you sure you want to delete "${data.project.title}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/projects/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        router.push("/admin/projects");
+      } else {
+        const json = await res.json();
+        alert(json.error || "Failed to delete project");
+        setIsDeleting(false);
+      }
+    } catch {
+      alert("Failed to delete project");
+      setIsDeleting(false);
+    }
+  };
 
   // New Task Modal State
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -242,7 +268,15 @@ export default function AdminProjectDetailPage({
             <ArrowLeft className="w-4 h-4 shrink-0" /> Back to Team Projects
           </Link>
 
-          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3">
+          <div className="flex flex-wrap sm:flex-nowrap sm:items-center gap-2 sm:gap-3">
+            <button
+              onClick={handleDeleteProject}
+              disabled={isDeleting}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-medium border border-rose-200 text-rose-600 rounded-lg bg-rose-50/50 hover:bg-rose-100 hover:border-rose-300 transition-colors text-center disabled:opacity-50"
+            >
+              <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> {isDeleting ? "Deleting..." : "Delete Project"}
+            </button>
+
             <button
               onClick={() => {
                 setAddMemberError(null);

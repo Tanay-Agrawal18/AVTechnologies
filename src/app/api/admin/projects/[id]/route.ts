@@ -48,3 +48,23 @@ export async function PATCH(
     return NextResponse.json({ error: errorMsg }, { status: 400 });
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const auth = await requireAuth(["admin"]);
+  if (!auth.ok) return auth.response;
+
+  const { id } = await params;
+
+  try {
+    await ProjectService.deleteProject(id, auth.user);
+    return NextResponse.json({ success: true, message: "Project deleted successfully" });
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Failed to delete project";
+    const status = errorMsg.includes("not found") ? 404 : 400;
+    return NextResponse.json({ error: errorMsg }, { status });
+  }
+}
+

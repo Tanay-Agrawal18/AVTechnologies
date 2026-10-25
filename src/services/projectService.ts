@@ -289,6 +289,35 @@ export class ProjectService {
     return project;
   }
 
+  static async deleteProject(projectId: string, actor: SessionUser): Promise<void> {
+    if (actor.role !== "admin") {
+      throw new Error("Unauthorized: Only administrators can delete projects");
+    }
+
+    await connectDB();
+    const project = await Project.findById(projectId);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    // Unlink any associated tasks so they don't break
+    await Task.updateMany({ projectId: project._id }, { $unset: { projectId: 1 } });
+
+    await Project.findByIdAndDelete(projectId);
+
+    await AuditLog.create({
+      action: "project_deleted",
+      targetModel: "Project",
+      targetId: project._id,
+      actorId: actor.id,
+      actorName: actor.name,
+      actorRole: actor.role,
+      changes: {
+        title: { from: project.title, to: null },
+      },
+    });
+  }
+
   static async manageTeamMember(
     projectId: string,
     data: ManageMemberInput,

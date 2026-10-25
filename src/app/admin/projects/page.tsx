@@ -12,6 +12,7 @@ import {
   Calendar,
   ArrowRight,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
 
 export default function AdminProjectsPage() {
@@ -19,6 +20,27 @@ export default function AdminProjectsPage() {
   const [interns, setInterns] = useState<IUser[]>([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDeleteProject = async (id: string, projectTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${projectTitle}"? This cannot be undone.`)) {
+      return;
+    }
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/admin/projects/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setProjects((prev) => prev.filter((p) => p._id !== id));
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to delete project");
+      }
+    } catch {
+      alert("Failed to delete project");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   // New Project Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -312,13 +334,24 @@ export default function AdminProjectsPage() {
                       <span className="text-slate-600 font-semibold">{formatDate(proj.startDate)}</span>
                     </div>
 
-                    <Link
-                      href={`/admin/projects/${proj._id}`}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-sm hover:shadow-blue-500/25 transition-all transform hover:-translate-y-0.5"
-                    >
-                      <span>View & Manage</span>
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleDeleteProject(proj._id, proj.title)}
+                        disabled={deletingId === proj._id}
+                        className="inline-flex items-center justify-center p-2 rounded-xl text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors disabled:opacity-50"
+                        title="Delete Project"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+
+                      <Link
+                        href={`/admin/projects/${proj._id}`}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-sm hover:shadow-blue-500/25 transition-all transform hover:-translate-y-0.5"
+                      >
+                        <span>View & Manage</span>
+                        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               );
