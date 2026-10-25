@@ -6,6 +6,12 @@ import { TaskEvent } from "@/models/TaskEvent";
 import { User } from "@/models/User";
 import { AuditLog } from "@/models/AuditLog";
 import { SessionUser, ProjectStatus, TaskPriority } from "@/types";
+import {
+  getOrSetCache,
+  invalidateProjectsCache,
+  CACHE_KEYS,
+  CACHE_TTL,
+} from "@/lib/cache";
 
 export interface CreateProjectInput {
   title: string;
@@ -107,6 +113,8 @@ export class ProjectService {
       },
     });
 
+    await invalidateProjectsCache(project._id.toString());
+
     return project;
   }
 
@@ -114,30 +122,39 @@ export class ProjectService {
     actor: SessionUser,
     statusFilter?: string
   ): Promise<IProjectDocument[]> {
-    await connectDB();
+    const cacheKey = CACHE_KEYS.projectsList(actor.role, actor.id, statusFilter);
 
-    const query: Record<string, unknown> = {};
+    return getOrSetCache(
+      cacheKey,
+      CACHE_TTL.PROJECTS_LIST,
+      async () => {
+        await connectDB();
 
-    if (statusFilter && statusFilter !== "all") {
-      query.status = statusFilter;
-    }
+        const query: Record<string, unknown> = {};
 
-    // Role-based filtering:
-    // Admin sees all projects
-    // Intern only sees projects where they are currently a team member or a past member
-    if (actor.role === "intern") {
-      query.$or = [
-        { "teamMembers.internId": new mongoose.Types.ObjectId(actor.id) },
-        { "removedMembers.internId": new mongoose.Types.ObjectId(actor.id) },
-      ];
-    }
+        if (statusFilter && statusFilter !== "all") {
+          query.status = statusFilter;
+        }
 
-    const projects = await Project.find(query)
-      .populate("teamMembers.internId", "name email internId department status")
-      .populate("removedMembers.internId", "name email internId department")
-      .sort({ createdAt: -1 });
+        // Role-based filtering:
+        // Admin sees all projects
+        // Intern only sees projects where they are currently a team member or a past member
+        if (actor.role === "intern") {
+          query.$or = [
+            { "teamMembers.internId": new mongoose.Types.ObjectId(actor.id) },
+            { "removedMembers.internId": new mongoose.Types.ObjectId(actor.id) },
+          ];
+        }
 
-    return projects;
+        const projects = await Project.find(query)
+          .populate("teamMembers.internId", "name email internId department status")
+          .populate("removedMembers.internId", "name email internId department")
+          .sort({ createdAt: -1 });
+
+        return projects;
+      },
+      CACHE_KEYS.allProjectListKeys()
+    );
   }
 
   static async getProjectById(
@@ -148,88 +165,97 @@ export class ProjectService {
     tasks: ITaskDocument[];
     progress: ProjectProgressSummary;
   }> {
-    await connectDB();
+    const cacheKey = CACHE_KEYS.projectDetail(projectId, actor.role, actor.id);
 
-    const project = await Project.findById(projectId)
-      .populate("teamMembers.internId", "name email internId department status")
-      .populate("removedMembers.internId", "name email internId department")
-      .populate("createdByAdminId", "name email");
+    return getOrSetCache(
+      cacheKey,
+      CACHE_TTL.PROJECT_DETAIL,
+      async () => {
+        await connectDB();
 
-    if (!project) {
-      throw new Error("Project not found");
-    }
+        const project = await Project.findById(projectId)
+          .populate("teamMembers.internId", "name email internId department status")
+          .populate("removedMembers.internId", "name email internId department")
+          .populate("createdByAdminId", "name email");
 
-    // Authorization guard
-    if (actor.role === "intern") {
-      const isMember = project.teamMembers.some(
-        (m) => m.internId && m.internId._id.toString() === actor.id
-      );
-      const isPastMember = project.removedMembers.some(
-        (m) => m.internId && m.internId._id.toString() === actor.id
-      );
+        if (!project) {
+          throw new Error("Project not found");
+        }
 
-      if (!isMember && !isPastMember) {
-        throw new Error("Access denied: You are not authorized to view this project");
-      }
-    }
+        // Authorization guard
+        if (actor.role === "intern") {
+          const isMember = project.teamMembers.some(
+            (m) => m.internId && m.internId._id.toString() === actor.id
+          );
+          const isPastMember = project.removedMembers.some(
+            (m) => m.internId && m.internId._id.toString() === actor.id
+          );
 
-    // Fetch tasks linked to this project
-    const tasks = await Task.find({ projectId: project._id })
-      .populate("assignedInternId", "name email internId department")
-      .sort({ createdAt: -1 });
+          if (!isMember && !isPastMember) {
+            throw new Error("Access denied: You are not authorized to view this project");
+          }
+        }
 
-    // Compute progress stats
-    let assigned = 0;
-    let inProgress = 0;
-    let submitted = 0;
-    let changesRequested = 0;
-    let approved = 0;
-    let unassigned = 0;
-    let transferred = 0;
+        // Fetch tasks linked to this project
+        const tasks = await Task.find({ projectId: project._id })
+          .populate("assignedInternId", "name email internId department")
+          .sort({ createdAt: -1 });
 
-    tasks.forEach((t) => {
-      switch (t.status) {
-        case "assigned":
-          assigned++;
-          break;
-        case "in_progress":
-          inProgress++;
-          break;
-        case "submitted":
-          submitted++;
-          break;
-        case "changes_requested":
-          changesRequested++;
-          break;
-        case "approved":
-          approved++;
-          break;
-        case "unassigned":
-          unassigned++;
-          break;
-        case "transferred":
-          transferred++;
-          break;
-      }
-    });
+        // Compute progress stats
+        let assigned = 0;
+        let inProgress = 0;
+        let submitted = 0;
+        let changesRequested = 0;
+        let approved = 0;
+        let unassigned = 0;
+        let transferred = 0;
 
-    const activeTasksCount = assigned + inProgress + submitted + changesRequested + approved;
-    const completionPercentage =
-      activeTasksCount > 0 ? Math.round((approved / activeTasksCount) * 100) : 0;
+        tasks.forEach((t) => {
+          switch (t.status) {
+            case "assigned":
+              assigned++;
+              break;
+            case "in_progress":
+              inProgress++;
+              break;
+            case "submitted":
+              submitted++;
+              break;
+            case "changes_requested":
+              changesRequested++;
+              break;
+            case "approved":
+              approved++;
+              break;
+            case "unassigned":
+              unassigned++;
+              break;
+            case "transferred":
+              transferred++;
+              break;
+          }
+        });
 
-    const progress: ProjectProgressSummary = {
-      totalTasks: tasks.length,
-      assigned,
-      inProgress,
-      submitted,
-      changesRequested,
-      approved,
-      unassigned,
-      transferred,
-      completionPercentage,
-    };
+        const activeTasksCount = assigned + inProgress + submitted + changesRequested + approved;
+        const completionPercentage =
+          activeTasksCount > 0 ? Math.round((approved / activeTasksCount) * 100) : 0;
 
-    return { project, tasks, progress };
+        const progress: ProjectProgressSummary = {
+          totalTasks: tasks.length,
+          assigned,
+          inProgress,
+          submitted,
+          changesRequested,
+          approved,
+          unassigned,
+          transferred,
+          completionPercentage,
+        };
+
+        return { project, tasks, progress };
+      },
+      CACHE_KEYS.projectTags(projectId)
+    );
   }
 
   static async updateProject(
@@ -286,6 +312,8 @@ export class ProjectService {
       });
     }
 
+    await invalidateProjectsCache(projectId);
+
     return project;
   }
 
@@ -316,6 +344,8 @@ export class ProjectService {
         title: { from: project.title, to: null },
       },
     });
+
+    await invalidateProjectsCache(projectId);
   }
 
   static async manageTeamMember(
@@ -404,6 +434,8 @@ export class ProjectService {
       });
     }
 
+    await invalidateProjectsCache(projectId);
+
     return project;
   }
 
@@ -480,6 +512,8 @@ export class ProjectService {
       note: `Linked to project: ${project.title}`,
       timestamp: new Date(),
     });
+
+    await invalidateProjectsCache(projectId);
 
     return task;
   }

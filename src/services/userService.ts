@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import { User, IUserDocument } from "@/models/User";
 import { SessionUser } from "@/types";
+import { invalidateKpiCache, invalidateProjectsCache } from "@/lib/cache";
 
 export interface CreateInternInput {
   name: string;
@@ -171,6 +172,7 @@ export class UserService {
     user.resetPasswordExpires = undefined;
 
     await user.save();
+    await invalidateKpiCache();
     return user;
   }
 
@@ -201,6 +203,7 @@ export class UserService {
 
     user.status = targetStatus;
     await user.save();
+    await invalidateKpiCache();
     return user;
   }
 
@@ -341,6 +344,9 @@ export class UserService {
         filesDeleted: deletedFilesCount,
       },
     });
+
+    await invalidateKpiCache();
+    await invalidateProjectsCache();
 
     return {
       deletedIntern: {

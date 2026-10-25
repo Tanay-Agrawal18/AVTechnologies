@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
+import { isRedisHealthy } from "@/lib/redis";
 
 export async function GET() {
   try {
     const mongooseInstance = await connectDB();
     const readyState = mongooseInstance.connection.readyState;
+    const redisConnected = await isRedisHealthy();
 
     // readyState: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
     if (readyState === 1) {
@@ -16,6 +18,7 @@ export async function GET() {
       return NextResponse.json({
         status: "healthy",
         database: "connected",
+        redis: redisConnected ? "connected" : "degraded",
         timestamp: new Date().toISOString(),
       });
     }

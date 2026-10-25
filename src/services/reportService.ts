@@ -2,6 +2,7 @@ import * as XLSX from "xlsx";
 import { connectDB } from "@/lib/db";
 import { Task } from "@/models/Task";
 import { User } from "@/models/User";
+import { getOrSetCache, CACHE_KEYS, CACHE_TTL } from "@/lib/cache";
 
 export interface ReportFilter {
   internId?: string;
@@ -26,53 +27,59 @@ export interface KPIStats {
 
 export class ReportService {
   static async getKPIStats(): Promise<KPIStats> {
-    await connectDB();
+    return getOrSetCache(
+      CACHE_KEYS.adminKpis(),
+      CACHE_TTL.ADMIN_KPIS,
+      async () => {
+        await connectDB();
 
-    const activeInterns = await User.countDocuments({
-      role: "intern",
-      status: "active",
-    });
+        const activeInterns = await User.countDocuments({
+          role: "intern",
+          status: "active",
+        });
 
-    const now = new Date();
+        const now = new Date();
 
-    const [
-      totalTasks,
-      assigned,
-      inProgress,
-      submitted,
-      approved,
-      changesRequested,
-      unassigned,
-      transferred,
-      overdue,
-    ] = await Promise.all([
-      Task.countDocuments({ isArchived: false }),
-      Task.countDocuments({ isArchived: false, status: "assigned" }),
-      Task.countDocuments({ isArchived: false, status: "in_progress" }),
-      Task.countDocuments({ isArchived: false, status: "submitted" }),
-      Task.countDocuments({ isArchived: false, status: "approved" }),
-      Task.countDocuments({ isArchived: false, status: "changes_requested" }),
-      Task.countDocuments({ isArchived: false, status: "unassigned" }),
-      Task.countDocuments({ isArchived: false, status: "transferred" }),
-      Task.countDocuments({
-        isArchived: false,
-        status: { $nin: ["approved", "unassigned", "transferred"] },
-        dueDate: { $lt: now },
-      }),
-    ]);
+        const [
+          totalTasks,
+          assigned,
+          inProgress,
+          submitted,
+          approved,
+          changesRequested,
+          unassigned,
+          transferred,
+          overdue,
+        ] = await Promise.all([
+          Task.countDocuments({ isArchived: false }),
+          Task.countDocuments({ isArchived: false, status: "assigned" }),
+          Task.countDocuments({ isArchived: false, status: "in_progress" }),
+          Task.countDocuments({ isArchived: false, status: "submitted" }),
+          Task.countDocuments({ isArchived: false, status: "approved" }),
+          Task.countDocuments({ isArchived: false, status: "changes_requested" }),
+          Task.countDocuments({ isArchived: false, status: "unassigned" }),
+          Task.countDocuments({ isArchived: false, status: "transferred" }),
+          Task.countDocuments({
+            isArchived: false,
+            status: { $nin: ["approved", "unassigned", "transferred"] },
+            dueDate: { $lt: now },
+          }),
+        ]);
 
-    return {
-      activeInterns,
-      totalTasks,
-      assigned,
-      inProgress,
-      submitted,
-      approved,
-      changesRequested,
-      unassigned,
-      transferred,
-      overdue,
-    };
+        return {
+          activeInterns,
+          totalTasks,
+          assigned,
+          inProgress,
+          submitted,
+          approved,
+          changesRequested,
+          unassigned,
+          transferred,
+          overdue,
+        };
+      }
+    );
   }
 
   static async getFilteredTasks(filter: ReportFilter) {

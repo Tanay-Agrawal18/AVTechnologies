@@ -7,6 +7,7 @@ import { User } from "@/models/User";
 import { AuditLog } from "@/models/AuditLog";
 import { canTransitionStatus } from "./taskStateService";
 import { TaskPriority, TaskStatus, SessionUser } from "@/types";
+import { invalidateKpiCache, invalidateProjectsCache } from "@/lib/cache";
 
 export interface CreateTaskInput {
   title: string;
@@ -135,6 +136,11 @@ export class TaskService {
       createdTasks.push(task);
     }
 
+    await invalidateKpiCache();
+    if (data.projectId) {
+      await invalidateProjectsCache(data.projectId);
+    }
+
     return createdTasks;
   }
 
@@ -214,6 +220,11 @@ export class TaskService {
       await TaskEvent.insertMany(eventsToCreate);
     }
 
+    await invalidateKpiCache();
+    if (task.projectId) {
+      await invalidateProjectsCache(task.projectId.toString());
+    }
+
     return task;
   }
 
@@ -254,6 +265,11 @@ export class TaskService {
       note: note || `Status updated from ${prevStatus} to ${targetStatus}`,
       timestamp: new Date(),
     });
+
+    await invalidateKpiCache();
+    if (task.projectId) {
+      await invalidateProjectsCache(task.projectId.toString());
+    }
 
     return task;
   }
@@ -308,6 +324,11 @@ export class TaskService {
       timestamp: new Date(),
     });
 
+    await invalidateKpiCache();
+    if (task.projectId) {
+      await invalidateProjectsCache(task.projectId.toString());
+    }
+
     return { task, submission };
   }
 
@@ -356,6 +377,11 @@ export class TaskService {
       note: `Review feedback: ${feedback}`,
       timestamp: new Date(),
     });
+
+    await invalidateKpiCache();
+    if (task.projectId) {
+      await invalidateProjectsCache(task.projectId.toString());
+    }
 
     return { task, submission };
   }
@@ -431,6 +457,11 @@ export class TaskService {
         reason: task.unassignedReason,
       },
     });
+
+    await invalidateKpiCache();
+    if (task.projectId) {
+      await invalidateProjectsCache(task.projectId.toString());
+    }
 
     return task;
   }
@@ -617,6 +648,11 @@ export class TaskService {
 
       if (session) {
         await session.commitTransaction();
+      }
+
+      await invalidateKpiCache();
+      if (previousTask.projectId) {
+        await invalidateProjectsCache(previousTask.projectId.toString());
       }
 
       return { previousTask, newTask };
