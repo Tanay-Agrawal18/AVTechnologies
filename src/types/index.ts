@@ -151,3 +151,29 @@ export interface SessionUser {
   internId?: string;
   status: UserStatus;
 }
+
+export type NotificationType =
+  | "task_assigned"
+  | "task_submitted"
+  | "submission_approved"
+  | "submission_changes_requested"
+  | "deadline_approaching"
+  | "deadline_overdue"
+  | "task_reassigned";
+
+export interface INotification {
+  _id: string;
+  recipientId: string;
+  actorId?: string;
+  actorName?: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+  isRead: boolean;
+  readAt?: Date;
+  idempotencyKey?: string;
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+}

@@ -74,10 +74,16 @@ body {
     no-repeat bottom center / 100% 100%;
 }
 
-/* All direct page content sits cleanly above the background facets, except fixed elements like modals/drawers */
-.iwms-workspace > *:not([class*="fixed"]) {
+/* Direct main workspace children sit above background facets; header sits above main content */
+.iwms-workspace > main {
   position: relative;
   z-index: 1;
+}
+
+.iwms-workspace header,
+header[class*="sticky"] {
+  position: sticky !important;
+  z-index: 40 !important;
 }
 
 /* ─── Sidebar ─────────────────────────────────────────── */

@@ -172,3 +172,20 @@ export const ReviewSubmissionSchema = z.object({
   decision: z.enum(["approve", "request_changes"]),
   feedback: z.string().trim().min(3, "Feedback must be provided"),
 });
+
+export const NotificationQuerySchema = z.object({
+  page: z.coerce.number().int().positive().optional().default(1),
+  limit: z.coerce.number().int().positive().max(50).optional().default(15),
+  unreadOnly: z.enum(["true", "false"]).optional(),
+});
+
+export const UpdateNotificationSchema = z.object({
+  notificationId: z.string().trim().optional(),
+  markAllAsRead: z.boolean().optional(),
+  isRead: z.boolean().optional().default(true),
+}).refine(
+  (data) => Boolean(data.notificationId || data.markAllAsRead),
+  {
+    message: "Either notificationId or markAllAsRead must be provided",
+  }
+);

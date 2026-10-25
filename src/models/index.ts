@@ -8,3 +8,4 @@ export * from "./EmailLog";
 export * from "./DocumentTemplate";
 export * from "./IssuedDocument";
 export * from "./Project";
+export * from "./Notification";

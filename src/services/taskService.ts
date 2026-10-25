@@ -8,6 +8,7 @@ import { AuditLog } from "@/models/AuditLog";
 import { canTransitionStatus } from "./taskStateService";
 import { TaskPriority, TaskStatus, SessionUser } from "@/types";
 import { invalidateKpiCache, invalidateProjectsCache } from "@/lib/cache";
+import { NotificationService } from "./notificationService";
 
 export interface CreateTaskInput {
   title: string;
@@ -416,6 +417,13 @@ export class TaskService {
       createdTasks.push(task);
     }
 
+    // Trigger in-app notifications asynchronously without blocking core task creation
+    for (const task of createdTasks) {
+      NotificationService.notifyTaskAssigned(task, actor).catch((err) => {
+        console.error(`[TaskService] Failed to notify intern for task ${task._id}:`, err);
+      });
+    }
+
     await invalidateKpiCache();
     if (data.projectId) {
       await invalidateProjectsCache(data.projectId);
@@ -498,6 +506,12 @@ export class TaskService {
 
     if (eventsToCreate.length > 0) {
       await TaskEvent.insertMany(eventsToCreate);
+    }
+
+    if (data.assignedInternId && task.assignedInternId) {
+      NotificationService.notifyTaskAssigned(task, actor).catch((err) => {
+        console.error(`[TaskService] Failed to notify intern for reassigned task ${task._id}:`, err);
+      });
     }
 
     await invalidateKpiCache();
@@ -609,6 +623,11 @@ export class TaskService {
       await invalidateProjectsCache(task.projectId.toString());
     }
 
+    // Trigger admin notification asynchronously
+    NotificationService.notifyTaskSubmitted(task, submission, actor).catch((err) => {
+      console.error(`[TaskService] Failed to notify admins for submission on task ${task._id}:`, err);
+    });
+
     return { task, submission };
   }
 
@@ -662,6 +681,11 @@ export class TaskService {
     if (task.projectId) {
       await invalidateProjectsCache(task.projectId.toString());
     }
+
+    // Trigger intern notification asynchronously
+    NotificationService.notifySubmissionReviewed(task, submission, decision, feedback, actor).catch((err) => {
+      console.error(`[TaskService] Failed to notify intern for review on task ${task._id}:`, err);
+    });
 
     return { task, submission };
   }
@@ -934,6 +958,15 @@ export class TaskService {
       if (previousTask.projectId) {
         await invalidateProjectsCache(previousTask.projectId.toString());
       }
+
+      // Notify replacement intern asynchronously
+      NotificationService.notifyTaskTransferred(
+        newTask,
+        previousInternSnapshot?.name || "previous intern",
+        actor
+      ).catch((err) => {
+        console.error(`[TaskService] Failed to notify intern for transferred task ${newTask._id}:`, err);
+      });
 
       return { previousTask, newTask };
     } catch (err) {
