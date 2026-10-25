@@ -117,6 +117,16 @@ export class ReportService {
     return tasks;
   }
 
+  static sanitizeFormulaCell(val: unknown): string {
+    if (val === null || val === undefined) return "";
+    const str = String(val).trim();
+    // Neutralize spreadsheet formula triggers
+    if (/^[=+\-@\t\r]/.test(str)) {
+      return `'${str}`;
+    }
+    return str;
+  }
+
   static async generateTasksCSV(filter: ReportFilter): Promise<Buffer> {
     const tasks = await this.getFilteredTasks(filter);
 
@@ -128,13 +138,13 @@ export class ReportService {
       };
 
       return {
-        "Task ID": t._id.toString(),
-        "Title": t.title,
-        "Priority": t.priority,
-        "Status": t.status,
-        "Intern Name": intern?.name || t.assignedInternSnapshot?.name || "N/A",
-        "Intern Email": intern?.email || t.assignedInternSnapshot?.email || "N/A",
-        "Intern ID": intern?.internId || t.assignedInternSnapshot?.internId || "N/A",
+        "Task ID": this.sanitizeFormulaCell(t._id.toString()),
+        "Title": this.sanitizeFormulaCell(t.title),
+        "Priority": this.sanitizeFormulaCell(t.priority),
+        "Status": this.sanitizeFormulaCell(t.status),
+        "Intern Name": this.sanitizeFormulaCell(intern?.name || t.assignedInternSnapshot?.name || "N/A"),
+        "Intern Email": this.sanitizeFormulaCell(intern?.email || t.assignedInternSnapshot?.email || "N/A"),
+        "Intern ID": this.sanitizeFormulaCell(intern?.internId || t.assignedInternSnapshot?.internId || "N/A"),
         "Assignment Date": t.assignmentDate ? new Date(t.assignmentDate).toISOString().split("T")[0] : "",
         "Due Date": t.dueDate ? new Date(t.dueDate).toISOString().split("T")[0] : "",
         "Archived": t.isArchived ? "Yes" : "No",

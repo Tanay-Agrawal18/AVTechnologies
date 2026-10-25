@@ -1,20 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/apiAuth";
 import { getStorageAdapter } from "@/lib/storage";
-
-// Allowed MIME types and max upload size (10 MB)
-const ALLOWED_MIME_TYPES = new Set([
-  "application/pdf",
-  "application/zip",
-  "application/x-zip-compressed",
-  "image/png",
-  "image/jpeg",
-  "text/plain",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-]);
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+import { validateFileSafety, MAX_UPLOAD_SIZE } from "@/lib/fileValidation";
 
 export async function POST(req: NextRequest) {
   const auth = await requireAuth(["admin", "intern"]);
@@ -28,16 +15,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size > MAX_UPLOAD_SIZE) {
       return NextResponse.json(
         { error: "File exceeds maximum permitted size of 10MB" },
-        { status: 400 }
-      );
-    }
-
-    if (!ALLOWED_MIME_TYPES.has(file.type) && !file.name.match(/\.(pdf|zip|docx|xlsx|png|jpg|jpeg|txt)$/i)) {
-      return NextResponse.json(
-        { error: "File type not allowed. Permitted: PDF, ZIP, DOCX, XLSX, PNG, JPG, TXT." },
         { status: 400 }
       );
     }
@@ -45,15 +25,23 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    const safetyCheck = validateFileSafety(buffer, file.name, file.type);
+    if (!safetyCheck.isValid) {
+      return NextResponse.json(
+        { error: safetyCheck.error || "File validation failed" },
+        { status: 400 }
+      );
+    }
+
     const storage = getStorageAdapter();
-    const result = await storage.saveFile(buffer, file.name, file.type);
+    const result = await storage.saveFile(buffer, safetyCheck.normalizedName, safetyCheck.mimeType);
 
     return NextResponse.json({
       success: true,
       fileKey: result.fileKey,
-      fileName: file.name,
+      fileName: safetyCheck.normalizedName,
       fileSize: result.fileSize,
-      mimeType: file.type || "application/octet-stream",
+      mimeType: safetyCheck.mimeType,
     });
   } catch (err: unknown) {
     console.error("Upload error:", err);

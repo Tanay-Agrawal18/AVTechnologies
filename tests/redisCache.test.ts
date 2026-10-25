@@ -107,7 +107,9 @@ describe("Upstash Redis Integration & Caching Layer", () => {
     // If redis exists, temporarily mock redis.get to simulate a Redis failure/timeout
     if (redis) {
       const originalGet = redis.get.bind(redis);
-      (redis as any).get = vi.fn().mockRejectedValue(new Error("Simulated Redis network timeout"));
+      (redis as unknown as { get: (key: string) => Promise<unknown> }).get = vi
+        .fn()
+        .mockRejectedValue(new Error("Simulated Redis network timeout"));
 
       const result = await getOrSetCache(testKey, 10, fetcher);
 
@@ -116,7 +118,7 @@ describe("Upstash Redis Integration & Caching Layer", () => {
       expect(fetchCount).toBe(1);
 
       // Restore
-      (redis as any).get = originalGet;
+      (redis as unknown as { get: (key: string) => Promise<unknown> }).get = originalGet;
     }
   });
 

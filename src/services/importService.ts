@@ -76,10 +76,18 @@ export class ImportService {
     }
   }
 
+  static readonly MAX_IMPORT_BYTES = 5 * 1024 * 1024; // 5 MB
+  static readonly MAX_IMPORT_ROWS = 500; // max 500 records per batch
+  static readonly MAX_IMPORT_COLUMNS = 20;
+
   static async parseAndValidateFile(
     fileBuffer: Buffer,
     fileName: string
   ): Promise<ImportPreviewResult> {
+    if (fileBuffer.length > this.MAX_IMPORT_BYTES) {
+      throw new Error(`File size exceeds maximum permitted import limit of 5MB.`);
+    }
+
     await connectDB();
     const isCsv = fileName.toLowerCase().endsWith(".csv");
     let rawRecords: Record<string, unknown>[] = [];
@@ -93,13 +101,28 @@ export class ImportService {
       });
       rawRecords = parsed.data;
     } else {
-      const workbook = XLSX.read(fileBuffer, { type: "buffer" });
+      // XLSX safe options: ignore formulas to prevent formula evaluation during parse
+      const workbook = XLSX.read(fileBuffer, {
+        type: "buffer",
+        cellFormula: false,
+        cellHTML: false,
+      });
       const firstSheetName = workbook.SheetNames[0];
       if (!firstSheetName) {
         throw new Error("File contains no sheets");
       }
       const worksheet = workbook.Sheets[firstSheetName];
       rawRecords = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, { defval: "" });
+    }
+
+    if (rawRecords.length === 0) {
+      throw new Error("The uploaded spreadsheet contains no data rows.");
+    }
+
+    if (rawRecords.length > this.MAX_IMPORT_ROWS) {
+      throw new Error(
+        `File exceeds maximum limit of ${this.MAX_IMPORT_ROWS} rows. Found ${rawRecords.length} rows. Please split the batch into smaller files.`
+      );
     }
 
     const seenEmails = new Set<string>();

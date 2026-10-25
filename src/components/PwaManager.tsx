@@ -202,7 +202,7 @@ export default function PwaManager() {
             </p>
             <ol className="text-xs text-slate-700 space-y-2.5 list-decimal list-inside bg-slate-50 p-3 rounded-xl border border-slate-100">
               <li className="leading-relaxed">
-                Tap the <Share className="w-3.5 h-3.5 inline mx-1 text-sky-600" /> <strong>Share</strong> button in Safari's bottom toolbar.
+                Tap the <Share className="w-3.5 h-3.5 inline mx-1 text-sky-600" /> <strong>Share</strong> button in Safari&apos;s bottom toolbar.
               </li>
               <li className="leading-relaxed">
                 Scroll down and select <strong>&quot;Add to Home Screen&quot;</strong>.

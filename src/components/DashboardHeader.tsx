@@ -101,16 +101,21 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {action && <div className="hidden sm:flex items-center gap-2 mr-1">{action}</div>}
 
-          {/* Notification bell */}
+          {/* Notification bell - clearly marked when no unread notifications or disabled */}
           <button
-            className="relative p-2 rounded-xl transition-colors hover:bg-slate-100 active:scale-95 text-slate-600 hover:text-slate-900"
-            title="Notifications"
-            aria-label="View notifications"
+            className="relative p-2 rounded-xl transition-colors hover:bg-slate-100 active:scale-95 text-slate-600 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-sky-500"
+            title="No new notifications"
+            aria-label="No new notifications"
+            onClick={() => {
+              // Toast or gentle alert feedback
+              alert("You are up to date! There are no unread notifications at this time.");
+            }}
           >
             <Bell className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
             <span
               className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2 ring-white"
               style={{ background: "var(--iwms-sky)" }}
+              aria-hidden="true"
             />
           </button>
 
