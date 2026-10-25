@@ -3,7 +3,7 @@ import path from "path";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import crypto from "crypto";
 import { connectDB } from "@/lib/db";
-import { DocumentTemplate, IDocumentTemplateDocument } from "@/models/DocumentTemplate";
+import { DocumentTemplate } from "@/models/DocumentTemplate";
 import { IssuedDocument, IIssuedDocumentDocument } from "@/models/IssuedDocument";
 import { User } from "@/models/User";
 import { SessionUser } from "@/types";
@@ -153,7 +153,7 @@ We congratulate {{intern_name}} on this achievement and extend our highest recom
     const templateBytes = fs.readFileSync(templateRelPath);
     const pdfDoc = await PDFDocument.load(templateBytes);
     const page = pdfDoc.getPages()[0];
-    const { width, height } = page.getSize();
+    const { height } = page.getSize();
 
     const timesRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
     const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);

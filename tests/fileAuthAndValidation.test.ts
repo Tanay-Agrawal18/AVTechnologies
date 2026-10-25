@@ -1,11 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { validateFileSafety, MAX_UPLOAD_SIZE } from "@/lib/fileValidation";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { validateFileSafety } from "@/lib/fileValidation";
 import { GET as getFileRoute } from "@/app/api/files/[fileKey]/route";
-import { POST as uploadFileRoute } from "@/app/api/files/upload/route";
 import { NextRequest } from "next/server";
 import { Submission } from "@/models/Submission";
 import { requireAuth } from "@/lib/apiAuth";
-import { getStorageAdapter, resetStorageAdapter } from "@/lib/storage";
+import { getStorageAdapter } from "@/lib/storage";
 
 vi.mock("@/lib/apiAuth", () => ({
   requireAuth: vi.fn(),

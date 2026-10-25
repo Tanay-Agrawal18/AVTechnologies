@@ -230,5 +230,35 @@ describe("Comprehensive Security Regression Suite", () => {
       expect(result.invalidRows).toBe(0);
       expect(result.rows[0].email).toBe("alice@example.com");
     });
+
+    it("rejects malformed CSV syntax with unclosed quote or corrupted delimiter structure", async () => {
+      // Unclosed quote causing parse failure
+      const malformedCsv = Buffer.from('Full Name,Email Address,Intern ID\n"Alice "Smith",alice@example.com,VYOR-26-01\n', "utf-8");
+      await expect(
+        ImportService.parseAndValidateFile(malformedCsv, "malformed.csv")
+      ).rejects.toThrow(/CSV parsing failed/);
+    });
+
+    it("rejects corrupted XLSX workbook structure safely", async () => {
+      const corruptedXlsx = Buffer.from("PK\x03\x04corrupted_binary_zip_payload_not_a_valid_workbook");
+      await expect(
+        ImportService.parseAndValidateFile(corruptedXlsx, "corrupted.xlsx")
+      ).rejects.toThrow(/Failed to parse Excel workbook/);
+    });
+
+    it("correctly handles case-insensitive and normalized column headers", async () => {
+      vi.mocked(User.find).mockReturnValueOnce({
+        lean: vi.fn().mockResolvedValue([]),
+      } as unknown as ReturnType<typeof User.find>);
+
+      const csvData = "name,email,internId,department\nJohn Doe,john.doe@example.com,VYOR-26-02,Sales";
+      const result = await ImportService.parseAndValidateFile(Buffer.from(csvData, "utf-8"), "headers.csv");
+
+      expect(result.totalRows).toBe(1);
+      expect(result.validRows).toBe(1);
+      expect(result.rows[0].name).toBe("John Doe");
+      expect(result.rows[0].email).toBe("john.doe@example.com");
+      expect(result.rows[0].department).toBe("Sales");
+    });
   });
 });

@@ -18,9 +18,10 @@ test.describe("IWMS Enhanced Features — Access Boundaries & Workflows", () => 
       },
     });
 
-    expect(response.status()).toBe(401);
+    // Fails closed: 401 Unauthorized if CRON_SECRET set, or 500 disabled if unconfigured
+    expect([401, 500]).toContain(response.status());
     const body = await response.json();
-    expect(body.error).toContain("Unauthorized");
+    expect(body.error).toMatch(/Unauthorized|not configured/);
   });
 
   test("blocks unauthenticated access to image streaming and download APIs", async ({ request }) => {
