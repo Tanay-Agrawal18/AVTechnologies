@@ -34,6 +34,27 @@ export async function requireAuth(
     };
   }
 
+  // Live database check to ensure account was not deactivated or deleted after token issuance
+  try {
+    const { connectDB } = await import("./db");
+    const { User } = await import("@/models/User");
+    await connectDB();
+    const dbUser = await User.findById(user.id).select("status role").lean();
+
+    if (!dbUser || dbUser.status !== "active") {
+      return {
+        ok: false,
+        response: NextResponse.json(
+          { error: "Account is inactive or pending setup", code: "FORBIDDEN" },
+          { status: 403 }
+        ),
+      };
+    }
+  } catch (error) {
+    console.error("Database status check error in requireAuth:", error);
+    // Continue or let error bubble if database is unreachable
+  }
+
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return {
       ok: false,

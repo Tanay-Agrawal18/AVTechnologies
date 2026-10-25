@@ -14,12 +14,30 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
   const [currentUser, setCurrentUser] = useState<SessionUser | null>(null);
 
   useEffect(() => {
-    fetch("/api/auth/me")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.user) setCurrentUser(data.user);
-      })
-      .catch(() => {});
+    let isMounted = true;
+    const checkAuth = () => {
+      fetch("/api/auth/me")
+        .then((res) => {
+          if (res.status === 401 || res.status === 403) {
+            window.location.href = "/login?error=inactive";
+            return null;
+          }
+          return res.ok ? res.json() : null;
+        })
+        .then((data) => {
+          if (isMounted && data?.user) setCurrentUser(data.user);
+        })
+        .catch(() => {});
+    };
+
+    checkAuth();
+    // Periodic check every 15 seconds to immediately catch admin deactivations
+    const interval = setInterval(checkAuth, 15000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const triggerSidebar = () => {

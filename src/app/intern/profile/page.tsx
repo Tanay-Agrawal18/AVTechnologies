@@ -1,20 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { SessionUser } from "@/types";
 import { Shield, Mail, Hash } from "lucide-react";
 
 export default function InternProfilePage() {
+  const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
 
   useEffect(() => {
     fetch("/api/auth/me")
-      .then((res) => (res.ok ? res.json() : null))
+      .then(async (res) => {
+        if (res.status === 401 || res.status === 403) {
+          router.push("/login?error=inactive");
+          return null;
+        }
+        return res.ok ? res.json() : null;
+      })
       .then((data) => {
         if (data?.user) setUser(data.user);
-      });
-  }, []);
+      })
+      .catch(() => {});
+  }, [router]);
 
   const initials = user?.name
     ? user.name
@@ -131,13 +140,21 @@ export default function InternProfilePage() {
               </span>
               <span
                 className="font-semibold capitalize px-2 sm:px-3 py-0.5 rounded-full text-[10px] sm:text-xs"
-                style={{
-                  background: "rgba(16,185,129,.12)",
-                  color: "#059669",
-                  border: "1px solid rgba(16,185,129,.25)",
-                }}
+                style={
+                  user?.status === "active"
+                    ? {
+                        background: "rgba(16,185,129,.12)",
+                        color: "#059669",
+                        border: "1px solid rgba(16,185,129,.25)",
+                      }
+                    : {
+                        background: "rgba(239,68,68,.12)",
+                        color: "#DC2626",
+                        border: "1px solid rgba(239,68,68,.25)",
+                      }
+                }
               >
-                {user?.status}
+                {user?.status || "Loading…"}
               </span>
             </div>
           </div>
