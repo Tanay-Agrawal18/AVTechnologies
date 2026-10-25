@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Lock, Mail, AlertCircle, ArrowRight, ShieldCheck } from "lucide-react";
+import { Lock, Mail, AlertCircle, ArrowRight } from "lucide-react";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -49,6 +49,99 @@ export default function LoginPage() {
   };
 
   return (
+    <>
+      {error && (
+        <div className="mb-6 p-4 rounded-lg bg-rose-50 border border-rose-200 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-rose-700 font-medium">{error}</div>
+        </div>
+      )}
+
+      <form className="space-y-5" onSubmit={handleSubmit}>
+        <div>
+          <label
+            htmlFor="email"
+            className="block text-sm font-semibold mb-1"
+            style={{ color: "var(--iwms-navy)" }}
+          >
+            Work Email Address
+          </label>
+          <div className="relative rounded-lg shadow-xs">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Mail className="h-4 w-4" style={{ color: "var(--iwms-sky)" }} />
+            </div>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="block w-full pl-10 pr-3 py-2.5 rounded-lg text-sm transition-colors focus:outline-none"
+              style={{
+                background: "var(--iwms-white)",
+                border: "1px solid var(--iwms-border)",
+                color: "var(--iwms-black)",
+              }}
+              placeholder="admin@vyorai.com or intern@vyorai.com"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="password"
+            className="block text-sm font-semibold mb-1"
+            style={{ color: "var(--iwms-navy)" }}
+          >
+            Password
+          </label>
+          <div className="relative rounded-lg shadow-xs">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Lock className="h-4 w-4" style={{ color: "var(--iwms-sky)" }} />
+            </div>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="block w-full pl-10 pr-3 py-2.5 rounded-lg text-sm transition-colors focus:outline-none"
+              style={{
+                background: "var(--iwms-white)",
+                border: "1px solid var(--iwms-border)",
+                color: "var(--iwms-black)",
+              }}
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg shadow-xs text-sm font-semibold iwms-btn-primary transition-all disabled:opacity-60"
+          style={{
+            background: "var(--iwms-sky)",
+            color: "var(--iwms-navy)",
+          }}
+        >
+          {isLoading ? (
+            "Signing In..."
+          ) : (
+            <>
+              Sign In to Vyorai <ArrowRight className="w-4 h-4" />
+            </>
+          )}
+        </button>
+      </form>
+    </>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <div className="min-h-screen iwms-workspace flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8" style={{ background: "var(--iwms-bg)" }}>
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <div
@@ -73,92 +166,9 @@ export default function LoginPage() {
           className="iwms-card py-8 px-5 sm:px-10 shadow-sm"
           style={{ background: "var(--iwms-white)", borderRadius: "16px" }}
         >
-          {error && (
-            <div className="mb-6 p-4 rounded-lg bg-rose-50 border border-rose-200 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-rose-700 font-medium">{error}</div>
-            </div>
-          )}
-
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-semibold mb-1"
-                style={{ color: "var(--iwms-navy)" }}
-              >
-                Work Email Address
-              </label>
-              <div className="relative rounded-lg shadow-xs">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4" style={{ color: "var(--iwms-sky)" }} />
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 rounded-lg text-sm transition-colors focus:outline-none"
-                  style={{
-                    background: "var(--iwms-white)",
-                    border: "1px solid var(--iwms-border)",
-                    color: "var(--iwms-black)",
-                  }}
-                  placeholder="admin@vyorai.com or intern@vyorai.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-semibold mb-1"
-                style={{ color: "var(--iwms-navy)" }}
-              >
-                Password
-              </label>
-              <div className="relative rounded-lg shadow-xs">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4" style={{ color: "var(--iwms-sky)" }} />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 rounded-lg text-sm transition-colors focus:outline-none"
-                  style={{
-                    background: "var(--iwms-white)",
-                    border: "1px solid var(--iwms-border)",
-                    color: "var(--iwms-black)",
-                  }}
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg shadow-xs text-sm font-semibold iwms-btn-primary transition-all disabled:opacity-60"
-              style={{
-                background: "var(--iwms-sky)",
-                color: "var(--iwms-navy)",
-              }}
-            >
-              {isLoading ? (
-                "Signing In..."
-              ) : (
-                <>
-                  Sign In to Vyorai <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </form>
+          <Suspense fallback={<div className="py-8 text-center text-sm text-slate-500">Loading sign in...</div>}>
+            <LoginForm />
+          </Suspense>
 
           <div
             className="mt-6 pt-4 text-center"
