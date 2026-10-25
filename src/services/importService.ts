@@ -125,6 +125,14 @@ export class ImportService {
       );
     }
 
+    // Enforce column count limit against wide-table / decompression attacks
+    const firstRowColumns = Object.keys(rawRecords[0] || {});
+    if (firstRowColumns.length > this.MAX_IMPORT_COLUMNS) {
+      throw new Error(
+        `File exceeds maximum limit of ${this.MAX_IMPORT_COLUMNS} columns. Found ${firstRowColumns.length} columns.`
+      );
+    }
+
     const seenEmails = new Set<string>();
     const seenInternIds = new Set<string>();
     const parsedRows: ParsedInternRow[] = [];

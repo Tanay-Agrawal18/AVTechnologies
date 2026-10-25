@@ -83,7 +83,7 @@ describe("File Upload and Download Security Authorization", () => {
     it("rejects unauthenticated requests", async () => {
       vi.mocked(requireAuth).mockResolvedValueOnce({
         ok: false,
-        response: new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 }) as any,
+        response: new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 }) as unknown as import("next/server").NextResponse,
       });
 
       const req = new NextRequest("http://localhost:3000/api/files/test-key-1");
@@ -113,7 +113,7 @@ describe("File Upload and Download Security Authorization", () => {
       });
       vi.mocked(Submission.findOne).mockReturnValueOnce({
         lean: vi.fn().mockResolvedValue(null),
-      } as any);
+      } as unknown as ReturnType<typeof Submission.findOne>);
 
       const req = new NextRequest("http://localhost:3000/api/files/orphaned-key-999");
       const res = await getFileRoute(req, { params: Promise.resolve({ fileKey: "orphaned-key-999" }) });
@@ -135,7 +135,7 @@ describe("File Upload and Download Security Authorization", () => {
           internId: "intern_B", // Different intern!
           attachments: [{ fileKey: "key-123", fileName: "work.pdf", mimeType: "application/pdf" }],
         }),
-      } as any);
+      } as unknown as ReturnType<typeof Submission.findOne>);
 
       const req = new NextRequest("http://localhost:3000/api/files/key-123");
       const res = await getFileRoute(req, { params: Promise.resolve({ fileKey: "key-123" }) });
@@ -157,7 +157,7 @@ describe("File Upload and Download Security Authorization", () => {
           internId: "intern_A", // Matching intern
           attachments: [{ fileKey: "key-123", fileName: "my_work.pdf", mimeType: "application/pdf" }],
         }),
-      } as any);
+      } as unknown as ReturnType<typeof Submission.findOne>);
 
       vi.mocked(mockStorage.getFileStream).mockResolvedValueOnce(Buffer.from("%PDF-1.4 file content"));
 
@@ -183,7 +183,7 @@ describe("File Upload and Download Security Authorization", () => {
           internId: "intern_B",
           attachments: [{ fileKey: "key-123", fileName: "intern_b_work.pdf", mimeType: "application/pdf" }],
         }),
-      } as any);
+      } as unknown as ReturnType<typeof Submission.findOne>);
 
       vi.mocked(mockStorage.getFileStream).mockResolvedValueOnce(Buffer.from("%PDF-1.4 file content"));
 

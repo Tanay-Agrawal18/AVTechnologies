@@ -36,6 +36,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
+    if (file.size > ImportService.MAX_IMPORT_BYTES) {
+      return NextResponse.json(
+        { error: `File size exceeds maximum permitted limit of 5MB.` },
+        { status: 400 }
+      );
+    }
+
     const fileName = file.name;
     const isCsv = fileName.toLowerCase().endsWith(".csv");
     const isXlsx = fileName.toLowerCase().endsWith(".xlsx");
