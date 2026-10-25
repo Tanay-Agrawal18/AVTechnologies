@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { InternSidebar } from "@/components/InternSidebar";
+import { InternSessionGuard } from "@/components/InternSessionGuard";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,9 @@ export default function InternLayout({
 }) {
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "var(--iwms-bg)" }}>
+      {/* Real-time session revocation listener */}
+      <InternSessionGuard />
+
       {/* Sidebar */}
       <Suspense
         fallback={

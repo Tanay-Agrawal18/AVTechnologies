@@ -25,7 +25,7 @@ export async function GET() {
 
     if (dbUser.status !== "active") {
       await clearSessionCookie();
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           authenticated: false,
           user: null,
@@ -34,9 +34,18 @@ export async function GET() {
         },
         { status: 403 }
       );
+      response.cookies.set("iwms_session", "", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 0,
+      });
+      response.headers.set("Cache-Control", "no-store, max-age=0");
+      return response;
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       authenticated: true,
       user: {
         id: dbUser._id.toString(),
@@ -47,6 +56,8 @@ export async function GET() {
         status: dbUser.status,
       },
     });
+    response.headers.set("Cache-Control", "no-store, max-age=0");
+    return response;
   } catch (error) {
     console.error("Error in /api/auth/me:", error);
     // Fallback to session user if DB is momentarily unreachable
