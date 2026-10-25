@@ -256,12 +256,13 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
         </div>
 
         {/* Right: Actions, Notifications & Profile Pill */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0" suppressHydrationWarning>
           {action && <div className="hidden sm:flex items-center gap-2 mr-1">{action}</div>}
 
           {/* Premium Notification Bell & Popover */}
-          <div className="relative" ref={dropdownRef}>
+          <div className="relative" ref={dropdownRef} suppressHydrationWarning>
             <button
+              suppressHydrationWarning
               onClick={() => {
                 setIsOpen(!isOpen);
                 if (!isOpen) fetchNotifications();
