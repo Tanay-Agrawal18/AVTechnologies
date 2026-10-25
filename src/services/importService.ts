@@ -96,22 +96,57 @@ export class ImportService {
       const csvText = fileBuffer.toString("utf-8");
       const parsed = Papa.parse<Record<string, unknown>>(csvText, {
         header: true,
-        skipEmptyLines: true,
+        skipEmptyLines: "greedy",
         transformHeader: (h) => h.trim(),
       });
+
+      // Reject malformed CSV if Papa.parse detects critical structure/quote errors
+      const criticalErrors = (parsed.errors || []).filter(
+        (e) => e.type !== "FieldMismatch" || e.code === "TooManyFields" || e.code === "TooFewFields"
+      );
+      if (criticalErrors.length > 0) {
+        const errorDetail = criticalErrors[0].message || "Malformed CSV syntax";
+        throw new Error(`CSV parsing failed: ${errorDetail}`);
+      }
+
       rawRecords = parsed.data;
     } else {
-      // XLSX safe options: ignore formulas to prevent formula evaluation during parse
-      const workbook = XLSX.read(fileBuffer, {
-        type: "buffer",
-        cellFormula: false,
-        cellHTML: false,
-      });
+      // XLSX safe options: ignore formulas to prevent formula evaluation during parse, dense mode for memory safety
+      let workbook: XLSX.WorkBook;
+      try {
+        workbook = XLSX.read(fileBuffer, {
+          type: "buffer",
+          cellFormula: false,
+          cellHTML: false,
+          dense: true,
+        });
+      } catch {
+        throw new Error("Failed to parse Excel workbook: file structure may be corrupted or unsupported.");
+      }
+
       const firstSheetName = workbook.SheetNames[0];
       if (!firstSheetName) {
         throw new Error("File contains no sheets");
       }
       const worksheet = workbook.Sheets[firstSheetName];
+      if (!worksheet) {
+        throw new Error("Worksheet could not be read");
+      }
+
+      // Check worksheet range dimension bounds if present
+      const ref = worksheet["!ref"];
+      if (ref) {
+        const range = XLSX.utils.decode_range(ref);
+        const rowSpan = range.e.r - range.s.r + 1;
+        const colSpan = range.e.c - range.s.c + 1;
+        if (rowSpan > this.MAX_IMPORT_ROWS + 10) {
+          throw new Error(`Worksheet dimensions (${rowSpan} rows) exceed the maximum permitted row limit of ${this.MAX_IMPORT_ROWS}.`);
+        }
+        if (colSpan > this.MAX_IMPORT_COLUMNS) {
+          throw new Error(`Worksheet dimensions (${colSpan} columns) exceed the maximum permitted column limit of ${this.MAX_IMPORT_COLUMNS}.`);
+        }
+      }
+
       rawRecords = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, { defval: "" });
     }
 
@@ -151,12 +186,28 @@ export class ImportService {
       const rowNumber = i + 2; // header is row 1
       const rowErrors: string[] = [];
 
-      const name = String(row["Full Name"] || row["name"] || "").trim();
-      const email = String(row["Email Address"] || row["email"] || "").trim().toLowerCase();
-      const internId = String(row["Intern ID"] || row["internId"] || "").trim();
-      const department = String(row["Department"] || row["department"] || "").trim();
-      const startDate = String(row["Start Date"] || row["startDate"] || "").trim();
-      const endDate = String(row["End Date"] || row["endDate"] || "").trim();
+      // Case-insensitive / normalized lookup for supported column headers
+      const normalizedRow: Record<string, unknown> = {};
+      for (const [key, val] of Object.entries(row)) {
+        normalizedRow[key.toLowerCase().trim().replace(/[\s_-]+/g, "")] = val;
+      }
+
+      const getVal = (...keys: string[]): string => {
+        for (const k of keys) {
+          const normKey = k.toLowerCase().replace(/[\s_-]+/g, "");
+          if (normKey in normalizedRow && normalizedRow[normKey] !== undefined && normalizedRow[normKey] !== null) {
+            return String(normalizedRow[normKey]).trim();
+          }
+        }
+        return "";
+      };
+
+      const name = getVal("Full Name", "FullName", "Name");
+      const email = getVal("Email Address", "EmailAddress", "Email").toLowerCase();
+      const internId = getVal("Intern ID", "InternId", "ID");
+      const department = getVal("Department", "Dept");
+      const startDate = getVal("Start Date", "StartDate");
+      const endDate = getVal("End Date", "EndDate");
 
       const validation = CreateInternSchema.safeParse({
         name,

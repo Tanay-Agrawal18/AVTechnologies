@@ -126,20 +126,34 @@ export class UserService {
     const { token, hashedToken } = this.generateSecureToken();
     const activationExpires = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
 
-    const intern = await User.create({
-      name: data.name,
-      email: data.email.toLowerCase(),
-      role: "intern",
-      status: "pending_setup",
-      internId: assignedInternId,
-      department: data.department,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      activationToken: hashedToken,
-      activationExpires,
-    });
+    try {
+      const intern = await User.create({
+        name: data.name,
+        email: data.email.toLowerCase(),
+        role: "intern",
+        status: "pending_setup",
+        internId: assignedInternId,
+        department: data.department,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        activationToken: hashedToken,
+        activationExpires,
+      });
 
-    return { intern, activationToken: token };
+      return { intern, activationToken: token };
+    } catch (err: unknown) {
+      if (typeof err === "object" && err !== null && "code" in err && (err as { code: number }).code === 11000) {
+        const keyPattern = (err as { keyPattern?: Record<string, number> }).keyPattern;
+        if (keyPattern?.email) {
+          throw new Error(`Email ${data.email} is already in use`);
+        }
+        if (keyPattern?.internId) {
+          throw new Error(`Intern ID ${assignedInternId} already exists`);
+        }
+        throw new Error("A duplicate record already exists");
+      }
+      throw err;
+    }
   }
 
   static async activateAccount(token: string, password: string): Promise<IUserDocument> {

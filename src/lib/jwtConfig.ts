@@ -37,11 +37,17 @@ export function getValidatedJwtSecret(): Uint8Array {
   const secret = (process.env.JWT_SECRET || "").trim();
   const validation = validateJwtEnv();
 
-  // Next.js build phase collects page data without real production secrets
-  const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build" || process.env.npm_lifecycle_event === "build";
-
-  if (!validation.isValid && !isBuildPhase && process.env.NODE_ENV === "production") {
-    throw new Error(`[Security Critical] JWT Configuration error: ${validation.errors.join("; ")}`);
+  // In production runtime, NEVER allow fallback to dev secret
+  if (process.env.NODE_ENV === "production") {
+    if (!validation.isValid) {
+      const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build" || process.env.npm_lifecycle_event === "build";
+      if (!isBuildPhase) {
+        throw new Error(`[Security Critical] JWT Configuration error: ${validation.errors.join("; ")}`);
+      }
+      // During build time only, return a build dummy, but runtime execution must fail
+      return new TextEncoder().encode("build_time_ephemeral_placeholder_do_not_use_in_runtime");
+    }
+    return new TextEncoder().encode(secret);
   }
 
   const effectiveSecret = validation.isValid && secret ? secret : FALLBACK_DEV_SECRET;

@@ -359,30 +359,22 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
                       <p className="text-[11px] text-slate-400 mt-0.5 max-w-[200px]">
                         You don&apos;t have any unread alerts or reminders.
                       </p>
-                    </div>
-                  ) : (
-                    notifications.map((item) => {
-                      const ContentWrapper = item.link ? Link : "div";
-                      const contentProps = item.link
-                        ? {
-                            href: item.link,
-                            onClick: () => {
+                    </div>                  ) : (
+                    notifications.map((item) => (
+                      <div
+                        key={item._id}
+                        className={`p-3 sm:p-3.5 transition-colors relative flex items-start gap-3 hover:bg-slate-50/90 ${
+                          !item.isRead ? "bg-sky-50/40" : "bg-white"
+                        }`}
+                      >
+                        {getNotificationIcon(item.type)}
+                        {item.link ? (
+                          <Link
+                            href={item.link}
+                            onClick={() => {
                               if (!item.isRead) handleMarkAsRead(item._id);
                               setIsOpen(false);
-                            },
-                          }
-                        : {};
-
-                      return (
-                        <div
-                          key={item._id}
-                          className={`p-3 sm:p-3.5 transition-colors relative flex items-start gap-3 hover:bg-slate-50/90 ${
-                            !item.isRead ? "bg-sky-50/40" : "bg-white"
-                          }`}
-                        >
-                          {getNotificationIcon(item.type)}
-                          <ContentWrapper
-                            {...(contentProps as any)}
+                            }}
                             className="flex-1 min-w-0 cursor-pointer block text-left"
                           >
                             <div className="flex items-center justify-between gap-1 mb-1">
@@ -402,20 +394,40 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
                             <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
                               {item.message}
                             </p>
-                          </ContentWrapper>
-                          {!item.isRead && (
-                            <button
-                              onClick={(e) => handleMarkAsRead(item._id, e)}
-                              className="text-slate-300 hover:text-sky-600 shrink-0 p-1 rounded-full transition-colors self-center"
-                              title="Mark as read"
-                              aria-label="Mark as read"
-                            >
-                              <div className="w-2 h-2 rounded-full bg-sky-500 shadow-xs" />
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })
+                          </Link>
+                        ) : (
+                          <div className="flex-1 min-w-0 block text-left">
+                            <div className="flex items-center justify-between gap-1 mb-1">
+                              <h4
+                                className={`text-xs truncate leading-snug ${
+                                  !item.isRead
+                                    ? "font-bold text-slate-900"
+                                    : "font-medium text-slate-700"
+                                }`}
+                              >
+                                {item.title}
+                              </h4>
+                              <span className="text-[10px] text-slate-400 shrink-0 font-normal">
+                                {formatRelativeTime(item.createdAt)}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                              {item.message}
+                            </p>
+                          </div>
+                        )}
+                        {!item.isRead && (
+                          <button
+                            onClick={(e) => handleMarkAsRead(item._id, e)}
+                            className="text-slate-300 hover:text-sky-600 shrink-0 p-1 rounded-full transition-colors self-center"
+                            title="Mark as read"
+                            aria-label="Mark as read"
+                          >
+                            <div className="w-2 h-2 rounded-full bg-sky-500 shadow-xs" />
+                          </button>
+                        )}
+                      </div>
+                    ))
                   )}
                 </div>
 

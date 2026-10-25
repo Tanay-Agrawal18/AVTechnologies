@@ -10,7 +10,6 @@ import {
   User,
   LogOut,
   FolderGit2,
-  Menu,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

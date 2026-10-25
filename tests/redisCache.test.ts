@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -7,9 +7,7 @@ import {
   getOrSetCache,
   invalidateCacheKeys,
   invalidateProjectsCache,
-  invalidateKpiCache,
   CACHE_KEYS,
-  CACHE_TTL,
 } from "@/lib/cache";
 
 describe("Upstash Redis Integration & Caching Layer", () => {
