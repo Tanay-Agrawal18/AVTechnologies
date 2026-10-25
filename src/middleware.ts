@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
-
-const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || "default_super_secret_minimum_32_characters_key_2026"
-);
+import { JWT_SECRET_KEY, SESSION_COOKIE_NAME } from "@/lib/jwtConfig";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -29,7 +26,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get("iwms_session")?.value;
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
   if (!token) {
     if (pathname.startsWith("/api/")) {
@@ -39,7 +36,7 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const { payload } = await jwtVerify(token, SECRET_KEY);
+    const { payload } = await jwtVerify(token, JWT_SECRET_KEY);
     const role = payload.role as string;
     const status = payload.status as string;
 

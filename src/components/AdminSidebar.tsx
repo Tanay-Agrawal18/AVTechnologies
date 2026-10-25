@@ -40,8 +40,17 @@ export function AdminSidebar() {
 
   useEffect(() => {
     const handleToggle = () => setIsOpen((prev) => !prev);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
     window.addEventListener("iwms:toggle-sidebar", handleToggle);
-    return () => window.removeEventListener("iwms:toggle-sidebar", handleToggle);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("iwms:toggle-sidebar", handleToggle);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   useEffect(() => {

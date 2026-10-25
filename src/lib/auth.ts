@@ -2,13 +2,11 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { SessionUser } from "@/types";
 
-const COOKIE_NAME = "iwms_session";
-const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || "default_super_secret_minimum_32_characters_key_2026"
-);
-
-const SESSION_DURATION_SECONDS =
-  Number(process.env.SESSION_EXPIRY_DAYS || 7) * 24 * 60 * 60;
+import {
+  JWT_SECRET_KEY,
+  SESSION_COOKIE_NAME,
+  SESSION_DURATION_SECONDS,
+} from "./jwtConfig";
 
 export async function createSessionToken(user: SessionUser): Promise<string> {
   const token = await new SignJWT({
@@ -22,14 +20,14 @@ export async function createSessionToken(user: SessionUser): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_DURATION_SECONDS}s`)
-    .sign(SECRET_KEY);
+    .sign(JWT_SECRET_KEY);
 
   return token;
 }
 
 export async function setSessionCookie(token: string) {
   const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, token, {
+  cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -40,7 +38,7 @@ export async function setSessionCookie(token: string) {
 
 export async function clearSessionCookie() {
   const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, "", {
+  cookieStore.set(SESSION_COOKIE_NAME, "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -51,14 +49,14 @@ export async function clearSessionCookie() {
 
 export async function getSession(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
   if (!token) {
     return null;
   }
 
   try {
-    const { payload } = await jwtVerify(token, SECRET_KEY);
+    const { payload } = await jwtVerify(token, JWT_SECRET_KEY);
     return {
       id: payload.id as string,
       email: payload.email as string,

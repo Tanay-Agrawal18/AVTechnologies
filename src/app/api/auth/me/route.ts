@@ -60,7 +60,13 @@ export async function GET() {
     return response;
   } catch (error) {
     console.error("Error in /api/auth/me:", error);
-    // Fallback to session user if DB is momentarily unreachable
+    if (process.env.NODE_ENV === "production") {
+      return NextResponse.json(
+        { error: "Service temporarily unavailable. Unable to verify session status." },
+        { status: 503 }
+      );
+    }
+    // Fallback to session user only in local development if DB is momentarily unreachable
     return NextResponse.json({
       authenticated: true,
       user: {

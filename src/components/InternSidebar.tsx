@@ -28,11 +28,20 @@ export function InternSidebar() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
-  // Listen for sidebar toggle event from header
+  // Listen for sidebar toggle event from header and Escape key
   useEffect(() => {
     const handleToggle = () => setIsOpen((prev) => !prev);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
     window.addEventListener("iwms:toggle-sidebar", handleToggle);
-    return () => window.removeEventListener("iwms:toggle-sidebar", handleToggle);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("iwms:toggle-sidebar", handleToggle);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   // Close sidebar on route change

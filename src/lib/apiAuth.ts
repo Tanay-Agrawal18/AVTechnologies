@@ -35,6 +35,7 @@ export async function requireAuth(
   }
 
   // Live database check to ensure account was not deactivated or deleted after token issuance
+  let effectiveRole = user.role;
   try {
     const { connectDB } = await import("./db");
     const { User } = await import("@/models/User");
@@ -50,12 +51,22 @@ export async function requireAuth(
         ),
       };
     }
+    effectiveRole = dbUser.role;
   } catch (error) {
     console.error("Database status check error in requireAuth:", error);
-    // Continue or let error bubble if database is unreachable
+    // Fail closed in production: Never silently authorize if live security check fails
+    if (process.env.NODE_ENV === "production") {
+      return {
+        ok: false,
+        response: NextResponse.json(
+          { error: "Security authorization check failed", code: "AUTH_CHECK_FAILED" },
+          { status: 503 }
+        ),
+      };
+    }
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (allowedRoles && !allowedRoles.includes(effectiveRole)) {
     return {
       ok: false,
       response: NextResponse.json(
@@ -65,5 +76,5 @@ export async function requireAuth(
     };
   }
 
-  return { ok: true, user };
+  return { ok: true, user: { ...user, role: effectiveRole } };
 }

@@ -1,10 +1,16 @@
 import dns from "node:dns";
 import mongoose from "mongoose";
 
-try {
-  dns.setServers(["8.8.8.8", "1.1.1.1"]);
-} catch {
-  // Ignore if custom dns servers cannot be set
+// Platform DNS resolution default; allows optional override via DNS_SERVERS env
+if (process.env.DNS_SERVERS) {
+  try {
+    const servers = process.env.DNS_SERVERS.split(",").map((s) => s.trim()).filter(Boolean);
+    if (servers.length > 0) {
+      dns.setServers(servers);
+    }
+  } catch {
+    // Ignore if custom dns servers cannot be set
+  }
 }
 import { validateDatabaseEnv } from "./dbConfig";
 
@@ -37,12 +43,6 @@ export async function connectDB(): Promise<typeof mongoose> {
   const currentDbValidation = validateDatabaseEnv();
   if (!currentDbValidation.isValid) {
     throw new Error(`Database configuration error: ${currentDbValidation.errors.join("; ")}`);
-  }
-
-  try {
-    dns.setServers(["8.8.8.8", "1.1.1.1"]);
-  } catch {
-    // Ignore error if unable to set servers
   }
 
   const effectiveUri = currentDbValidation.uri || MONGODB_URI;
