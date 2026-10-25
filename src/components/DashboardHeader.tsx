@@ -214,6 +214,7 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
 
   return (
     <header
+      suppressHydrationWarning
       className="sticky top-0 z-40 px-3.5 py-2.5 sm:px-6 sm:py-3.5 lg:px-8 lg:py-4 transition-all bg-white/95 backdrop-blur-md"
       style={{
         borderBottom: "1px solid var(--iwms-border)",
