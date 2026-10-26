@@ -13,13 +13,17 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Prefetch destination dashboards in the background for instant transition
+    router.prefetch("/admin/dashboard");
+    router.prefetch("/intern/dashboard");
+
     const errorParam = searchParams.get("error");
     if (errorParam === "inactive") {
       setError("Your account is currently inactive. Please contact your workspace administrator to restore access.");
     } else if (errorParam === "unauthorized") {
       setError("Please sign in to access that page.");
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

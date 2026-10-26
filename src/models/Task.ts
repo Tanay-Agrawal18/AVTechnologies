@@ -131,6 +131,8 @@ const TaskSchema = new Schema<ITaskDocument>(
 
 // Compound queries optimization for intern views and reports
 TaskSchema.index({ assignedInternId: 1, isArchived: 1, status: 1 });
+TaskSchema.index({ assignedInternId: 1, isArchived: 1, dueDate: 1 });
+TaskSchema.index({ isArchived: 1, createdAt: -1 });
 TaskSchema.index({ isArchived: 1, dueDate: 1 });
 
 export const Task: Model<ITaskDocument> =
