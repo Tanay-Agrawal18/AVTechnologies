@@ -7,14 +7,7 @@ import {
   Sparkles,
   ShieldCheck,
   Share2,
-  Building2,
-  Calendar,
-  Layers,
-  CheckCircle,
-  Cpu,
-  Fingerprint,
   Radio,
-  ExternalLink,
 } from "lucide-react";
 
 export interface InternIdCardProps {
