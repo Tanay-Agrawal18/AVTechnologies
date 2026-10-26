@@ -204,3 +204,38 @@ export const UpdateNotificationSchema = z.object({
     message: "Either notificationId or markAllAsRead must be provided",
   }
 );
+
+export const AnalyticsFilterSchema = z
+  .object({
+    startDate: z
+      .string()
+      .trim()
+      .optional()
+      .refine(
+        (val) => !val || !isNaN(Date.parse(val)),
+        "Invalid startDate format"
+      ),
+    endDate: z
+      .string()
+      .trim()
+      .optional()
+      .refine(
+        (val) => !val || !isNaN(Date.parse(val)),
+        "Invalid endDate format"
+      ),
+    department: z.string().trim().optional(),
+    internId: z.string().trim().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.startDate && data.endDate) {
+        return new Date(data.startDate) <= new Date(data.endDate);
+      }
+      return true;
+    },
+    {
+      message: "startDate cannot be after endDate",
+      path: ["startDate"],
+    }
+  );
+

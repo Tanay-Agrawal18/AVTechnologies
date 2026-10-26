@@ -26,8 +26,9 @@ const navItems = [
   { label: "Tasks", href: "/admin/tasks", icon: CheckSquare },
   { label: "Review Queue", href: "/admin/review-queue", icon: Clock },
   { label: "Team Projects", href: "/admin/projects", icon: FolderGit2 },
+  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+  { label: "Reports & CSV", href: "/admin/reports", icon: FileSpreadsheet },
   { label: "Bulk Email", href: "/admin/emails", icon: Mail },
-  { label: "Reports & KPIs", href: "/admin/reports", icon: BarChart3 },
 ];
 
 export function AdminSidebar() {

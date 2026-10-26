@@ -13,6 +13,7 @@ import {
   Clock,
   CheckCircle,
   ListTodo,
+  BarChart3,
 } from "lucide-react";
 import { Skeleton, KpiCardSkeleton } from "@/components/Skeleton";
 
@@ -92,13 +93,21 @@ export default function InternDashboardPage() {
           <p className="text-xs sm:text-sm font-semibold" style={{ color: "var(--iwms-navy)" }}>
             Overview &bull; <span className="font-normal text-slate-500">{totalActive} total task{totalActive !== 1 ? "s" : ""} on your roster</span>
           </p>
-          <Link
-            href="/intern/tasks"
-            className="text-xs font-semibold hover:underline inline-flex items-center gap-1"
-            style={{ color: "var(--iwms-sky)" }}
-          >
-            All Tasks ({totalActive}) <ArrowRight className="w-3 h-3" />
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/intern/analytics"
+              className="text-xs font-semibold hover:underline inline-flex items-center gap-1 text-slate-600"
+            >
+              <BarChart3 className="w-3.5 h-3.5 text-sky-600" /> My Analytics
+            </Link>
+            <Link
+              href="/intern/tasks"
+              className="text-xs font-semibold hover:underline inline-flex items-center gap-1"
+              style={{ color: "var(--iwms-sky)" }}
+            >
+              All Tasks ({totalActive}) <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">

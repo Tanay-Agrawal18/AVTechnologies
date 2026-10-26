@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { KPIStats } from "@/services/reportService";
 import { IUser, ITask } from "@/types";
@@ -125,13 +126,22 @@ export default function AdminReportsPage() {
         <div className="iwms-card p-3.5 sm:p-5 space-y-3 sm:space-y-4" style={{ borderRadius: "14px" }}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <h3 className="font-bold text-sm sm:text-base" style={{ color: "var(--iwms-navy)" }}>Report Customization & Export</h3>
-            <button
-              onClick={handleExportCSV}
-              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white shadow-xs transition-all hover:opacity-95 active:scale-95 w-full sm:w-auto"
-              style={{ background: "#0284C7" }}
-            >
-              <Download className="w-4 h-4 shrink-0" /> Export CSV
-            </button>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/admin/analytics"
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition-all hover:bg-slate-50 w-full sm:w-auto"
+                style={{ borderColor: "var(--iwms-border)", color: "var(--iwms-navy)" }}
+              >
+                <BarChart3 className="w-4 h-4 shrink-0 text-sky-600" /> View Analytics
+              </Link>
+              <button
+                onClick={handleExportCSV}
+                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white shadow-xs transition-all hover:opacity-95 active:scale-95 w-full sm:w-auto"
+                style={{ background: "#0284C7" }}
+              >
+                <Download className="w-4 h-4 shrink-0" /> Export CSV
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

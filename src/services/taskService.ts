@@ -11,6 +11,7 @@ import {
   invalidateKpiCache,
   invalidateProjectsCache,
   invalidateReviewQueueCache,
+  invalidateAnalyticsCache,
   getOrSetCache,
   CACHE_KEYS,
   CACHE_TTL,
@@ -591,6 +592,7 @@ export class TaskService {
 
     await invalidateKpiCache();
     await invalidateReviewQueueCache();
+    await invalidateAnalyticsCache(task.assignedInternId?.toString());
     if (task.projectId) {
       await invalidateProjectsCache(task.projectId.toString());
     }
@@ -650,6 +652,7 @@ export class TaskService {
 
     await invalidateKpiCache();
     await invalidateReviewQueueCache();
+    await invalidateAnalyticsCache(task.assignedInternId?.toString());
     if (task.projectId) {
       await invalidateProjectsCache(task.projectId.toString());
     }
@@ -710,6 +713,7 @@ export class TaskService {
 
     await invalidateKpiCache();
     await invalidateReviewQueueCache();
+    await invalidateAnalyticsCache(task.assignedInternId?.toString());
     if (task.projectId) {
       await invalidateProjectsCache(task.projectId.toString());
     }

@@ -3,6 +3,9 @@ import { redis } from "./redis";
 export const CACHE_TTL = {
   // Frequently requested dashboard KPI counters (60 seconds)
   ADMIN_KPIS: 60,
+  // Role-Aware Analytics caches (60 seconds)
+  ADMIN_ANALYTICS: 60,
+  INTERN_ANALYTICS: 60,
   // Project list for a given actor/role/filter (60 seconds)
   PROJECTS_LIST: 60,
   // Project detail by ID (120 seconds)
@@ -13,6 +16,9 @@ export const CACHE_TTL = {
 
 export const CACHE_KEYS = {
   adminKpis: () => `cache:admin:kpis`,
+  adminAnalytics: (startDate?: string, endDate?: string, department?: string, internId?: string) =>
+    `cache:admin:analytics:s:${startDate || "all"}:e:${endDate || "all"}:d:${department || "all"}:i:${internId || "all"}`,
+  internAnalytics: (internId: string) => `cache:intern:${internId}:analytics`,
   projectsList: (role: string, userId: string, status?: string) =>
     `cache:user:${userId}:role:${role}:projects:status:${status || "all"}`,
   projectDetail: (projectId: string, role: string, userId: string) =>
@@ -32,6 +38,7 @@ export const CACHE_KEYS = {
   userProjectListKeys: (userId: string) => `tags:user:${userId}:project_lists`,
   allProjectListKeys: () => `tags:global:project_lists`,
   allReviewQueueKeys: () => `tags:global:review_queue`,
+  allAnalyticsKeys: () => `tags:global:analytics`,
 };
 
 /**
@@ -180,3 +187,27 @@ export async function invalidateReviewQueueCache(): Promise<void> {
     console.warn(`[Cache] Failed invalidating review queue caches. Error: ${errorMsg}`);
   }
 }
+
+/**
+ * Invalidate analytics caches when task state changes or submissions are reviewed.
+ */
+export async function invalidateAnalyticsCache(internId?: string): Promise<void> {
+  if (!redis) return;
+  try {
+    const keysToDelete: string[] = [];
+    if (internId) {
+      keysToDelete.push(CACHE_KEYS.internAnalytics(internId));
+    }
+    const trackedAnalyticsKeys = await redis.smembers<string[]>(CACHE_KEYS.allAnalyticsKeys()).catch(() => []);
+    if (Array.isArray(trackedAnalyticsKeys) && trackedAnalyticsKeys.length > 0) {
+      keysToDelete.push(...trackedAnalyticsKeys, CACHE_KEYS.allAnalyticsKeys());
+    }
+    if (keysToDelete.length > 0) {
+      await invalidateCacheKeys(...keysToDelete);
+    }
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Unknown error";
+    console.warn(`[Cache] Failed invalidating analytics caches. Error: ${errorMsg}`);
+  }
+}
+

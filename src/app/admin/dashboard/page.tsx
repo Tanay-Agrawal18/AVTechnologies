@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   PlusCircle,
   FileSpreadsheet,
+  BarChart3,
 } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
 
@@ -43,6 +44,13 @@ export default function AdminDashboardPage() {
             <p className="text-xs" style={{ color: "rgba(11,31,58,0.55)" }}>Quickly create tasks or manage intern cohorts</p>
           </div>
           <div className="grid grid-cols-1 sm:flex sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-2.5">
+            <Link
+              href="/admin/analytics"
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium rounded-xl border transition-colors hover:bg-slate-50"
+              style={{ borderColor: "var(--iwms-border)", color: "var(--iwms-navy)" }}
+            >
+              <BarChart3 className="w-4 h-4 text-sky-600" /> Analytics
+            </Link>
             <Link
               href="/admin/import"
               className="inline-flex items-center justify-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm font-medium rounded-xl border transition-colors hover:bg-slate-50"

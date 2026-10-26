@@ -12,6 +12,7 @@ import {
   FolderGit2,
   X,
   CreditCard,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ const navItems = [
   { label: "Dashboard", href: "/intern/dashboard", icon: Home },
   { label: "My Tasks", href: "/intern/tasks", icon: CheckSquare },
   { label: "Team Projects", href: "/intern/projects", icon: FolderGit2 },
+  { label: "Analytics", href: "/intern/analytics", icon: BarChart3 },
   { label: "Work History", href: "/intern/history", icon: Clock },
   { label: "My ID Card", href: "/intern/id-card", icon: CreditCard },
   { label: "My Profile", href: "/intern/profile", icon: User },
