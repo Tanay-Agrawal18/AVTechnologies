@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Lock, Mail, AlertCircle, ArrowRight } from "lucide-react";
+import { Lock, Mail, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
@@ -57,11 +57,10 @@ function LoginForm() {
         throw new Error(data.error || "Authentication failed");
       }
 
-      router.push(data.redirectTo || "/admin/dashboard");
-      router.refresh();
+      // Direct window redirect ensures cookies and full session are cleanly applied without Next.js router.push + router.refresh queue lag
+      window.location.href = data.redirectTo || "/admin/dashboard";
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An error occurred during sign in");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -139,14 +138,17 @@ function LoginForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg shadow-xs text-sm font-semibold iwms-btn-primary transition-all disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg shadow-xs text-sm font-semibold iwms-btn-primary transition-all disabled:opacity-75 cursor-pointer disabled:cursor-not-allowed"
           style={{
             background: "var(--iwms-sky)",
             color: "var(--iwms-navy)",
           }}
         >
           {isLoading ? (
-            "Signing In..."
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Signing In...</span>
+            </>
           ) : (
             <>
               Sign In to Vyorai <ArrowRight className="w-4 h-4" />

@@ -93,8 +93,10 @@ export class UserService {
       return null;
     }
 
-    user.lastLoginAt = new Date();
-    await user.save();
+    // Update lastLoginAt asynchronously without blocking the user response
+    User.updateOne({ _id: user._id }, { $set: { lastLoginAt: new Date() } }).catch((err) => {
+      console.error("Non-critical error updating lastLoginAt:", err);
+    });
 
     return {
       id: user._id.toString(),
