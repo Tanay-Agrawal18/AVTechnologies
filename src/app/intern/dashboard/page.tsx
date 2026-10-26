@@ -14,6 +14,7 @@ import {
   CheckCircle,
   ListTodo,
 } from "lucide-react";
+import { Skeleton, KpiCardSkeleton } from "@/components/Skeleton";
 
 interface KpiCard {
   label: string;
@@ -101,48 +102,54 @@ export default function InternDashboardPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
-          {kpis.map((kpi) => {
-            const Icon = kpi.icon;
-            return (
-              <Link
-                key={kpi.label}
-                href={kpi.href}
-                className="iwms-card flex md:flex-col items-center md:items-start gap-3 px-3 py-3 md:p-5 transition-transform hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
-                style={{ borderRadius: "12px" }}
-              >
-                {/* Icon badge */}
-                <span
-                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ background: `${kpi.accent}18` }}
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <KpiCardSkeleton key={i} />
+            ))
+          ) : (
+            kpis.map((kpi) => {
+              const Icon = kpi.icon;
+              return (
+                <Link
+                  key={kpi.label}
+                  href={kpi.href}
+                  className="iwms-card flex md:flex-col items-center md:items-start gap-3 px-3 py-3 md:p-5 transition-transform hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+                  style={{ borderRadius: "12px" }}
                 >
-                  <Icon className="w-4 h-4" style={{ color: kpi.accent }} />
-                </span>
+                  {/* Icon badge */}
+                  <span
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: `${kpi.accent}18` }}
+                  >
+                    <Icon className="w-4 h-4" style={{ color: kpi.accent }} />
+                  </span>
 
-                {/* Text group */}
-                <div className="min-w-0 flex-1 md:w-full">
-                  <p
-                    className="text-[10px] font-bold uppercase tracking-wide leading-tight truncate"
-                    style={{ color: "rgba(11,31,58,.55)" }}
-                    title={kpi.label}
-                  >
-                    {kpi.label}
-                  </p>
-                  <p
-                    className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight mt-0.5"
-                    style={{ color: kpi.accent }}
-                  >
-                    {isLoading ? "…" : kpi.value}
-                  </p>
-                  <p
-                    className="hidden sm:block text-[10px] leading-tight mt-0.5 truncate"
-                    style={{ color: "rgba(11,31,58,.45)" }}
-                  >
-                    {kpi.sublabel}
-                  </p>
-                </div>
-              </Link>
-            );
-          })}
+                  {/* Text group */}
+                  <div className="min-w-0 flex-1 md:w-full">
+                    <p
+                      className="text-[10px] font-bold uppercase tracking-wide leading-tight truncate"
+                      style={{ color: "rgba(11,31,58,.55)" }}
+                      title={kpi.label}
+                    >
+                      {kpi.label}
+                    </p>
+                    <p
+                      className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight mt-0.5"
+                      style={{ color: kpi.accent }}
+                    >
+                      {kpi.value}
+                    </p>
+                    <p
+                      className="hidden sm:block text-[10px] leading-tight mt-0.5 truncate"
+                      style={{ color: "rgba(11,31,58,.45)" }}
+                    >
+                      {kpi.sublabel}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })
+          )}
         </div>
 
         {/* ── Changes-requested alert ────────────────────────── */}
@@ -208,11 +215,16 @@ export default function InternDashboardPage() {
 
           <div>
             {isLoading ? (
-              <div
-                className="p-6 text-center text-xs sm:text-sm"
-                style={{ color: "rgba(11,31,58,.45)" }}
-              >
-                Loading tasks…
+              <div className="divide-y divide-slate-100/80">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="px-4 sm:px-5 py-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-4 w-1/3" />
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                    </div>
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                ))}
               </div>
             ) : tasks.length === 0 ? (
               <div className="py-8 text-center">

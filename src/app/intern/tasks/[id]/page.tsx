@@ -24,6 +24,7 @@ import {
   Image as ImageIcon,
   Camera,
 } from "lucide-react";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function InternTaskDetailPage({
   params,
@@ -199,7 +200,34 @@ export default function InternTaskDetailPage({
     return (
       <>
         <DashboardHeader title="Task Details" />
-        <main className="p-8" style={{ color: "rgba(11,31,58,.50)" }}>Loading task instructions…</main>
+        <main className="p-3 sm:p-5 lg:p-8 space-y-4 max-w-5xl mx-auto">
+          <Skeleton className="h-6 w-36 mb-2" />
+          <div className="iwms-card p-4 sm:p-6 space-y-4" style={{ borderRadius: "14px" }}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Skeleton className="h-8 w-2/3" />
+              <div className="flex gap-2">
+                <Skeleton className="h-6 w-20 rounded-full" />
+                <Skeleton className="h-6 w-16 rounded-full" />
+              </div>
+            </div>
+            <div className="space-y-2 pt-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-4/6" />
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-100">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </div>
+          <div className="iwms-card p-4 sm:p-6 space-y-3" style={{ borderRadius: "14px" }}>
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-9 w-32 ml-auto" />
+          </div>
+        </main>
       </>
     );
   }

@@ -13,6 +13,7 @@ import {
   PlusCircle,
   FileSpreadsheet,
 } from "lucide-react";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function AdminDashboardPage() {
   const [kpis, setKpis] = useState<KPIStats | null>(null);
@@ -75,9 +76,13 @@ export default function AdminDashboardPage() {
                 <Users className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold mt-2 sm:mt-4" style={{ color: "var(--iwms-navy)" }}>
-              {isLoading ? "..." : kpis?.activeInterns ?? 0}
-            </p>
+            {isLoading ? (
+              <Skeleton className="h-8 sm:h-9 w-16 mt-2 sm:mt-4" />
+            ) : (
+              <p className="text-2xl sm:text-3xl font-extrabold mt-2 sm:mt-4" style={{ color: "var(--iwms-navy)" }}>
+                {kpis?.activeInterns ?? 0}
+              </p>
+            )}
             <div className="mt-2 text-xs flex items-center justify-between" style={{ color: "rgba(11,31,58,0.55)" }}>
               <span className="truncate">Rostered accounts</span>
               <Link href="/admin/interns" className="font-semibold inline-flex items-center hover:underline shrink-0" style={{ color: "#0284C7" }}>
@@ -93,9 +98,13 @@ export default function AdminDashboardPage() {
                 <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold mt-2 sm:mt-4 text-sky-600">
-              {isLoading ? "..." : kpis?.inProgress ?? 0}
-            </p>
+            {isLoading ? (
+              <Skeleton className="h-8 sm:h-9 w-16 mt-2 sm:mt-4" />
+            ) : (
+              <p className="text-2xl sm:text-3xl font-extrabold mt-2 sm:mt-4 text-sky-600">
+                {kpis?.inProgress ?? 0}
+              </p>
+            )}
             <div className="mt-2 text-xs flex items-center justify-between" style={{ color: "rgba(11,31,58,0.55)" }}>
               <span className="truncate">Active work ({kpis?.assigned ?? 0} unstarted)</span>
               <Link href="/admin/tasks?status=in_progress" className="font-semibold inline-flex items-center hover:underline shrink-0" style={{ color: "#0284C7" }}>
@@ -111,9 +120,13 @@ export default function AdminDashboardPage() {
                 <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold mt-2 sm:mt-4 text-amber-600">
-              {isLoading ? "..." : kpis?.submitted ?? 0}
-            </p>
+            {isLoading ? (
+              <Skeleton className="h-8 sm:h-9 w-16 mt-2 sm:mt-4" />
+            ) : (
+              <p className="text-2xl sm:text-3xl font-extrabold mt-2 sm:mt-4 text-amber-600">
+                {kpis?.submitted ?? 0}
+              </p>
+            )}
             <div className="mt-2 text-xs flex items-center justify-between" style={{ color: "rgba(11,31,58,0.55)" }}>
               <span className="truncate">Ready for review</span>
               <Link href="/admin/tasks?status=submitted" className="text-amber-600 font-semibold inline-flex items-center hover:underline shrink-0">
@@ -129,9 +142,13 @@ export default function AdminDashboardPage() {
                 <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-rose-600" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold mt-2 sm:mt-4 text-rose-600">
-              {isLoading ? "..." : kpis?.overdue ?? 0}
-            </p>
+            {isLoading ? (
+              <Skeleton className="h-8 sm:h-9 w-16 mt-2 sm:mt-4" />
+            ) : (
+              <p className="text-2xl sm:text-3xl font-extrabold mt-2 sm:mt-4 text-rose-600">
+                {kpis?.overdue ?? 0}
+              </p>
+            )}
             <div className="mt-2 text-xs flex items-center justify-between" style={{ color: "rgba(11,31,58,0.55)" }}>
               <span className="truncate">Past deadline</span>
               <Link href="/admin/reports" className="text-rose-600 font-semibold inline-flex items-center hover:underline shrink-0">

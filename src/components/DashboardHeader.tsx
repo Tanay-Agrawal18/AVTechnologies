@@ -17,6 +17,7 @@ import {
   Inbox,
 } from "lucide-react";
 import { SessionUser, INotification } from "@/types";
+import { Skeleton } from "@/components/Skeleton";
 
 interface HeaderProps {
   title: string;
@@ -343,9 +344,17 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
                 {/* Notifications Scrollable List */}
                 <div className="max-h-[360px] overflow-y-auto divide-y divide-slate-100/80 bg-white">
                   {isLoading && notifications.length === 0 ? (
-                    <div className="py-12 px-4 text-center text-slate-400 text-xs flex flex-col items-center justify-center gap-2">
-                      <RefreshCw className="w-5 h-5 animate-spin text-sky-500" />
-                      <span className="font-medium text-slate-500">Checking for updates…</span>
+                    <div className="p-3 space-y-3">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="flex items-start gap-3 p-1">
+                          <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                          <div className="flex-1 space-y-1.5">
+                            <Skeleton className="h-3.5 w-3/4" />
+                            <Skeleton className="h-3 w-full" />
+                            <Skeleton className="h-2.5 w-1/4" />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   ) : error ? (
                     <div className="py-10 px-4 text-center text-xs">
@@ -492,20 +501,29 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
             )}
 
             <div className="hidden md:block text-left max-w-[130px] lg:max-w-[180px]">
-              <p
-                className="font-semibold text-xs lg:text-sm leading-tight truncate"
-                style={{ color: "var(--iwms-black)" }}
-              >
-                {currentUser?.name || "Loading…"}
-              </p>
-              <p
-                className="text-[10px] lg:text-[11px] leading-tight truncate mt-0.5"
-                style={{ color: "rgba(11,31,58,.50)" }}
-              >
-                {currentUser?.role === "intern"
-                  ? `Intern • ${currentUser?.internId || ""}`
-                  : "Administrator"}
-              </p>
+              {currentUser ? (
+                <>
+                  <p
+                    className="font-semibold text-xs lg:text-sm leading-tight truncate"
+                    style={{ color: "var(--iwms-black)" }}
+                  >
+                    {currentUser.name}
+                  </p>
+                  <p
+                    className="text-[10px] lg:text-[11px] leading-tight truncate mt-0.5"
+                    style={{ color: "rgba(11,31,58,.50)" }}
+                  >
+                    {currentUser.role === "intern"
+                      ? `Intern • ${currentUser.internId || ""}`
+                      : "Administrator"}
+                  </p>
+                </>
+              ) : (
+                <div className="space-y-1">
+                  <Skeleton className="h-3.5 w-24" />
+                  <Skeleton className="h-2.5 w-16" />
+                </div>
+              )}
             </div>
 
             <ChevronDown

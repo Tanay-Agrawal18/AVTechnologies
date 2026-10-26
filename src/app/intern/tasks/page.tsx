@@ -6,6 +6,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { ITask } from "@/types";
 import { formatDate, getStatusBadgeClass, getPriorityBadgeClass } from "@/lib/utils";
 import { CheckSquare, ArrowRight, Filter, CalendarDays } from "lucide-react";
+import { TaskCardSkeleton } from "@/components/Skeleton";
 
 export default function InternTasksPage() {
   const [tasks, setTasks] = useState<ITask[]>([]);
@@ -99,11 +100,10 @@ export default function InternTasksPage() {
 
         {/* ── Task Cards ─────────────────────────────────────── */}
         {isLoading ? (
-          <div
-            className="p-8 text-center text-xs sm:text-sm"
-            style={{ color: "rgba(11,31,58,.45)" }}
-          >
-            Loading your tasks…
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <TaskCardSkeleton key={i} />
+            ))}
           </div>
         ) : tasks.length === 0 ? (
           <div

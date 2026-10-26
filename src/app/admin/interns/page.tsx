@@ -18,6 +18,7 @@ import {
   Edit2,
   Trash2,
 } from "lucide-react";
+import { TableSkeleton } from "@/components/Skeleton";
 
 export default function AdminInternsPage() {
   const [interns, setInterns] = useState<IUser[]>([]);
@@ -354,11 +355,7 @@ export default function AdminInternsPage() {
               </thead>
               <tbody className="divide-y text-sm" style={{ borderColor: "var(--iwms-border)" }}>
                 {isLoading ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-xs sm:text-sm" style={{ color: "rgba(11,31,58,0.45)" }}>
-                      Loading roster...
-                    </td>
-                  </tr>
+                  <TableSkeleton rows={5} columns={6} />
                 ) : interns.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-12 text-center">

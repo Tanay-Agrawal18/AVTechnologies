@@ -16,6 +16,7 @@ import {
   Layers,
   Sparkles,
 } from "lucide-react";
+import { TableSkeleton } from "@/components/Skeleton";
 
 export default function AdminTasksPage() {
   const [tasks, setTasks] = useState<ITask[]>([]);
@@ -286,11 +287,7 @@ export default function AdminTasksPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm">
                 {isLoading ? (
-                  <tr>
-                    <td colSpan={7} className="py-8 text-center text-slate-500">
-                      Loading tasks...
-                    </td>
-                  </tr>
+                  <TableSkeleton rows={5} columns={7} />
                 ) : tasks.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-12 text-center">

@@ -6,6 +6,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { ISubmission } from "@/types";
 import { formatDateTime, getStatusBadgeClass } from "@/lib/utils";
 import { History, CheckCircle, Clock, FileText } from "lucide-react";
+import { Skeleton, TableSkeleton } from "@/components/Skeleton";
 
 export default function InternHistoryPage() {
   const [submissions, setSubmissions] = useState<ISubmission[]>([]);
@@ -57,12 +58,16 @@ export default function InternHistoryPage() {
                 Total Submissions
               </span>
             </div>
-            <p
-              className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-none"
-              style={{ color: "var(--iwms-black)" }}
-            >
-              {stats?.totalSubmissions ?? 0}
-            </p>
+            {isLoading ? (
+              <Skeleton className="h-7 sm:h-9 w-14" />
+            ) : (
+              <p
+                className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-none"
+                style={{ color: "var(--iwms-black)" }}
+              >
+                {stats?.totalSubmissions ?? 0}
+              </p>
+            )}
           </div>
 
           {/* Approved */}
@@ -81,9 +86,13 @@ export default function InternHistoryPage() {
                 Approved Milestones
               </span>
             </div>
-            <p className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-none text-emerald-500">
-              {stats?.approvedTasks ?? 0}
-            </p>
+            {isLoading ? (
+              <Skeleton className="h-7 sm:h-9 w-14" />
+            ) : (
+              <p className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-none text-emerald-500">
+                {stats?.approvedTasks ?? 0}
+              </p>
+            )}
           </div>
 
           {/* Pending */}
@@ -102,9 +111,13 @@ export default function InternHistoryPage() {
                 Pending Review
               </span>
             </div>
-            <p className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-none text-amber-500">
-              {stats?.pendingReviews ?? 0}
-            </p>
+            {isLoading ? (
+              <Skeleton className="h-7 sm:h-9 w-14" />
+            ) : (
+              <p className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-none text-amber-500">
+                {stats?.pendingReviews ?? 0}
+              </p>
+            )}
           </div>
         </div>
 
@@ -146,15 +159,7 @@ export default function InternHistoryPage() {
               </thead>
               <tbody>
                 {isLoading ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="py-8 text-center text-xs"
-                      style={{ color: "rgba(11,31,58,.40)" }}
-                    >
-                      Loading your work history…
-                    </td>
-                  </tr>
+                  <TableSkeleton rows={4} columns={6} />
                 ) : submissions.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center">

@@ -11,6 +11,7 @@ import {
   Calendar,
   ArrowRight,
 } from "lucide-react";
+import { ProjectCardSkeleton } from "@/components/Skeleton";
 
 export default function InternProjectsPage() {
   const [projects, setProjects] = useState<IProject[]>([]);
@@ -89,11 +90,10 @@ export default function InternProjectsPage() {
 
         {/* Projects Grid */}
         {isLoading ? (
-          <div
-            className="p-8 text-center text-xs sm:text-sm"
-            style={{ color: "rgba(11,31,58,.45)" }}
-          >
-            Loading your team projects…
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <ProjectCardSkeleton key={i} />
+            ))}
           </div>
         ) : projects.length === 0 ? (
           <div

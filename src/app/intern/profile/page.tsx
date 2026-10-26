@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { SessionUser } from "@/types";
 import { Shield, Mail, Hash, Camera, Trash2, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function InternProfilePage() {
   const router = useRouter();
@@ -166,18 +167,27 @@ export default function InternProfilePage() {
 
             <div className="flex-1 space-y-2">
               <div>
-                <h3
-                  className="font-bold text-base sm:text-xl"
-                  style={{ color: "var(--iwms-black)" }}
-                >
-                  {user?.name || "Loading…"}
-                </h3>
-                <p
-                  className="text-xs sm:text-sm capitalize mt-0.5"
-                  style={{ color: "rgba(11,31,58,.50)" }}
-                >
-                  {user?.role} Account
-                </p>
+                {user ? (
+                  <>
+                    <h3
+                      className="font-bold text-base sm:text-xl"
+                      style={{ color: "var(--iwms-black)" }}
+                    >
+                      {user.name}
+                    </h3>
+                    <p
+                      className="text-xs sm:text-sm capitalize mt-0.5"
+                      style={{ color: "rgba(11,31,58,.50)" }}
+                    >
+                      {user.role} Account
+                    </p>
+                  </>
+                ) : (
+                  <div className="space-y-1.5 py-1">
+                    <Skeleton className="h-6 w-40" />
+                    <Skeleton className="h-4 w-28" />
+                  </div>
+                )}
               </div>
 
               {/* Picture Action Buttons */}
