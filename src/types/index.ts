@@ -12,6 +12,11 @@ export interface IUser {
   department?: string;
   designation?: string;
   phone?: string;
+  address?: string;
+  college?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  bio?: string;
   startDate?: string; // ISO date string
   endDate?: string;
   profilePicture?: string;
@@ -153,6 +158,14 @@ export interface SessionUser {
   internId?: string;
   status: UserStatus;
   profilePicture?: string;
+  phone?: string;
+  address?: string;
+  college?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  bio?: string;
+  department?: string;
+  designation?: string;
 }
 
 export type NotificationType =

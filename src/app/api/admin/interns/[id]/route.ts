@@ -107,6 +107,26 @@ export async function PATCH(
       changes.phone = { from: intern.phone, to: parsed.data.phone };
       intern.phone = parsed.data.phone;
     }
+    if (parsed.data.address !== undefined && parsed.data.address !== intern.address) {
+      changes.address = { from: intern.address, to: parsed.data.address };
+      intern.address = parsed.data.address;
+    }
+    if (parsed.data.college !== undefined && parsed.data.college !== intern.college) {
+      changes.college = { from: intern.college, to: parsed.data.college };
+      intern.college = parsed.data.college;
+    }
+    if (parsed.data.githubUrl !== undefined && parsed.data.githubUrl !== intern.githubUrl) {
+      changes.githubUrl = { from: intern.githubUrl, to: parsed.data.githubUrl };
+      intern.githubUrl = parsed.data.githubUrl;
+    }
+    if (parsed.data.linkedinUrl !== undefined && parsed.data.linkedinUrl !== intern.linkedinUrl) {
+      changes.linkedinUrl = { from: intern.linkedinUrl, to: parsed.data.linkedinUrl };
+      intern.linkedinUrl = parsed.data.linkedinUrl;
+    }
+    if (parsed.data.bio !== undefined && parsed.data.bio !== intern.bio) {
+      changes.bio = { from: intern.bio, to: parsed.data.bio };
+      intern.bio = parsed.data.bio;
+    }
     if (parsed.data.startDate !== undefined && parsed.data.startDate !== intern.startDate) {
       changes.startDate = { from: intern.startDate, to: parsed.data.startDate };
       intern.startDate = parsed.data.startDate;

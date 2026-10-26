@@ -10,6 +10,11 @@ export interface IUserDocument extends Document {
   department?: string;
   designation?: string;
   phone?: string;
+  address?: string;
+  college?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  bio?: string;
   startDate?: string;
   endDate?: string;
   profilePicture?: string;
@@ -67,6 +72,26 @@ const UserSchema = new Schema<IUserDocument>(
       trim: true,
     },
     phone: {
+      type: String,
+      trim: true,
+    },
+    address: {
+      type: String,
+      trim: true,
+    },
+    college: {
+      type: String,
+      trim: true,
+    },
+    githubUrl: {
+      type: String,
+      trim: true,
+    },
+    linkedinUrl: {
+      type: String,
+      trim: true,
+    },
+    bio: {
       type: String,
       trim: true,
     },

@@ -12,7 +12,7 @@ export async function GET() {
   try {
     await connectDB();
     const dbUser = await User.findById(sessionUser.id)
-      .select("name email role internId status profilePicture")
+      .select("name email role internId status profilePicture phone address college githubUrl linkedinUrl bio department designation")
       .lean();
 
     if (!dbUser) {
@@ -55,6 +55,14 @@ export async function GET() {
         internId: dbUser.internId,
         status: dbUser.status,
         profilePicture: dbUser.profilePicture,
+        phone: dbUser.phone,
+        address: dbUser.address,
+        college: dbUser.college,
+        githubUrl: dbUser.githubUrl,
+        linkedinUrl: dbUser.linkedinUrl,
+        bio: dbUser.bio,
+        department: dbUser.department,
+        designation: dbUser.designation,
       },
     });
     response.headers.set("Cache-Control", "no-store, max-age=0");

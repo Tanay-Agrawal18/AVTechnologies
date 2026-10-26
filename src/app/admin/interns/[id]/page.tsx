@@ -16,6 +16,13 @@ import {
   AlertCircle,
   Edit2,
   Trash2,
+  Phone,
+  MapPin,
+  GraduationCap,
+  Globe,
+  Link2,
+  FileText,
+  ExternalLink,
 } from "lucide-react";
 
 export default function AdminInternDetailPage({
@@ -39,6 +46,11 @@ export default function AdminInternDetailPage({
   const [editDepartment, setEditDepartment] = useState("");
   const [editDesignation, setEditDesignation] = useState("");
   const [editPhone, setEditPhone] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editCollege, setEditCollege] = useState("");
+  const [editGithubUrl, setEditGithubUrl] = useState("");
+  const [editLinkedinUrl, setEditLinkedinUrl] = useState("");
+  const [editBio, setEditBio] = useState("");
   const [editStartDate, setEditStartDate] = useState("");
   const [editEndDate, setEditEndDate] = useState("");
   const [editStatus, setEditStatus] = useState<"active" | "inactive" | "pending_setup">("active");
@@ -132,6 +144,11 @@ export default function AdminInternDetailPage({
     setEditDepartment(intern.department || "");
     setEditDesignation(intern.designation || "");
     setEditPhone(intern.phone || "");
+    setEditAddress(intern.address || "");
+    setEditCollege(intern.college || "");
+    setEditGithubUrl(intern.githubUrl || "");
+    setEditLinkedinUrl(intern.linkedinUrl || "");
+    setEditBio(intern.bio || "");
     setEditStartDate(intern.startDate || "");
     setEditEndDate(intern.endDate || "");
     setEditStatus(intern.status);
@@ -156,6 +173,11 @@ export default function AdminInternDetailPage({
           department: editDepartment || undefined,
           designation: editDesignation || undefined,
           phone: editPhone || undefined,
+          address: editAddress || undefined,
+          college: editCollege || undefined,
+          githubUrl: editGithubUrl || undefined,
+          linkedinUrl: editLinkedinUrl || undefined,
+          bio: editBio || undefined,
           startDate: editStartDate || undefined,
           endDate: editEndDate || undefined,
           status: editStatus,
@@ -264,45 +286,126 @@ export default function AdminInternDetailPage({
         )}
 
         {/* Profile Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 shadow-xs grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-6">
-          <div>
-            <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Intern ID</span>
-            <p className="font-mono font-bold text-slate-800 text-sm sm:text-base mt-0.5 sm:mt-1 truncate">
-              {intern.internId || "—"}
-            </p>
-          </div>
-          <div>
-            <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Work Email</span>
-            <p className="font-medium text-slate-800 text-sm sm:text-base mt-0.5 sm:mt-1 truncate">{intern.email}</p>
-          </div>
-          <div>
-            <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Department</span>
-            <p className="font-medium text-slate-800 text-sm sm:text-base mt-0.5 sm:mt-1 truncate">
-              {intern.department || "General"}
-            </p>
-          </div>
-          <div>
-            <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Designation</span>
-            <p className="font-medium text-slate-800 text-sm sm:text-base mt-0.5 sm:mt-1 truncate">
-              {intern.designation || "Intern"}
-            </p>
-          </div>
-          <div>
-            <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Phone</span>
-            <p className="font-medium text-slate-800 text-sm sm:text-base mt-0.5 sm:mt-1 truncate">
-              {intern.phone || "—"}
-            </p>
-          </div>
-          <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase">Account Status</span>
-            <div className="mt-1">
-              <span
-                className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${getStatusBadgeClass(
-                  intern.status
-                )}`}
+        <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-5">
+          {/* Top Info & Avatar */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 pb-5 border-b border-slate-100 text-center sm:text-left">
+            {intern.profilePicture ? (
+              <img
+                src={intern.profilePicture}
+                alt={intern.name}
+                className="h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover ring-4 ring-sky-100 shadow-sm shrink-0"
+              />
+            ) : (
+              <div
+                className="h-16 w-16 sm:h-20 sm:w-20 rounded-full flex items-center justify-center font-bold text-xl sm:text-2xl shrink-0"
+                style={{
+                  background: "rgba(56,189,248,.15)",
+                  color: "var(--iwms-sky)",
+                  border: "2px solid rgba(56,189,248,.30)",
+                }}
               >
-                {intern.status.replace("_", " ")}
+                {intern.name
+                  .split(" ")
+                  .map((w) => w[0])
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase()}
+              </div>
+            )}
+
+            <div className="flex-1 space-y-1">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900">{intern.name}</h2>
+                <span
+                  className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${getStatusBadgeClass(
+                    intern.status
+                  )}`}
+                >
+                  {intern.status.replace("_", " ")}
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-500">
+                {intern.designation || "Intern"} • {intern.department || "General"} Department
+              </p>
+              {intern.bio && (
+                <p className="text-xs sm:text-sm text-slate-600 pt-1 max-w-2xl italic">
+                  &ldquo;{intern.bio}&rdquo;
+                </p>
+              )}
+            </div>
+
+            {/* Quick Links */}
+            <div className="flex items-center gap-2 pt-1 sm:pt-0">
+              {intern.linkedinUrl && (
+                <a
+                  href={intern.linkedinUrl.startsWith("http") ? intern.linkedinUrl : `https://${intern.linkedinUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition-colors"
+                >
+                  <Link2 className="w-3.5 h-3.5" />
+                  LinkedIn
+                  <ExternalLink className="w-3 h-3 ml-0.5" />
+                </a>
+              )}
+              {intern.githubUrl && (
+                <a
+                  href={intern.githubUrl.startsWith("http") ? intern.githubUrl : `https://${intern.githubUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors"
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  GitHub
+                  <ExternalLink className="w-3 h-3 ml-0.5" />
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* Details Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 text-xs sm:text-sm">
+            <div>
+              <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Intern ID</span>
+              <p className="font-mono font-bold text-slate-800 text-sm mt-0.5 truncate">
+                {intern.internId || "—"}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Work Email</span>
+              <p className="font-medium text-slate-800 text-xs sm:text-sm mt-0.5 truncate" title={intern.email}>
+                {intern.email}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase flex items-center gap-1">
+                <Phone className="w-3 h-3 text-sky-500" /> Mobile Phone
               </span>
+              <p className="font-medium text-slate-800 text-xs sm:text-sm mt-0.5 truncate">
+                {intern.phone ? (
+                  <a href={`tel:${intern.phone}`} className="hover:text-blue-600 hover:underline">
+                    {intern.phone}
+                  </a>
+                ) : (
+                  <span className="text-slate-400">Not provided</span>
+                )}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase flex items-center gap-1">
+                <GraduationCap className="w-3 h-3 text-sky-500" /> College / Univ
+              </span>
+              <p className="font-medium text-slate-800 text-xs sm:text-sm mt-0.5 truncate" title={intern.college}>
+                {intern.college || <span className="text-slate-400">Not provided</span>}
+              </p>
+            </div>
+            <div className="col-span-2">
+              <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase flex items-center gap-1">
+                <MapPin className="w-3 h-3 text-sky-500" /> Address / Location
+              </span>
+              <p className="font-medium text-slate-800 text-xs sm:text-sm mt-0.5 truncate" title={intern.address}>
+                {intern.address || <span className="text-slate-400">Not provided</span>}
+              </p>
             </div>
           </div>
         </div>
@@ -479,16 +582,83 @@ export default function AdminInternDetailPage({
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    placeholder="+91 98765 43210"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    College / University
+                  </label>
+                  <input
+                    type="text"
+                    value={editCollege}
+                    onChange={(e) => setEditCollege(e.target.value)}
+                    placeholder="Delhi University, IIT, etc."
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Phone Number
+                  Address / City
                 </label>
                 <input
                   type="text"
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  placeholder="+1 (555) 019-2834"
+                  value={editAddress}
+                  onChange={(e) => setEditAddress(e.target.value)}
+                  placeholder="Street, City, State, PIN"
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    LinkedIn Profile
+                  </label>
+                  <input
+                    type="url"
+                    value={editLinkedinUrl}
+                    onChange={(e) => setEditLinkedinUrl(e.target.value)}
+                    placeholder="https://linkedin.com/in/username"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    GitHub Profile
+                  </label>
+                  <input
+                    type="url"
+                    value={editGithubUrl}
+                    onChange={(e) => setEditGithubUrl(e.target.value)}
+                    placeholder="https://github.com/username"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Bio / Summary
+                </label>
+                <textarea
+                  rows={2}
+                  value={editBio}
+                  onChange={(e) => setEditBio(e.target.value)}
+                  placeholder="Intern bio and skill summary"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm resize-none"
                 />
               </div>
 

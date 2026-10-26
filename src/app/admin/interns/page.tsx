@@ -44,6 +44,11 @@ export default function AdminInternsPage() {
   const [editDepartment, setEditDepartment] = useState("");
   const [editDesignation, setEditDesignation] = useState("");
   const [editPhone, setEditPhone] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editCollege, setEditCollege] = useState("");
+  const [editGithubUrl, setEditGithubUrl] = useState("");
+  const [editLinkedinUrl, setEditLinkedinUrl] = useState("");
+  const [editBio, setEditBio] = useState("");
   const [editStartDate, setEditStartDate] = useState("");
   const [editEndDate, setEditEndDate] = useState("");
   const [editStatus, setEditStatus] = useState<"active" | "inactive" | "pending_setup">("active");
@@ -211,6 +216,11 @@ export default function AdminInternsPage() {
     setEditDepartment(intern.department || "");
     setEditDesignation(intern.designation || "");
     setEditPhone(intern.phone || "");
+    setEditAddress(intern.address || "");
+    setEditCollege(intern.college || "");
+    setEditGithubUrl(intern.githubUrl || "");
+    setEditLinkedinUrl(intern.linkedinUrl || "");
+    setEditBio(intern.bio || "");
     setEditStartDate(intern.startDate || "");
     setEditEndDate(intern.endDate || "");
     setEditStatus(intern.status);
@@ -234,6 +244,11 @@ export default function AdminInternsPage() {
           department: editDepartment || undefined,
           designation: editDesignation || undefined,
           phone: editPhone || undefined,
+          address: editAddress || undefined,
+          college: editCollege || undefined,
+          githubUrl: editGithubUrl || undefined,
+          linkedinUrl: editLinkedinUrl || undefined,
+          bio: editBio || undefined,
           startDate: editStartDate || undefined,
           endDate: editEndDate || undefined,
           status: editStatus,
@@ -692,16 +707,83 @@ export default function AdminInternsPage() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    placeholder="+91 98765 43210"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    College / University
+                  </label>
+                  <input
+                    type="text"
+                    value={editCollege}
+                    onChange={(e) => setEditCollege(e.target.value)}
+                    placeholder="Delhi University, IIT, etc."
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Phone Number
+                  Address / City
                 </label>
                 <input
                   type="text"
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  placeholder="+1 (555) 019-2834"
+                  value={editAddress}
+                  onChange={(e) => setEditAddress(e.target.value)}
+                  placeholder="Street, City, State, PIN"
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    LinkedIn Profile
+                  </label>
+                  <input
+                    type="url"
+                    value={editLinkedinUrl}
+                    onChange={(e) => setEditLinkedinUrl(e.target.value)}
+                    placeholder="https://linkedin.com/in/username"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    GitHub Profile
+                  </label>
+                  <input
+                    type="url"
+                    value={editGithubUrl}
+                    onChange={(e) => setEditGithubUrl(e.target.value)}
+                    placeholder="https://github.com/username"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Bio / Summary
+                </label>
+                <textarea
+                  rows={2}
+                  value={editBio}
+                  onChange={(e) => setEditBio(e.target.value)}
+                  placeholder="Intern bio and skill summary"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm resize-none"
                 />
               </div>
 

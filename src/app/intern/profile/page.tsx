@@ -4,7 +4,24 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { SessionUser } from "@/types";
-import { Shield, Mail, Hash, Camera, Trash2, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import {
+  Shield,
+  Mail,
+  Hash,
+  Camera,
+  Trash2,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  Phone,
+  MapPin,
+  GraduationCap,
+  Globe,
+  Link2,
+  FileText,
+  Save,
+  Layers,
+} from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
 
 export default function InternProfilePage() {
@@ -14,6 +31,17 @@ export default function InternProfilePage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Form states for editable personal details
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [college, setCollege] = useState("");
+  const [githubUrl, setGithubUrl] = useState("");
+  const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [bio, setBio] = useState("");
+  const [isSavingDetails, setIsSavingDetails] = useState(false);
+  const [detailsSuccess, setDetailsSuccess] = useState<string | null>(null);
+  const [detailsError, setDetailsError] = useState<string | null>(null);
 
   const fetchUser = () => {
     fetch("/api/auth/me")
@@ -25,7 +53,15 @@ export default function InternProfilePage() {
         return res.ok ? res.json() : null;
       })
       .then((data) => {
-        if (data?.user) setUser(data.user);
+        if (data?.user) {
+          setUser(data.user);
+          setPhone(data.user.phone || "");
+          setAddress(data.user.address || "");
+          setCollege(data.user.college || "");
+          setGithubUrl(data.user.githubUrl || "");
+          setLinkedinUrl(data.user.linkedinUrl || "");
+          setBio(data.user.bio || "");
+        }
       })
       .catch(() => {});
   };
@@ -96,6 +132,41 @@ export default function InternProfilePage() {
     }
   };
 
+  const handleSaveDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingDetails(true);
+    setDetailsError(null);
+    setDetailsSuccess(null);
+
+    try {
+      const res = await fetch("/api/users/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: phone.trim(),
+          address: address.trim(),
+          college: college.trim(),
+          githubUrl: githubUrl.trim(),
+          linkedinUrl: linkedinUrl.trim(),
+          bio: bio.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to update profile details");
+      }
+
+      setDetailsSuccess("Your details have been saved successfully and are now visible to the Admin!");
+      fetchUser();
+      setTimeout(() => setDetailsSuccess(null), 5000);
+    } catch (err: unknown) {
+      setDetailsError(err instanceof Error ? err.message : "Error saving profile details");
+    } finally {
+      setIsSavingDetails(false);
+    }
+  };
+
   const initials = user?.name
     ? user.name
         .split(" ")
@@ -109,10 +180,10 @@ export default function InternProfilePage() {
     <>
       <DashboardHeader
         title="My Profile"
-        description="Your verified identity, assignment parameters, and security credentials"
+        description="Your verified identity, assignment parameters, personal details, and security credentials"
       />
 
-      <main className="p-3 sm:p-5 lg:p-8 max-w-2xl space-y-4 sm:space-y-6">
+      <main className="p-3 sm:p-5 lg:p-8 max-w-4xl space-y-6">
         {uploadSuccess && (
           <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-medium flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -127,6 +198,7 @@ export default function InternProfilePage() {
           </div>
         )}
 
+        {/* Identity & Verified Account Card */}
         <div
           className="iwms-card p-4 sm:p-7 space-y-4 sm:space-y-6"
           style={{ borderRadius: "16px" }}
@@ -179,7 +251,7 @@ export default function InternProfilePage() {
                       className="text-xs sm:text-sm capitalize mt-0.5"
                       style={{ color: "rgba(11,31,58,.50)" }}
                     >
-                      {user.role} Account
+                      {user.role} Account {user.designation ? `• ${user.designation}` : ""}
                     </p>
                   </>
                 ) : (
@@ -229,87 +301,218 @@ export default function InternProfilePage() {
             </div>
           </div>
 
-          {/* Fields */}
-          <div className="space-y-2 sm:space-y-4 text-xs sm:text-sm">
+          {/* Readonly Identity Parameters */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-1 text-xs sm:text-sm">
             {/* Intern ID */}
-            <div
-              className="flex items-center justify-between py-2.5 sm:py-3 gap-2"
-              style={{ borderBottom: "1px solid rgba(11,31,58,.07)" }}
-            >
-              <span
-                className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-sm"
-                style={{ color: "rgba(11,31,58,.55)" }}
-              >
-                <Hash
-                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0"
-                  style={{ color: "var(--iwms-sky)" }}
-                />
+            <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100">
+              <span className="flex items-center gap-1.5 text-slate-500 text-xs font-medium">
+                <Hash className="w-3.5 h-3.5 text-sky-500" />
                 Intern ID
               </span>
-              <span
-                className="font-mono font-semibold text-xs sm:text-sm"
-                style={{ color: "var(--iwms-black)" }}
-              >
-                {user?.internId || "N/A"}
-              </span>
+              <p className="font-mono font-bold text-slate-800 text-sm mt-1">
+                {user?.internId || "—"}
+              </p>
             </div>
 
             {/* Email */}
-            <div
-              className="flex items-center justify-between py-2.5 sm:py-3 gap-2"
-              style={{ borderBottom: "1px solid rgba(11,31,58,.07)" }}
-            >
-              <span
-                className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-sm shrink-0"
-                style={{ color: "rgba(11,31,58,.55)" }}
-              >
-                <Mail
-                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0"
-                  style={{ color: "var(--iwms-sky)" }}
-                />
+            <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100">
+              <span className="flex items-center gap-1.5 text-slate-500 text-xs font-medium">
+                <Mail className="w-3.5 h-3.5 text-sky-500" />
                 Work Email
               </span>
-              <span
-                className="font-medium text-[11px] sm:text-sm truncate max-w-[200px] sm:max-w-none text-right"
-                style={{ color: "var(--iwms-black)" }}
-                title={user?.email}
-              >
-                {user?.email}
+              <p className="font-medium text-slate-800 text-xs mt-1 truncate" title={user?.email}>
+                {user?.email || "—"}
+              </p>
+            </div>
+
+            {/* Department */}
+            <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100">
+              <span className="flex items-center gap-1.5 text-slate-500 text-xs font-medium">
+                <Layers className="w-3.5 h-3.5 text-sky-500" />
+                Department
               </span>
+              <p className="font-medium text-slate-800 text-xs mt-1 truncate">
+                {user?.department || "General"}
+              </p>
             </div>
 
             {/* Status */}
-            <div className="flex items-center justify-between py-2.5 sm:py-3 gap-2">
-              <span
-                className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-sm"
-                style={{ color: "rgba(11,31,58,.55)" }}
-              >
-                <Shield
-                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0"
-                  style={{ color: "var(--iwms-sky)" }}
-                />
+            <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100">
+              <span className="flex items-center gap-1.5 text-slate-500 text-xs font-medium">
+                <Shield className="w-3.5 h-3.5 text-sky-500" />
                 Account Status
               </span>
-              <span
-                className="font-semibold capitalize px-2 sm:px-3 py-0.5 rounded-full text-[10px] sm:text-xs"
-                style={
-                  user?.status === "active"
-                    ? {
-                        background: "rgba(16,185,129,.12)",
-                        color: "#059669",
-                        border: "1px solid rgba(16,185,129,.25)",
-                      }
-                    : {
-                        background: "rgba(239,68,68,.12)",
-                        color: "#DC2626",
-                        border: "1px solid rgba(239,68,68,.25)",
-                      }
-                }
-              >
-                {user?.status || "Loading…"}
-              </span>
+              <div className="mt-1">
+                <span
+                  className="font-semibold capitalize px-2 py-0.5 rounded-full text-[11px] inline-block"
+                  style={
+                    user?.status === "active"
+                      ? {
+                          background: "rgba(16,185,129,.12)",
+                          color: "#059669",
+                          border: "1px solid rgba(16,185,129,.25)",
+                        }
+                      : {
+                          background: "rgba(239,68,68,.12)",
+                          color: "#DC2626",
+                          border: "1px solid rgba(239,68,68,.25)",
+                        }
+                  }
+                >
+                  {user?.status || "Loading…"}
+                </span>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Detailed Personal Profile Form */}
+        <div
+          className="iwms-card p-4 sm:p-7 space-y-5"
+          style={{ borderRadius: "16px" }}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-1">
+            <div>
+              <h3 className="font-bold text-base sm:text-lg text-slate-900">
+                Personal & Contact Details
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Fill in your contact and background info. These details will be directly visible to the management team in the Admin Panel.
+              </p>
+            </div>
+          </div>
+
+          {detailsSuccess && (
+            <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-medium flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{detailsSuccess}</span>
+            </div>
+          )}
+
+          {detailsError && (
+            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs sm:text-sm font-medium flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{detailsError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSaveDetails} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Mobile Number */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-sky-500" />
+                  Mobile Number
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+91 98765 43210"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                />
+              </div>
+
+              {/* College / University */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <GraduationCap className="w-3.5 h-3.5 text-sky-500" />
+                  College / University
+                </label>
+                <input
+                  type="text"
+                  value={college}
+                  onChange={(e) => setCollege(e.target.value)}
+                  placeholder="e.g. Delhi University, IIT, NIT"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Address */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-sky-500" />
+                Current Address / City
+              </label>
+              <textarea
+                rows={2}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Flat / House No, Street, City, State, PIN code"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none resize-none"
+              />
+            </div>
+
+            {/* Social Links */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* LinkedIn URL */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <Link2 className="w-3.5 h-3.5 text-sky-500" />
+                  LinkedIn Profile URL
+                </label>
+                <input
+                  type="url"
+                  value={linkedinUrl}
+                  onChange={(e) => setLinkedinUrl(e.target.value)}
+                  placeholder="https://linkedin.com/in/username"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                />
+              </div>
+
+              {/* GitHub URL */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-sky-500" />
+                  GitHub / Portfolio URL
+                </label>
+                <input
+                  type="url"
+                  value={githubUrl}
+                  onChange={(e) => setGithubUrl(e.target.value)}
+                  placeholder="https://github.com/username"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Bio / About */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-sky-500" />
+                Short Bio / Skills Summary
+              </label>
+              <textarea
+                rows={3}
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Briefly describe your skill set, key domains (e.g. Frontend, React, Python), and career goals..."
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none resize-none"
+              />
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="submit"
+                disabled={isSavingDetails}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold text-white shadow-sm transition-all hover:opacity-95 disabled:opacity-50"
+                style={{ background: "var(--iwms-sky)" }}
+              >
+                {isSavingDetails ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Saving Details...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    Save Profile Details
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         </div>
       </main>
     </>
