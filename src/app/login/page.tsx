@@ -83,7 +83,7 @@ function LoginForm() {
                 border: "1px solid var(--iwms-border)",
                 color: "var(--iwms-black)",
               }}
-              placeholder="[EMAIL_ADDRESS]"
+              placeholder="Email Address"
             />
           </div>
         </div>
