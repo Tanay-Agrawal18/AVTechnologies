@@ -723,7 +723,7 @@ export default function AdminInternDetailPage({
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
                 />
                 <p className="text-[11px] text-slate-500 mt-1">
-                  Provide Google Drive link to the completion certificate. Automatically shown on the intern's public QR verification profile when the internship ends or URL is set.
+                  Provide Google Drive link to the completion certificate. Automatically shown on the intern&apos;s public QR verification profile when the internship ends or URL is set.
                 </p>
               </div>
 
