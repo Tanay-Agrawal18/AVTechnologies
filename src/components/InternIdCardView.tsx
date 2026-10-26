@@ -229,11 +229,11 @@ export function InternIdCardView({
       </div>
 
       {/* ─── BADGE DISPLAY AREA ─── */}
-      <div className="relative flex flex-col items-center my-4 sm:my-6 print:my-0">
+      <div className="relative flex flex-col items-center my-2 sm:my-4 print:my-0">
         {/* ── Realistic Navy Lanyard Strap & Clip ── */}
-        <div className="flex flex-col items-center -mb-5 z-20 print:hidden select-none pointer-events-none">
+        <div className="flex flex-col items-center -mb-4 z-20 print:hidden select-none pointer-events-none">
           {/* Lanyard Webbing Ribbon */}
-          <div className="w-13 h-20 bg-[#0B1F3A] shadow-lg flex items-center justify-center relative overflow-hidden">
+          <div className="w-11 h-14 bg-[#0B1F3A] shadow-lg flex items-center justify-center relative overflow-hidden">
             <div
               className="absolute inset-0 opacity-20"
               style={{
@@ -241,20 +241,20 @@ export function InternIdCardView({
                   "repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 4px)",
               }}
             />
-            <div className="flex items-center gap-1 text-[10px] font-extrabold tracking-widest text-white uppercase rotate-90 drop-shadow-xs">
+            <div className="flex items-center gap-1 text-[9px] font-extrabold tracking-widest text-white uppercase rotate-90 drop-shadow-xs">
               <span className="opacity-90">VO</span>
               <span className="tracking-widest">vyorai</span>
             </div>
           </div>
 
           {/* Dark Matte Gunmetal Clamp */}
-          <div className="w-16 h-7 bg-gradient-to-b from-[#1e293b] via-[#0f172a] to-[#020617] rounded-md shadow-md border border-slate-700/80 -mt-1 z-10 flex flex-col items-center justify-center p-0.5">
-            <div className="w-10 h-2 bg-gradient-to-r from-slate-600 via-slate-400 to-slate-600 rounded-xs shadow-inner" />
+          <div className="w-14 h-5 bg-gradient-to-b from-[#1e293b] via-[#0f172a] to-[#020617] rounded-md shadow-md border border-slate-700/80 -mt-1 z-10 flex flex-col items-center justify-center p-0.5">
+            <div className="w-8 h-1.5 bg-gradient-to-r from-slate-600 via-slate-400 to-slate-600 rounded-xs shadow-inner" />
           </div>
 
           {/* Badge Slot Cutout (Oval punch slot) */}
-          <div className="w-12 h-3.5 bg-slate-900 rounded-full border border-slate-600/70 shadow-xs flex items-center justify-center -mt-2 z-20">
-            <div className="w-7 h-1.5 bg-black rounded-full" />
+          <div className="w-10 h-3 bg-slate-900 rounded-full border border-slate-600/70 shadow-xs flex items-center justify-center -mt-1.5 z-20">
+            <div className="w-6 h-1 bg-black rounded-full" />
           </div>
         </div>
 
@@ -270,7 +270,7 @@ export function InternIdCardView({
           style={{ perspective: "1500px" }}
         >
           <div
-            className="w-[340px] sm:w-[380px] h-[610px] sm:h-[635px] relative transition-transform duration-700 ease-in-out"
+            className="w-[320px] sm:w-[350px] h-[490px] sm:h-[515px] relative transition-transform duration-700 ease-in-out"
             style={{
               transformStyle: "preserve-3d",
               transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
@@ -280,7 +280,7 @@ export function InternIdCardView({
             {/* FRONT SIDE (QR-Based Smart ID with Light Aesthetic) */}
             {/* ════════════════════════════════════════════════════════════════ */}
             <div
-              className="absolute inset-0 flex flex-col justify-between p-6 sm:p-7 text-slate-900 rounded-[32px] overflow-hidden border border-slate-200/80 shadow-[0_20px_50px_rgba(11,31,58,0.18)]"
+              className="absolute inset-0 flex flex-col justify-between p-4 sm:p-5 text-slate-900 rounded-[28px] overflow-hidden border border-slate-200/80 shadow-[0_20px_50px_rgba(11,31,58,0.18)]"
               style={{
                 backfaceVisibility: "hidden",
                 WebkitBackfaceVisibility: "hidden",
@@ -324,11 +324,11 @@ export function InternIdCardView({
               </div>
 
               {/* ── TOP HEADER: Logo + Active Pill ── */}
-              <div className="relative z-10 pt-1">
+              <div className="relative z-10 pt-0.5">
                 <div className="flex items-center justify-between">
                   {/* Brand mark with rounded squircle tile */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06)] border border-slate-100 flex items-center justify-center p-2 shrink-0">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-xl bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06)] border border-slate-100 flex items-center justify-center p-1.5 shrink-0">
                       <img
                         src="/image.png"
                         alt="Vyorai Logo"
@@ -336,29 +336,29 @@ export function InternIdCardView({
                       />
                     </div>
                     <div>
-                      <h3 className="text-xl font-extrabold tracking-tight text-[#0B1F3A] leading-none">
+                      <h3 className="text-lg font-extrabold tracking-tight text-[#0B1F3A] leading-none">
                         Vyorai
                       </h3>
-                      <p className="text-[10px] tracking-[0.2em] uppercase font-bold text-sky-500 mt-1">
+                      <p className="text-[9px] tracking-[0.2em] uppercase font-bold text-sky-500 mt-0.5">
                         Technologies
                       </p>
                     </div>
                   </div>
 
                   {/* ACTIVE status pill */}
-                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-sky-100/70 border border-sky-200/80 text-sky-800 text-xs font-bold tracking-wider">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-xs" />
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-100/70 border border-sky-200/80 text-sky-800 text-[11px] font-bold tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-xs" />
                     <span>{displayStatus}</span>
                   </div>
                 </div>
               </div>
 
               {/* ── CENTER: Photo Frame, Verified Badge, Name & Role ── */}
-              <div className="relative z-10 flex flex-col items-center text-center my-auto py-1">
+              <div className="relative z-10 flex flex-col items-center text-center my-auto py-0.5">
                 {/* Profile Photo with Cyan Border + Floating Check Badge */}
                 <div className="relative">
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl p-1 bg-gradient-to-b from-sky-400 to-sky-500 shadow-[0_8px_24px_rgba(56,189,248,0.3)]">
-                    <div className="w-full h-full rounded-[20px] overflow-hidden bg-slate-100 border border-white">
+                  <div className="w-24 h-24 sm:w-26 sm:h-26 rounded-2xl p-1 bg-gradient-to-b from-sky-400 to-sky-500 shadow-[0_6px_20px_rgba(56,189,248,0.28)]">
+                    <div className="w-full h-full rounded-[14px] overflow-hidden bg-slate-100 border border-white">
                       {intern.profilePicture ? (
                         <img
                           src={intern.profilePicture}
@@ -366,7 +366,7 @@ export function InternIdCardView({
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-sky-100 to-slate-100 text-sky-700 text-3xl font-extrabold tracking-wider">
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-sky-100 to-slate-100 text-sky-700 text-2xl font-extrabold tracking-wider">
                           {initials}
                         </div>
                       )}
@@ -374,68 +374,68 @@ export function InternIdCardView({
                   </div>
 
                   {/* Floating Circular Blue Verified Checkmark Badge */}
-                  <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-sky-500 text-white flex items-center justify-center shadow-md border-2 border-white">
-                    <Check className="w-4 h-4 stroke-[3]" />
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-sky-500 text-white flex items-center justify-center shadow-md border-2 border-white">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
                   </div>
                 </div>
 
                 {/* Intern Full Name */}
-                <h4 className="mt-3.5 text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1F3A]">
+                <h4 className="mt-2.5 text-lg sm:text-xl font-extrabold tracking-tight text-[#0B1F3A]">
                   {intern.name}
                 </h4>
 
                 {/* Designation */}
-                <p className="text-xs sm:text-sm font-semibold text-slate-600 tracking-wide mt-0.5">
+                <p className="text-xs sm:text-[13px] font-semibold text-slate-600 tracking-wide mt-0.5">
                   {displayDesignation}
                 </p>
 
                 {/* Intern ID Pill Capsule */}
-                <div className="mt-2.5 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 border border-sky-100 shadow-2xs">
-                  <span className="text-xs font-bold text-sky-500">ID</span>
-                  <span className="w-0.5 h-3 bg-slate-300" />
-                  <span className="text-xs sm:text-sm font-extrabold text-[#0B1F3A] tracking-wider font-mono">
+                <div className="mt-2 inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-sky-50 border border-sky-100 shadow-2xs">
+                  <span className="text-[11px] font-bold text-sky-500">ID</span>
+                  <span className="w-0.5 h-2.5 bg-slate-300" />
+                  <span className="text-xs sm:text-[13px] font-extrabold text-[#0B1F3A] tracking-wider font-mono">
                     {formattedInternId}
                   </span>
                 </div>
               </div>
 
               {/* ── 3 Rounded Info Metric Cards ── */}
-              <div className="relative z-10 grid grid-cols-3 gap-2.5">
+              <div className="relative z-10 grid grid-cols-3 gap-2">
                 {/* DEPT Card */}
-                <div className="p-2 sm:p-2.5 rounded-2xl bg-white border border-sky-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+                <div className="p-2 rounded-xl bg-white border border-sky-100 shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex flex-col justify-between">
                   <div className="flex items-center gap-1.5 text-sky-500">
                     <Cpu className="w-3.5 h-3.5" />
                     <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">
                       DEPT
                     </span>
                   </div>
-                  <p className="text-xs font-bold text-[#0B1F3A] truncate mt-1">
+                  <p className="text-[11px] sm:text-xs font-bold text-[#0B1F3A] truncate mt-1">
                     {displayDepartment}
                   </p>
                 </div>
 
                 {/* VALID FROM Card */}
-                <div className="p-2 sm:p-2.5 rounded-2xl bg-white border border-sky-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+                <div className="p-2 rounded-xl bg-white border border-sky-100 shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex flex-col justify-between">
                   <div className="flex items-center gap-1.5 text-sky-500">
                     <Calendar className="w-3.5 h-3.5" />
                     <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">
                       VALID FROM
                     </span>
                   </div>
-                  <p className="text-xs font-bold text-[#0B1F3A] truncate mt-1">
+                  <p className="text-[11px] sm:text-xs font-bold text-[#0B1F3A] truncate mt-1">
                     {issueDateStr}
                   </p>
                 </div>
 
                 {/* SECURITY Card */}
-                <div className="p-2 sm:p-2.5 rounded-2xl bg-white border border-sky-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+                <div className="p-2 rounded-xl bg-white border border-sky-100 shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex flex-col justify-between">
                   <div className="flex items-center gap-1.5 text-sky-500">
                     <Shield className="w-3.5 h-3.5" />
                     <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">
                       SECURITY
                     </span>
                   </div>
-                  <p className="text-xs font-bold text-sky-600 truncate mt-1">
+                  <p className="text-[11px] sm:text-xs font-bold text-sky-600 truncate mt-1">
                     L1 PASS
                   </p>
                 </div>
@@ -467,7 +467,7 @@ export function InternIdCardView({
             {/* BACK SIDE (Large Centered Scannable QR Code Layout) */}
             {/* ════════════════════════════════════════════════════════════════ */}
             <div
-              className="absolute inset-0 flex flex-col justify-between p-6 sm:p-7 text-slate-900 rounded-[32px] overflow-hidden border border-slate-200/80 shadow-[0_20px_50px_rgba(11,31,58,0.18)]"
+              className="absolute inset-0 flex flex-col justify-between p-4 sm:p-5 text-slate-900 rounded-[28px] overflow-hidden border border-slate-200/80 shadow-[0_20px_50px_rgba(11,31,58,0.18)]"
               style={{
                 backfaceVisibility: "hidden",
                 WebkitBackfaceVisibility: "hidden",
@@ -503,9 +503,9 @@ export function InternIdCardView({
               </div>
 
               {/* ── BACK HEADER: Brand Logo & Title ── */}
-              <div className="relative z-10 flex items-center justify-between border-b border-sky-100 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-slate-100 flex items-center justify-center p-1.5 shrink-0">
+              <div className="relative z-10 flex items-center justify-between border-b border-sky-100 pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-white shadow-xs border border-slate-100 flex items-center justify-center p-1 shrink-0">
                     <img
                       src="/image.png"
                       alt="Vyorai Logo"
@@ -513,30 +513,30 @@ export function InternIdCardView({
                     />
                   </div>
                   <div>
-                    <h5 className="text-sm font-extrabold text-[#0B1F3A] leading-tight">
+                    <h5 className="text-xs font-extrabold text-[#0B1F3A] leading-tight">
                       Vyorai Technologies
                     </h5>
-                    <p className="text-[9px] tracking-widest uppercase font-bold text-sky-500">
+                    <p className="text-[8px] tracking-widest uppercase font-bold text-sky-500">
                       Official ID Verification
                     </p>
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <span className="text-[9px] font-mono text-slate-400 block font-bold">
+                  <span className="text-[8px] font-mono text-slate-400 block font-bold">
                     VALID THRU
                   </span>
-                  <span className="text-[10px] font-mono font-extrabold text-[#0B1F3A]">
+                  <span className="text-[9px] font-mono font-extrabold text-[#0B1F3A]">
                     {validThruStr}
                   </span>
                 </div>
               </div>
 
               {/* ── BACK CENTER: Large Scannable QR Code ── */}
-              <div className="relative z-10 my-auto py-2 flex flex-col items-center text-center">
+              <div className="relative z-10 my-auto py-1 flex flex-col items-center text-center">
                 {/* Large QR Frame with Gradient Ring & Soft Shadow */}
-                <div className="p-1 rounded-3xl bg-gradient-to-b from-sky-400 via-sky-300 to-sky-500 shadow-xl shadow-sky-500/15">
-                  <div className="w-44 h-44 sm:w-48 sm:h-48 rounded-[22px] bg-white p-3 flex items-center justify-center border border-white">
+                <div className="p-1 rounded-2xl bg-gradient-to-b from-sky-400 via-sky-300 to-sky-500 shadow-lg shadow-sky-500/15">
+                  <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-[14px] bg-white p-2.5 flex items-center justify-center border border-white">
                     {backQrDataUrl ? (
                       <img
                         src={backQrDataUrl}
@@ -544,42 +544,42 @@ export function InternIdCardView({
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2">
-                        <QrCodeIcon className="w-12 h-12 text-sky-500 animate-spin" />
-                        <span className="text-[10px] font-bold">Generating...</span>
+                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-1.5">
+                        <QrCodeIcon className="w-9 h-9 text-sky-500 animate-spin" />
+                        <span className="text-[9px] font-bold">Generating...</span>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* Primary Scan Label */}
-                <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 shadow-2xs">
-                  <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
-                  <span className="text-xs font-black tracking-wider uppercase text-[#0B1F3A]">
+                <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-50 border border-sky-200 shadow-2xs">
+                  <ShieldCheck className="w-3 h-3 text-sky-600" />
+                  <span className="text-[11px] font-black tracking-wider uppercase text-[#0B1F3A]">
                     SCAN TO VERIFY ID
                   </span>
                 </div>
 
                 {/* Instruction */}
-                <p className="text-[10px] text-slate-500 font-medium max-w-[280px] leading-relaxed mt-2">
+                <p className="text-[9px] text-slate-500 font-medium max-w-[260px] leading-tight mt-1.5">
                   Scan this QR code to verify the intern&apos;s identity and ID status.
                 </p>
 
                 {/* Intern Summary Card */}
-                <div className="w-full mt-3 p-2.5 rounded-2xl bg-white border border-sky-100 shadow-xs flex items-center justify-between text-left">
+                <div className="w-full mt-2 p-2 rounded-xl bg-white border border-sky-100 shadow-xs flex items-center justify-between text-left">
                   <div className="min-w-0 pr-2">
                     <p className="text-xs font-extrabold text-[#0B1F3A] truncate">
                       {intern.name}
                     </p>
-                    <p className="text-[10px] font-semibold text-slate-500 truncate">
+                    <p className="text-[9px] font-semibold text-slate-500 truncate">
                       {displayDesignation} • {displayDepartment}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <span className="text-[9px] uppercase font-bold text-slate-400 block">
+                    <span className="text-[8px] uppercase font-bold text-slate-400 block">
                       EMP ID
                     </span>
-                    <span className="text-xs font-mono font-bold text-sky-600">
+                    <span className="text-[11px] font-mono font-bold text-sky-600">
                       {formattedInternId}
                     </span>
                   </div>
@@ -587,17 +587,17 @@ export function InternIdCardView({
               </div>
 
               {/* ── BACK BOTTOM: Authorized Signatory & Security Policy ── */}
-              <div className="relative z-10 pt-2 border-t border-slate-100 space-y-2 text-center">
+              <div className="relative z-10 pt-1.5 border-t border-slate-100 space-y-1 text-center">
                 <div className="flex items-end justify-between px-1">
                   <div className="text-left">
-                    <div className="h-9 flex items-end">
+                    <div className="h-7 flex items-end">
                       <img
                         src="/signature.png"
                         alt="Authorized Signature"
-                        className="h-8 max-w-[110px] object-contain drop-shadow-2xs"
+                        className="h-6 max-w-[95px] object-contain drop-shadow-2xs"
                       />
                     </div>
-                    <div className="w-24 h-[1px] bg-sky-500 mt-0.5" />
+                    <div className="w-20 h-[1px] bg-sky-500 mt-0.5" />
                     <span className="text-[8px] text-slate-500 uppercase font-bold tracking-wider block mt-0.5">
                       Authorized Signatory
                     </span>
