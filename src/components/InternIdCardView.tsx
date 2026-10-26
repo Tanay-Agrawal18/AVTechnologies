@@ -634,9 +634,20 @@ export function InternIdCardView({
         </p>
       </div>
 
-      {/* Global CSS for high-fidelity physical badge printing */}
+      {/* Global CSS for high-fidelity physical badge printing (CR80 Standard: 54mm x 85.6mm / 2.125" x 3.375") */}
       <style jsx global>{`
         @media print {
+          @page {
+            size: 54mm 86mm;
+            margin: 0;
+          }
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
           body * {
             visibility: hidden;
           }
@@ -645,14 +656,22 @@ export function InternIdCardView({
             visibility: visible;
           }
           #iwms-print-container {
-            position: absolute;
+            position: fixed;
             left: 0;
             top: 0;
-            width: 100%;
+            width: 54mm !important;
+            height: 85.6mm !important;
             display: flex;
             justify-content: center;
+            align-items: center;
             background: white !important;
-            padding: 20px 0;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          #iwms-print-container .w-\[340px\],
+          #iwms-print-container .sm\:w-\[380px\] {
+            width: 54mm !important;
+            height: 85.6mm !important;
           }
         }
       `}</style>
