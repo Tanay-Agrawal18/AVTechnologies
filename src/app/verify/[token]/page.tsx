@@ -16,8 +16,8 @@ import {
   CheckSquare,
   Award,
   Download,
-  Github,
-  Linkedin,
+  Globe,
+  Link2,
   FileCheck,
 } from "lucide-react";
 
@@ -270,7 +270,7 @@ export default function VerificationPage({
                         className="p-1.5 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 transition-colors"
                         title="GitHub Profile"
                       >
-                        <Github className="w-3.5 h-3.5" />
+                        <Globe className="w-3.5 h-3.5" />
                       </a>
                     )}
                     {data.intern.linkedinUrl && (
@@ -281,7 +281,7 @@ export default function VerificationPage({
                         className="p-1.5 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-sky-700 transition-colors"
                         title="LinkedIn Profile"
                       >
-                        <Linkedin className="w-3.5 h-3.5" />
+                        <Link2 className="w-3.5 h-3.5" />
                       </a>
                     )}
                   </div>
