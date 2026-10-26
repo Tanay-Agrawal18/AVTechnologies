@@ -84,17 +84,22 @@ export default function InternTasksPage() {
             </select>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <CalendarDays
-              className="w-3.5 h-3.5"
-              style={{ color: "var(--iwms-sky)" }}
-            />
-            <span
-              className="text-[10px] sm:text-xs font-medium"
-              style={{ color: "rgba(11,31,58,.55)" }}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/intern/calendar"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs"
             >
-              {tasks.length} task{tasks.length !== 1 ? "s" : ""}
-            </span>
+              <CalendarDays className="w-3.5 h-3.5 text-sky-600" />
+              <span>Calendar View</span>
+            </Link>
+            <div className="flex items-center gap-1.5">
+              <span
+                className="text-[10px] sm:text-xs font-medium"
+                style={{ color: "rgba(11,31,58,.55)" }}
+              >
+                {tasks.length} task{tasks.length !== 1 ? "s" : ""}
+              </span>
+            </div>
           </div>
         </div>
 

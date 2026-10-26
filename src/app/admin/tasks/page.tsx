@@ -208,6 +208,12 @@ export default function AdminTasksPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Link
+              href="/admin/calendar"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2 border border-slate-300 text-slate-700 bg-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-slate-50 shadow-2xs shrink-0"
+            >
+              <Calendar className="w-4 h-4 text-sky-600 shrink-0" /> Calendar View
+            </Link>
             <button
               onClick={() => {
                 setIsModalOpen(true);

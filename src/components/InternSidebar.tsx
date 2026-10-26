@@ -13,12 +13,14 @@ import {
   X,
   CreditCard,
   BarChart3,
+  Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Dashboard", href: "/intern/dashboard", icon: Home },
   { label: "My Tasks", href: "/intern/tasks", icon: CheckSquare },
+  { label: "Deadline Calendar", href: "/intern/calendar", icon: Calendar },
   { label: "Team Projects", href: "/intern/projects", icon: FolderGit2 },
   { label: "Analytics", href: "/intern/analytics", icon: BarChart3 },
   { label: "Work History", href: "/intern/history", icon: Clock },

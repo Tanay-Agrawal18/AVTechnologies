@@ -14,6 +14,7 @@ import {
   Mail,
   FolderGit2,
   Clock,
+  Calendar,
   Menu,
   X,
 } from "lucide-react";
@@ -24,6 +25,7 @@ const navItems = [
   { label: "Interns", href: "/admin/interns", icon: Users },
   { label: "Bulk Import", href: "/admin/import", icon: FileSpreadsheet },
   { label: "Tasks", href: "/admin/tasks", icon: CheckSquare },
+  { label: "Deadline Calendar", href: "/admin/calendar", icon: Calendar },
   { label: "Review Queue", href: "/admin/review-queue", icon: Clock },
   { label: "Team Projects", href: "/admin/projects", icon: FolderGit2 },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
