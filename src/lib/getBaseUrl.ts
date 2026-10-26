@@ -25,6 +25,6 @@ export function getBaseUrl(req?: NextRequest): string {
 
   // 4. Default fallback: live Vyorai domain or NEXT_PUBLIC_APP_URL or fallback
   return (
-    process.env.NEXT_PUBLIC_APP_URL || "https://vyorai-beta.vercel.app"
+    process.env.NEXT_PUBLIC_APP_URL || "https://vyorai-three.vercel.app"
   ).replace(/\/$/, "");
 }
