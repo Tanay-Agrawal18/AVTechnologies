@@ -91,6 +91,11 @@ export function InternIdCardView({
 
     async function generateCodes() {
       try {
+        const clientOrigin =
+          typeof window !== "undefined" && window.location.origin
+            ? window.location.origin
+            : "https://vyorai-three.vercel.app";
+
         const res = await fetch("/api/id-card/token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -103,19 +108,23 @@ export function InternIdCardView({
         let targetUrl = "";
         if (res.ok) {
           const json = await res.json();
-          targetUrl = json.verificationUrl;
+          if (json.token) {
+            // Guarantee target URL uses the exact active hostname / origin of the user
+            targetUrl = `${clientOrigin}/verify/${encodeURIComponent(json.token)}`;
+          } else if (json.verificationUrl) {
+            targetUrl = json.verificationUrl;
+          }
         }
 
-        if (!targetUrl && typeof window !== "undefined") {
-          targetUrl = `${window.location.origin}/verify/${encodeURIComponent(
-            formattedInternId
-          )}`;
+        // Direct fallback: verify with formatted intern ID
+        if (!targetUrl) {
+          targetUrl = `${clientOrigin}/verify/${encodeURIComponent(formattedInternId)}`;
         }
 
         if (!isMounted) return;
         setVerificationUrl(targetUrl);
 
-        // Generate large high-resolution Back QR code (480x480 for crystal-clear scanning & print)
+        // Generate large high-resolution Back QR code
         const backUrl = await QRCode.toDataURL(targetUrl, {
           width: 480,
           margin: 1,
@@ -131,15 +140,30 @@ export function InternIdCardView({
         }
       } catch (err) {
         console.error("Failed to generate QR code data URL", err);
-        const fallbackTarget = `${
-          typeof window !== "undefined" ? window.location.origin : "https://vyorai.com"
-        }/intern/profile`;
-        const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
-          fallbackTarget
-        )}&color=0b1f3a&bgcolor=ffffff&margin=1`;
-        if (isMounted) {
-          setBackQrDataUrl(fallbackUrl);
-          setVerificationUrl(fallbackTarget);
+        const fallbackOrigin =
+          typeof window !== "undefined" && window.location.origin
+            ? window.location.origin
+            : "https://vyorai-three.vercel.app";
+        const fallbackTarget = `${fallbackOrigin}/verify/${encodeURIComponent(formattedInternId)}`;
+        try {
+          const fallbackQr = await QRCode.toDataURL(fallbackTarget, {
+            width: 480,
+            margin: 1,
+            color: { dark: "#0B1F3A", light: "#FFFFFF" },
+            errorCorrectionLevel: "H",
+          });
+          if (isMounted) {
+            setBackQrDataUrl(fallbackQr);
+            setVerificationUrl(fallbackTarget);
+          }
+        } catch {
+          const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
+            fallbackTarget
+          )}&color=0b1f3a&bgcolor=ffffff&margin=1`;
+          if (isMounted) {
+            setBackQrDataUrl(fallbackUrl);
+            setVerificationUrl(fallbackTarget);
+          }
         }
       }
     }

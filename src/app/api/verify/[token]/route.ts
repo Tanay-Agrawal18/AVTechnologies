@@ -33,29 +33,41 @@ export async function GET(
       );
     }
 
+    // 1. Try verifying as signed JWT token first
     const verificationResult = await verifyIdVerificationToken(token);
-    if (!verificationResult.valid || !verificationResult.payload) {
+    let resolvedInternId: string | undefined;
+    let resolvedUserId: string | undefined;
+
+    if (verificationResult.valid && verificationResult.payload) {
+      resolvedInternId = verificationResult.payload.internId;
+      resolvedUserId = verificationResult.payload.userId;
+    } else {
+      // 2. Fallback: check if the param is directly an internId or MongoDB ObjectId
+      resolvedInternId = decodeURIComponent(token).trim();
+      if (mongoose.Types.ObjectId.isValid(resolvedInternId)) {
+        resolvedUserId = resolvedInternId;
+      }
+    }
+
+    await connectDB();
+
+    const queryConditions: Record<string, unknown>[] = [];
+    if (resolvedUserId && mongoose.Types.ObjectId.isValid(resolvedUserId)) {
+      queryConditions.push({ _id: resolvedUserId });
+    }
+    if (resolvedInternId) {
+      queryConditions.push({ internId: resolvedInternId });
+      queryConditions.push({ internId: new RegExp(`^${resolvedInternId}$`, "i") });
+    }
+
+    if (queryConditions.length === 0) {
       return NextResponse.json(
-        {
-          verified: false,
-          error: verificationResult.error || "Invalid or tampered verification token",
-        },
+        { verified: false, error: "Invalid verification identifier" },
         { status: 400 }
       );
     }
 
-    const { internId, userId } = verificationResult.payload;
-
-    await connectDB();
-
-    const query: Record<string, unknown> = {};
-    if (userId) {
-      query._id = userId;
-    } else if (internId) {
-      query.internId = internId;
-    }
-
-    const user = await User.findOne(query).select(
+    const user = await User.findOne({ $or: queryConditions }).select(
       "name internId role status department designation college profilePicture startDate endDate certificateUrl createdAt bio githubUrl linkedinUrl"
     );
 
@@ -125,7 +137,7 @@ export async function GET(
         : "Pending Setup",
       intern: {
         name: user.name,
-        internId: user.internId || internId,
+        internId: user.internId || resolvedInternId,
         department: user.department || "Engineering & Innovation",
         designation: user.designation || "Software Development Intern",
         college: user.college,
