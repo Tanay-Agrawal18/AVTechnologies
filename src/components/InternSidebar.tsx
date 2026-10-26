@@ -127,7 +127,7 @@ export function InternSidebar() {
         </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
+      <nav suppressHydrationWarning className="flex-1 px-3 py-4 space-y-0.5">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive =

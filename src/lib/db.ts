@@ -1,16 +1,12 @@
 import dns from "node:dns";
 import mongoose from "mongoose";
 
-// Platform DNS resolution default; allows optional override via DNS_SERVERS env
-if (process.env.DNS_SERVERS) {
-  try {
-    const servers = process.env.DNS_SERVERS.split(",").map((s) => s.trim()).filter(Boolean);
-    if (servers.length > 0) {
-      dns.setServers(servers);
-    }
-  } catch {
-    // Ignore if custom dns servers cannot be set
-  }
+try {
+  const custom = process.env.DNS_SERVERS;
+  const servers = custom ? custom.split(",").map((s) => s.trim()).filter(Boolean) : ["8.8.8.8", "1.1.1.1"];
+  dns.setServers(servers);
+} catch {
+  // Ignore if custom dns servers cannot be set
 }
 import { validateDatabaseEnv } from "./dbConfig";
 

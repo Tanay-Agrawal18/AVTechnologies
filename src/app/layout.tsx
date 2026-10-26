@@ -58,28 +58,45 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                if (typeof window === 'undefined') return;
-                const origWarn = console.warn;
-                const origError = console.error;
-                const origLog = console.log;
-                const isExtensionNoise = (args) => {
-                  return args.some(arg => {
-                    const str = typeof arg === 'string' ? arg : (arg && arg.message ? arg.message : '');
-                    return str.includes('contentscript.js') ||
-                           str.includes('ObjectMultiplex') ||
-                           str.includes('MaxListenersExceededWarning') ||
-                           str.includes('app-init-liveness') ||
-                           str.includes('background-liveness');
-                  });
-                };
-                console.warn = function(...args) {
-                  if (isExtensionNoise(args)) return;
-                  origWarn.apply(console, args);
-                };
-                console.error = function(...args) {
-                  if (isExtensionNoise(args)) return;
-                  origError.apply(console, args);
-                };
+                try {
+                  var origWarn = console.warn;
+                  var origError = console.error;
+                  var origInfo = console.info;
+                  var origLog = console.log;
+                  var isJunk = function(args) {
+                    for (var i = 0; i < args.length; i++) {
+                      var str = typeof args[i] === 'string' ? args[i] : (args[i] && args[i].message ? args[i].message : '');
+                      if (
+                        str.indexOf('contentscript.js') !== -1 ||
+                        str.indexOf('ObjectMultiplex') !== -1 ||
+                        str.indexOf('MaxListenersExceededWarning') !== -1 ||
+                        str.indexOf('app-init-liveness') !== -1 ||
+                        str.indexOf('background-liveness') !== -1 ||
+                        str.indexOf('beforeinstallprompt') !== -1 ||
+                        str.indexOf('Banner not shown') !== -1
+                      ) {
+                        return true;
+                      }
+                    }
+                    return false;
+                  };
+                  console.warn = function() {
+                    if (isJunk(arguments)) return;
+                    origWarn.apply(console, arguments);
+                  };
+                  console.error = function() {
+                    if (isJunk(arguments)) return;
+                    origError.apply(console, arguments);
+                  };
+                  console.info = function() {
+                    if (isJunk(arguments)) return;
+                    origInfo.apply(console, arguments);
+                  };
+                  console.log = function() {
+                    if (isJunk(arguments)) return;
+                    origLog.apply(console, arguments);
+                  };
+                } catch(e) {}
               })();
             `,
           }}
