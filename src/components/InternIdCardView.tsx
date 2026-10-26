@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import QRCode from "qrcode";
 import {
   Printer,
   RotateCw,
@@ -10,7 +11,9 @@ import {
   Calendar,
   Shield,
   Check,
-  Radio,
+  QrCode as QrCodeIcon,
+  ShieldCheck,
+  ExternalLink,
 } from "lucide-react";
 
 export interface InternIdCardProps {
@@ -40,13 +43,15 @@ export function InternIdCardView({
 }: InternIdCardProps) {
   const [isFlipped, setIsFlipped] = useState(showBackDefault);
   const [isCopied, setIsCopied] = useState(false);
+  const [frontQrDataUrl, setFrontQrDataUrl] = useState<string>("");
+  const [backQrDataUrl, setBackQrDataUrl] = useState<string>("");
+  const [verificationUrl, setVerificationUrl] = useState<string>("");
   const cardRef = useRef<HTMLDivElement>(null);
 
   const formattedInternId = intern.internId || "VYOR-26-03";
   const displayDepartment = intern.department || "AI-ML";
   const displayDesignation = intern.designation || "Software Development Intern";
   const displayStatus = (intern.status || "ACTIVE").toUpperCase();
-  const isActive = displayStatus === "ACTIVE";
 
   const issueDateStr = intern.startDate
     ? new Date(intern.startDate).toLocaleDateString("en-US", {
@@ -81,37 +86,104 @@ export function InternIdCardView({
         .toUpperCase()
     : "DR";
 
-  // QR Code payload (verification info)
-  const qrPayload = JSON.stringify({
-    issuer: "Vyorai Technologies",
-    name: intern.name,
-    id: formattedInternId,
-    department: displayDepartment,
-    status: displayStatus,
-    verified: true,
-  });
+  // Generate secure token & render QR codes
+  useEffect(() => {
+    let isMounted = true;
 
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
-    qrPayload
-  )}&color=0b1f3a&bgcolor=ffffff&margin=0`;
+    async function generateCodes() {
+      try {
+        const res = await fetch("/api/id-card/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: intern._id || intern.id,
+            internId: formattedInternId,
+          }),
+        });
+
+        let targetUrl = "";
+        if (res.ok) {
+          const json = await res.json();
+          targetUrl = json.verificationUrl;
+        }
+
+        if (!targetUrl && typeof window !== "undefined") {
+          targetUrl = `${window.location.origin}/verify/${encodeURIComponent(
+            formattedInternId
+          )}`;
+        }
+
+        if (!isMounted) return;
+        setVerificationUrl(targetUrl);
+
+        // Generate high-resolution Front QR code (compact, 240x240)
+        const frontUrl = await QRCode.toDataURL(targetUrl, {
+          width: 240,
+          margin: 1,
+          color: {
+            dark: "#0B1F3A",
+            light: "#FFFFFF",
+          },
+          errorCorrectionLevel: "M",
+        });
+
+        // Generate large high-resolution Back QR code (480x480 for crystal-clear scanning & print)
+        const backUrl = await QRCode.toDataURL(targetUrl, {
+          width: 480,
+          margin: 1,
+          color: {
+            dark: "#0B1F3A",
+            light: "#FFFFFF",
+          },
+          errorCorrectionLevel: "H",
+        });
+
+        if (isMounted) {
+          setFrontQrDataUrl(frontUrl);
+          setBackQrDataUrl(backUrl);
+        }
+      } catch (err) {
+        console.error("Failed to generate QR code data URL", err);
+        // Fallback to QR server if canvas generation fails
+        const fallbackTarget = `${
+          typeof window !== "undefined" ? window.location.origin : "https://vyorai.com"
+        }/intern/profile`;
+        const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
+          fallbackTarget
+        )}&color=0b1f3a&bgcolor=ffffff&margin=1`;
+        if (isMounted) {
+          setFrontQrDataUrl(fallbackUrl);
+          setBackQrDataUrl(fallbackUrl);
+          setVerificationUrl(fallbackTarget);
+        }
+      }
+    }
+
+    generateCodes();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [intern._id, intern.id, formattedInternId]);
 
   const handlePrint = () => {
     window.print();
   };
 
   const handleShare = async () => {
+    const shareUrl = verificationUrl || (typeof window !== "undefined" ? window.location.href : "");
     if (navigator.share) {
       try {
         await navigator.share({
           title: `${intern.name} - Vyorai ID Pass`,
-          text: `Official Digital Identification Card for ${intern.name} (${formattedInternId}) at Vyorai Technologies`,
-          url: window.location.href,
+          text: `Official Digital Identity Pass for ${intern.name} (${formattedInternId}) at Vyorai Technologies`,
+          url: shareUrl,
         });
       } catch {
-        // User cancelled or unsupported
+        // User cancelled
       }
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(shareUrl);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2500);
     }
@@ -136,7 +208,7 @@ export function InternIdCardView({
               </span>
             </div>
             <p className="text-xs text-slate-500 font-medium">
-              Official Physical & Digital Identity Pass
+              QR-Based Official Identity & Gate Pass
             </p>
           </div>
         </div>
@@ -177,7 +249,6 @@ export function InternIdCardView({
         <div className="flex flex-col items-center -mb-5 z-20 print:hidden select-none pointer-events-none">
           {/* Lanyard Webbing Ribbon */}
           <div className="w-13 h-20 bg-[#0B1F3A] shadow-lg flex items-center justify-center relative overflow-hidden">
-            {/* Fine texture weave overlay */}
             <div
               className="absolute inset-0 opacity-20"
               style={{
@@ -185,14 +256,13 @@ export function InternIdCardView({
                   "repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 4px)",
               }}
             />
-            {/* White Vyorai text rotated vertically */}
             <div className="flex items-center gap-1 text-[10px] font-extrabold tracking-widest text-white uppercase rotate-90 drop-shadow-xs">
               <span className="opacity-90">VO</span>
               <span className="tracking-widest">vyorai</span>
             </div>
           </div>
 
-          {/* Dark Matte Gunmetal Clamp / Swivel Clip */}
+          {/* Dark Matte Gunmetal Clamp */}
           <div className="w-16 h-7 bg-gradient-to-b from-[#1e293b] via-[#0f172a] to-[#020617] rounded-md shadow-md border border-slate-700/80 -mt-1 z-10 flex flex-col items-center justify-center p-0.5">
             <div className="w-10 h-2 bg-gradient-to-r from-slate-600 via-slate-400 to-slate-600 rounded-xs shadow-inner" />
           </div>
@@ -206,7 +276,7 @@ export function InternIdCardView({
         {/* Ambient Drop Glow */}
         <div className="absolute -inset-4 bg-gradient-to-b from-sky-200/40 via-sky-100/20 to-transparent rounded-[44px] blur-2xl -z-10 pointer-events-none print:hidden" />
 
-        {/* ── Flipped Card Container (Vertical CR80 Badge Dimensions) ── */}
+        {/* ── Flipped Card Container (Vertical CR80 Dimensions) ── */}
         <div
           ref={cardRef}
           onClick={() => setIsFlipped((prev) => !prev)}
@@ -223,7 +293,7 @@ export function InternIdCardView({
             }}
           >
             {/* ════════════════════════════════════════════════════════════════ */}
-            {/* FRONT SIDE (Exact match to requested UI/UX) */}
+            {/* FRONT SIDE (QR-Based Smart ID with Light Aesthetic) */}
             {/* ════════════════════════════════════════════════════════════════ */}
             <div
               className={`absolute inset-0 flex flex-col justify-between p-6 sm:p-7 text-slate-900 ${
@@ -234,8 +304,7 @@ export function InternIdCardView({
                 background: "#FFFFFF",
               }}
             >
-              {/* Soft, modern cyan curved wave gradients (matching reference background) */}
-              {/* Top-right subtle blue curve */}
+              {/* Soft, modern cyan curved wave gradients */}
               <div
                 className="absolute -top-16 -right-16 w-80 h-80 rounded-full pointer-events-none opacity-40 blur-2xl"
                 style={{
@@ -244,7 +313,6 @@ export function InternIdCardView({
                 }}
               />
 
-              {/* Mid-left sweeping wave */}
               <div
                 className="absolute top-44 -left-20 w-80 h-64 rounded-[100%] pointer-events-none opacity-40 blur-2xl"
                 style={{
@@ -253,7 +321,6 @@ export function InternIdCardView({
                 }}
               />
 
-              {/* Bottom sweeping blue wave arc */}
               <div
                 className="absolute -bottom-10 -left-10 -right-10 h-40 pointer-events-none opacity-70"
                 style={{
@@ -262,7 +329,7 @@ export function InternIdCardView({
                 }}
               />
 
-              {/* Watermark Logo subtly placed in background on the right */}
+              {/* Watermark Logo subtly placed in background */}
               <div className="absolute right-[-10px] top-[40%] w-48 h-48 opacity-[0.06] pointer-events-none select-none">
                 <img
                   src="/image.png"
@@ -274,7 +341,7 @@ export function InternIdCardView({
               {/* ── TOP HEADER: Logo + Active Pill ── */}
               <div className="relative z-10 pt-1">
                 <div className="flex items-center justify-between">
-                  {/* Brand mark with rounded squircle white tile */}
+                  {/* Brand mark with rounded squircle tile */}
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06)] border border-slate-100 flex items-center justify-center p-2 shrink-0">
                       <img
@@ -300,9 +367,9 @@ export function InternIdCardView({
                   </div>
                 </div>
 
-                {/* ── EMV Gold Chip + NFC Smart Pass ── */}
+                {/* ── EMV Gold Chip + Smart ID Badge (No NFC) ── */}
                 <div className="flex items-center justify-between mt-4 px-0.5">
-                  {/* Realistic Metallic Gold Smart Chip */}
+                  {/* Metallic Gold Smart Chip */}
                   <div className="w-12 h-9 rounded-lg bg-gradient-to-br from-[#fde68a] via-[#f59e0b] to-[#b45309] p-[1.5px] shadow-sm relative overflow-hidden">
                     <div className="w-full h-full bg-gradient-to-tr from-[#fbbf24] via-[#fde68a] to-[#d97706] rounded-[6px] p-1 flex flex-col justify-between">
                       <div className="w-full h-[1px] bg-[#92400e]/40" />
@@ -314,10 +381,10 @@ export function InternIdCardView({
                     </div>
                   </div>
 
-                  {/* NFC Signal Indicator */}
+                  {/* Digital Verified Pass Badge */}
                   <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#0B1F3A] tracking-wider uppercase">
-                    <Radio className="w-3.5 h-3.5 text-sky-500" />
-                    <span>NFC SMART PASS</span>
+                    <ShieldCheck className="w-3.5 h-3.5 text-sky-500" />
+                    <span>SMART ID PASS</span>
                   </div>
                 </div>
               </div>
@@ -326,7 +393,7 @@ export function InternIdCardView({
               <div className="relative z-10 flex flex-col items-center text-center my-auto py-1">
                 {/* Profile Photo with Cyan Border + Floating Check Badge */}
                 <div className="relative">
-                  <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-3xl p-1 bg-gradient-to-b from-sky-400 to-sky-500 shadow-[0_8px_24px_rgba(56,189,248,0.3)]">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl p-1 bg-gradient-to-b from-sky-400 to-sky-500 shadow-[0_8px_24px_rgba(56,189,248,0.3)]">
                     <div className="w-full h-full rounded-[20px] overflow-hidden bg-slate-100 border border-white">
                       {intern.profilePicture ? (
                         <img
@@ -349,98 +416,104 @@ export function InternIdCardView({
                 </div>
 
                 {/* Intern Full Name */}
-                <h4 className="mt-4 text-2xl font-extrabold tracking-tight text-[#0B1F3A]">
+                <h4 className="mt-3.5 text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1F3A]">
                   {intern.name}
                 </h4>
 
                 {/* Designation */}
-                <p className="text-sm font-semibold text-slate-600 tracking-wide mt-0.5">
+                <p className="text-xs sm:text-sm font-semibold text-slate-600 tracking-wide mt-0.5">
                   {displayDesignation}
                 </p>
 
                 {/* Intern ID Pill Capsule */}
-                <div className="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-50 border border-sky-100 shadow-2xs">
+                <div className="mt-2.5 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 border border-sky-100 shadow-2xs">
                   <span className="text-xs font-bold text-sky-500">ID</span>
-                  <span className="w-0.5 h-3.5 bg-slate-300" />
-                  <span className="text-sm font-extrabold text-[#0B1F3A] tracking-wider font-mono">
+                  <span className="w-0.5 h-3 bg-slate-300" />
+                  <span className="text-xs sm:text-sm font-extrabold text-[#0B1F3A] tracking-wider font-mono">
                     {formattedInternId}
                   </span>
                 </div>
               </div>
 
-              {/* ── BOTTOM: 3 Rounded Info Metric Cards + Barcode ── */}
-              <div className="relative z-10 space-y-3 pt-1">
-                {/* 3 Metric Cards */}
-                <div className="grid grid-cols-3 gap-2.5">
-                  {/* DEPT Card */}
-                  <div className="p-2.5 rounded-2xl bg-white border border-sky-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-                    <div className="flex items-center gap-1.5 text-sky-500">
-                      <Cpu className="w-3.5 h-3.5" />
-                      <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">
-                        DEPT
-                      </span>
-                    </div>
-                    <p className="text-xs font-bold text-[#0B1F3A] truncate mt-1">
-                      {displayDepartment}
-                    </p>
+              {/* ── 3 Rounded Info Metric Cards ── */}
+              <div className="relative z-10 grid grid-cols-3 gap-2.5">
+                {/* DEPT Card */}
+                <div className="p-2 sm:p-2.5 rounded-2xl bg-white border border-sky-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+                  <div className="flex items-center gap-1.5 text-sky-500">
+                    <Cpu className="w-3.5 h-3.5" />
+                    <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">
+                      DEPT
+                    </span>
                   </div>
+                  <p className="text-xs font-bold text-[#0B1F3A] truncate mt-1">
+                    {displayDepartment}
+                  </p>
+                </div>
 
-                  {/* VALID FROM Card */}
-                  <div className="p-2.5 rounded-2xl bg-white border border-sky-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-                    <div className="flex items-center gap-1.5 text-sky-500">
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">
-                        VALID FROM
-                      </span>
-                    </div>
-                    <p className="text-xs font-bold text-[#0B1F3A] truncate mt-1">
-                      {issueDateStr}
-                    </p>
+                {/* VALID FROM Card */}
+                <div className="p-2 sm:p-2.5 rounded-2xl bg-white border border-sky-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+                  <div className="flex items-center gap-1.5 text-sky-500">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">
+                      VALID FROM
+                    </span>
                   </div>
+                  <p className="text-xs font-bold text-[#0B1F3A] truncate mt-1">
+                    {issueDateStr}
+                  </p>
+                </div>
 
-                  {/* SECURITY Card */}
-                  <div className="p-2.5 rounded-2xl bg-white border border-sky-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-                    <div className="flex items-center gap-1.5 text-sky-500">
-                      <Shield className="w-3.5 h-3.5" />
-                      <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">
-                        SECURITY
-                      </span>
-                    </div>
-                    <p className="text-xs font-bold text-sky-600 truncate mt-1">
-                      L1 PASS
-                    </p>
+                {/* SECURITY Card */}
+                <div className="p-2 sm:p-2.5 rounded-2xl bg-white border border-sky-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+                  <div className="flex items-center gap-1.5 text-sky-500">
+                    <Shield className="w-3.5 h-3.5" />
+                    <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">
+                      SECURITY
+                    </span>
+                  </div>
+                  <p className="text-xs font-bold text-sky-600 truncate mt-1">
+                    L1 PASS
+                  </p>
+                </div>
+              </div>
+
+              {/* ── BOTTOM: Front QR Code Strip (Replaces Barcode) ── */}
+              <div className="relative z-10 pt-2 border-t border-sky-100 flex items-center justify-between px-1">
+                <div className="flex items-center gap-3">
+                  <div className="w-13 h-13 rounded-xl bg-white p-1 border border-sky-200 shadow-sm flex items-center justify-center shrink-0">
+                    {frontQrDataUrl ? (
+                      <img
+                        src={frontQrDataUrl}
+                        alt="Verification QR"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <QrCodeIcon className="w-7 h-7 text-sky-600 animate-pulse" />
+                    )}
+                  </div>
+                  <div className="text-left">
+                    <span className="text-[10px] font-mono font-bold tracking-wider text-[#0B1F3A] uppercase block">
+                      {formattedInternId}
+                    </span>
+                    <span className="text-[9px] font-bold text-sky-600 uppercase tracking-widest block">
+                      SCAN TO VERIFY
+                    </span>
                   </div>
                 </div>
 
-                {/* High Density Barcode Strip */}
-                <div className="flex flex-col items-center pt-1 pb-1">
-                  <div className="h-8 w-60 sm:w-64 flex items-stretch justify-between gap-[2px]">
-                    {Array.from({ length: 42 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="bg-[#0B1F3A] rounded-2xs"
-                        style={{
-                          width:
-                            i % 5 === 0
-                              ? "3.5px"
-                              : i % 3 === 0
-                              ? "2.5px"
-                              : i % 2 === 0
-                              ? "1.5px"
-                              : "1px",
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-[9px] font-mono font-bold tracking-[0.2em] text-slate-500 mt-1 uppercase">
-                    {formattedInternId} • VYORAI SECURE PASS
+                <div className="text-right">
+                  <span className="text-[8px] font-mono uppercase text-slate-400 tracking-widest block">
+                    Vyorai Smart Pass
+                  </span>
+                  <span className="text-[9px] font-bold text-slate-600 tracking-wider uppercase block">
+                    CR80 COMPLIANT
                   </span>
                 </div>
               </div>
             </div>
 
             {/* ════════════════════════════════════════════════════════════════ */}
-            {/* BACK SIDE (Refined light executive companion to the front) */}
+            {/* BACK SIDE (Large Centered Scannable QR Code Layout) */}
             {/* ════════════════════════════════════════════════════════════════ */}
             <div
               className={`absolute inset-0 flex flex-col justify-between p-6 sm:p-7 text-slate-900 ${
@@ -452,93 +525,118 @@ export function InternIdCardView({
                 background: "#FFFFFF",
               }}
             >
-              {/* Magnetic HiCo Stripe at the top */}
-              <div className="-mx-6 sm:-mx-7 -mt-6 sm:-mt-7 h-12 bg-[#0B1F3A] shadow-inner flex items-center justify-between px-6 border-b border-slate-300">
-                <span className="text-[8px] font-mono tracking-widest text-slate-300 uppercase">
-                  MAGNETIC STRIPE // 4000 OE HICO
-                </span>
-                <span className="text-[8px] font-mono tracking-widest text-sky-400 font-bold">
-                  ISO/IEC 7810 ID-1
-                </span>
+              {/* Soft wave background mirroring front side */}
+              <div
+                className="absolute -top-16 -left-16 w-80 h-80 rounded-full pointer-events-none opacity-40 blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(186, 230, 253, 0.6) 0%, rgba(255,255,255,0) 70%)",
+                }}
+              />
+
+              <div
+                className="absolute -bottom-10 -left-10 -right-10 h-40 pointer-events-none opacity-70"
+                style={{
+                  background:
+                    "radial-gradient(ellipse 90% 60% at 50% 100%, rgba(56, 189, 248, 0.35) 0%, rgba(186, 230, 253, 0.2) 60%, transparent 100%)",
+                }}
+              />
+
+              {/* Watermark Logo subtly placed in background */}
+              <div className="absolute left-[-10px] top-[30%] w-48 h-48 opacity-[0.06] pointer-events-none select-none">
+                <img
+                  src="/image.png"
+                  alt="Vyorai Watermark"
+                  className="w-full h-full object-contain"
+                />
               </div>
 
-              {/* Identification Header */}
-              <div className="pt-3 space-y-1">
-                <div className="flex items-center justify-between">
-                  <h5 className="text-xs font-bold uppercase tracking-wider text-sky-700">
-                    Official Identification Pass
-                  </h5>
-                  <span className="text-[10px] text-slate-500 font-mono font-bold">
-                    EXP: {validThruStr}
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-600 leading-relaxed">
-                  This smart credential is the property of Vyorai Technologies Pvt Ltd. It grants access to designated workspace facilities, lab networks, and internal cloud gateways.
-                </p>
-              </div>
-
-              {/* QR Code Verification + Details Card */}
-              <div className="my-auto py-2 grid grid-cols-5 gap-3 items-center bg-sky-50/70 p-3.5 rounded-2xl border border-sky-100">
-                {/* QR Code */}
-                <div className="col-span-2 flex flex-col items-center">
-                  <div className="p-1.5 bg-white rounded-xl shadow-sm border border-sky-200">
+              {/* ── BACK HEADER: Brand Logo & Title ── */}
+              <div className="relative z-10 flex items-center justify-between border-b border-sky-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-slate-100 flex items-center justify-center p-1.5 shrink-0">
                     <img
-                      src={qrCodeUrl}
-                      alt="Verification QR"
-                      className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
+                      src="/image.png"
+                      alt="Vyorai Logo"
+                      className="w-full h-full object-contain"
                     />
                   </div>
-                  <span className="text-[8px] font-mono font-bold text-sky-700 mt-1.5 tracking-wider uppercase">
-                    SCAN TO VERIFY
+                  <div>
+                    <h5 className="text-sm font-extrabold text-[#0B1F3A] leading-tight">
+                      Vyorai Technologies
+                    </h5>
+                    <p className="text-[9px] tracking-widest uppercase font-bold text-sky-500">
+                      Official ID Verification
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-[9px] font-mono text-slate-400 block font-bold">
+                    VALID THRU
+                  </span>
+                  <span className="text-[10px] font-mono font-extrabold text-[#0B1F3A]">
+                    {validThruStr}
+                  </span>
+                </div>
+              </div>
+
+              {/* ── BACK CENTER: Large Scannable QR Code ── */}
+              <div className="relative z-10 my-auto py-2 flex flex-col items-center text-center">
+                {/* Large QR Frame with Gradient Ring & Soft Shadow */}
+                <div className="p-1 rounded-3xl bg-gradient-to-b from-sky-400 via-sky-300 to-sky-500 shadow-xl shadow-sky-500/15">
+                  <div className="w-44 h-44 sm:w-48 sm:h-48 rounded-[22px] bg-white p-3 flex items-center justify-center border border-white">
+                    {backQrDataUrl ? (
+                      <img
+                        src={backQrDataUrl}
+                        alt="Scan To Verify ID QR Code"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2">
+                        <QrCodeIcon className="w-12 h-12 text-sky-500 animate-spin" />
+                        <span className="text-[10px] font-bold">Generating...</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Primary Scan Label */}
+                <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 shadow-2xs">
+                  <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
+                  <span className="text-xs font-black tracking-wider uppercase text-[#0B1F3A]">
+                    SCAN TO VERIFY ID
                   </span>
                 </div>
 
-                {/* Contact & College Details */}
-                <div className="col-span-3 space-y-2 text-left">
-                  <div>
-                    <span className="text-[9px] uppercase text-slate-400 font-bold block">
-                      Email
-                    </span>
-                    <span className="text-[11px] font-bold text-[#0B1F3A] truncate block">
-                      {intern.email}
-                    </span>
+                {/* Instruction */}
+                <p className="text-[10px] text-slate-500 font-medium max-w-[280px] leading-relaxed mt-2">
+                  Scan this QR code to verify the intern&apos;s identity and ID status.
+                </p>
+
+                {/* Intern Summary Card */}
+                <div className="w-full mt-3 p-2.5 rounded-2xl bg-white border border-sky-100 shadow-xs flex items-center justify-between text-left">
+                  <div className="min-w-0 pr-2">
+                    <p className="text-xs font-extrabold text-[#0B1F3A] truncate">
+                      {intern.name}
+                    </p>
+                    <p className="text-[10px] font-semibold text-slate-500 truncate">
+                      {displayDesignation} • {displayDepartment}
+                    </p>
                   </div>
-
-                  {intern.phone && (
-                    <div>
-                      <span className="text-[9px] uppercase text-slate-400 font-bold block">
-                        Contact Number
-                      </span>
-                      <span className="text-[11px] font-semibold text-slate-700 block">
-                        {intern.phone}
-                      </span>
-                    </div>
-                  )}
-
-                  {intern.college && (
-                    <div>
-                      <span className="text-[9px] uppercase text-slate-400 font-bold block">
-                        Institution
-                      </span>
-                      <span className="text-[11px] font-semibold text-slate-700 truncate block">
-                        {intern.college}
-                      </span>
-                    </div>
-                  )}
-
-                  <div>
-                    <span className="text-[9px] uppercase text-slate-400 font-bold block">
-                      Issued By
+                  <div className="text-right shrink-0">
+                    <span className="text-[9px] uppercase font-bold text-slate-400 block">
+                      EMP ID
                     </span>
-                    <span className="text-[11px] font-bold text-sky-700 block">
-                      Vyorai Management HR
+                    <span className="text-xs font-mono font-bold text-sky-600">
+                      {formattedInternId}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Signature, Seal & Terms */}
-              <div className="pt-2 border-t border-slate-200 space-y-2 text-center">
+              {/* ── BACK BOTTOM: Authorized Signatory & Security Policy ── */}
+              <div className="relative z-10 pt-2 border-t border-slate-100 space-y-2 text-center">
                 <div className="flex items-end justify-between px-1">
                   <div className="text-left">
                     <div className="font-serif italic text-sm text-[#0B1F3A] tracking-wider font-semibold">
@@ -551,7 +649,7 @@ export function InternIdCardView({
                   </div>
 
                   {/* Company Stamp / Logo */}
-                  <div className="w-10 h-10 rounded-full border border-sky-300 p-1 flex items-center justify-center bg-white shadow-xs">
+                  <div className="w-9 h-9 rounded-full border border-sky-300 p-1 flex items-center justify-center bg-white shadow-xs">
                     <img
                       src="/image.png"
                       alt="Stamp"
@@ -562,6 +660,7 @@ export function InternIdCardView({
 
                 <p className="text-[8px] text-slate-500 leading-tight pt-1">
                   If found, please return to Vyorai Technologies, Tech Hub, India.
+                  {intern.email ? ` • Contact: ${intern.email}` : ""}
                   <br />
                   Support: support@vyorai.com • www.vyorai.com
                 </p>
@@ -605,4 +704,5 @@ export function InternIdCardView({
     </div>
   );
 }
+
 

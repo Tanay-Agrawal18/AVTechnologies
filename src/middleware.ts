@@ -19,6 +19,8 @@ export async function middleware(request: NextRequest) {
     pathname === "/image.png" ||
     pathname === "/login" ||
     pathname === "/setup-password" ||
+    pathname.startsWith("/verify") ||
+    pathname.startsWith("/api/verify") ||
     pathname.startsWith("/api/health") ||
     pathname.startsWith("/api/auth/login") ||
     pathname.startsWith("/api/auth/setup-password")
