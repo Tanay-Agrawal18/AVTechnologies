@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { InternSidebar } from "@/components/InternSidebar";
 import { InternSessionGuard } from "@/components/InternSessionGuard";
+import { InternOnboardingController } from "@/components/InternOnboardingController";
 import { Skeleton } from "@/components/Skeleton";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,9 @@ export default function InternLayout({
     <div className="flex h-screen overflow-hidden" style={{ background: "var(--iwms-bg)" }}>
       {/* Real-time session revocation listener */}
       <InternSessionGuard />
+
+      {/* First-Time Onboarding Experience for Interns */}
+      <InternOnboardingController />
 
       {/* Sidebar */}
       <Suspense

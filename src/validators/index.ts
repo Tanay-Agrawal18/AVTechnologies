@@ -32,6 +32,16 @@ export const PasswordSetupSchema = z.object({
   path: ["confirmPassword"],
 });
 
+export const OnboardingStatusSchema = z.object({
+  action: z.enum(["finish", "skip", "reset"]),
+  // Optional minimal profile setup fields if intern provides them during onboarding
+  phone: z.string().trim().max(30).optional(),
+  college: z.string().trim().max(150).optional(),
+  githubUrl: z.string().trim().max(200).optional(),
+  linkedinUrl: z.string().trim().max(200).optional(),
+  bio: z.string().trim().max(500).optional(),
+});
+
 export const CreateInternSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters"),
   email: z.string().trim().email("Invalid email address"),

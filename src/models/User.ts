@@ -25,6 +25,7 @@ export interface IUserDocument extends Document {
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   lastLoginAt?: Date;
+  onboardingCompleted?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -133,6 +134,10 @@ const UserSchema = new Schema<IUserDocument>(
     },
     lastLoginAt: {
       type: Date,
+    },
+    onboardingCompleted: {
+      type: Boolean,
+      default: false,
     },
   },
   {

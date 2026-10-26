@@ -20,32 +20,46 @@ export default function PwaManager() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    // 1. Register Service Worker in production or when supported
+    // 1. Register Service Worker in production only, or unregister in development to prevent stale chunk caching
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker
-          .register("/sw.js", { scope: "/" })
-          .then((registration) => {
-            // Check for updates periodically
-            registration.onupdatefound = () => {
-              const installingWorker = registration.installing;
-              if (installingWorker) {
-                installingWorker.onstatechange = () => {
-                  if (
-                    installingWorker.state === "installed" &&
-                    navigator.serviceWorker.controller
-                  ) {
-                    // New update available
-                    console.log("[Vyorai PWA] New update available.");
-                  }
-                };
-              }
-            };
-          })
-          .catch((err) => {
-            console.error("[Vyorai PWA] Service worker registration failed:", err);
+      if (process.env.NODE_ENV === "production") {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js", { scope: "/" })
+            .then((registration) => {
+              // Check for updates periodically
+              registration.onupdatefound = () => {
+                const installingWorker = registration.installing;
+                if (installingWorker) {
+                  installingWorker.onstatechange = () => {
+                    if (
+                      installingWorker.state === "installed" &&
+                      navigator.serviceWorker.controller
+                    ) {
+                      // New update available
+                      console.log("[Vyorai PWA] New update available.");
+                    }
+                  };
+                }
+              };
+            })
+            .catch((err) => {
+              console.error("[Vyorai PWA] Service worker registration failed:", err);
+            });
+        });
+      } else {
+        // Development mode: unregister any registered service worker and purge caches
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const reg of registrations) {
+            reg.unregister();
+          }
+        });
+        if ("caches" in window) {
+          caches.keys().then((keys) => {
+            keys.forEach((key) => caches.delete(key));
           });
-      });
+        }
+      }
     }
 
     // 2. Check if already installed / standalone mode

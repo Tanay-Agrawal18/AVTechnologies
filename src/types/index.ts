@@ -27,6 +27,7 @@ export interface IUser {
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   lastLoginAt?: Date;
+  onboardingCompleted?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -166,6 +167,7 @@ export interface SessionUser {
   bio?: string;
   department?: string;
   designation?: string;
+  onboardingCompleted?: boolean;
 }
 
 export type NotificationType =
