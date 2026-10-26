@@ -8,8 +8,11 @@ const UpdateProfileSchema = z.object({
   phone: z.string().trim().max(30).optional(),
   address: z.string().trim().max(300).optional(),
   college: z.string().trim().max(150).optional(),
-  githubUrl: z.string().trim().max(200).optional(),
-  linkedinUrl: z.string().trim().max(200).optional(),
+  githubUrl: z.string().trim().max(250).optional(),
+  linkedinUrl: z.string().trim().max(250).optional(),
+  portfolioUrl: z.string().trim().max(250).optional(),
+  twitterUrl: z.string().trim().max(250).optional(),
+  skills: z.array(z.string().trim().max(50)).max(20).optional(),
   bio: z.string().trim().max(500).optional(),
 });
 
@@ -41,6 +44,9 @@ export async function PATCH(req: NextRequest) {
     if (parsed.data.college !== undefined) user.college = parsed.data.college;
     if (parsed.data.githubUrl !== undefined) user.githubUrl = parsed.data.githubUrl;
     if (parsed.data.linkedinUrl !== undefined) user.linkedinUrl = parsed.data.linkedinUrl;
+    if (parsed.data.portfolioUrl !== undefined) user.portfolioUrl = parsed.data.portfolioUrl;
+    if (parsed.data.twitterUrl !== undefined) user.twitterUrl = parsed.data.twitterUrl;
+    if (parsed.data.skills !== undefined) user.skills = parsed.data.skills;
     if (parsed.data.bio !== undefined) user.bio = parsed.data.bio;
 
     await user.save();
@@ -54,6 +60,9 @@ export async function PATCH(req: NextRequest) {
         college: user.college,
         githubUrl: user.githubUrl,
         linkedinUrl: user.linkedinUrl,
+        portfolioUrl: user.portfolioUrl,
+        twitterUrl: user.twitterUrl,
+        skills: user.skills,
         bio: user.bio,
       },
     });

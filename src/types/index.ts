@@ -16,6 +16,9 @@ export interface IUser {
   college?: string;
   githubUrl?: string;
   linkedinUrl?: string;
+  portfolioUrl?: string;
+  twitterUrl?: string;
+  skills?: string[];
   bio?: string;
   startDate?: string; // ISO date string
   endDate?: string;
@@ -165,6 +168,9 @@ export interface SessionUser {
   college?: string;
   githubUrl?: string;
   linkedinUrl?: string;
+  portfolioUrl?: string;
+  twitterUrl?: string;
+  skills?: string[];
   bio?: string;
   department?: string;
   designation?: string;

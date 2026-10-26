@@ -41,6 +41,9 @@ export default function InternProfilePage() {
   const [college, setCollege] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [portfolioUrl, setPortfolioUrl] = useState("");
+  const [twitterUrl, setTwitterUrl] = useState("");
+  const [skillsStr, setSkillsStr] = useState("");
   const [bio, setBio] = useState("");
   const [isSavingDetails, setIsSavingDetails] = useState(false);
   const [detailsSuccess, setDetailsSuccess] = useState<string | null>(null);
@@ -63,6 +66,9 @@ export default function InternProfilePage() {
           setCollege(data.user.college || "");
           setGithubUrl(data.user.githubUrl || "");
           setLinkedinUrl(data.user.linkedinUrl || "");
+          setPortfolioUrl(data.user.portfolioUrl || "");
+          setTwitterUrl(data.user.twitterUrl || "");
+          setSkillsStr(data.user.skills && Array.isArray(data.user.skills) ? data.user.skills.join(", ") : "");
           setBio(data.user.bio || "");
         }
       })
@@ -142,6 +148,11 @@ export default function InternProfilePage() {
     setDetailsSuccess(null);
 
     try {
+      const parsedSkills = skillsStr
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
       const res = await fetch("/api/users/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -151,6 +162,9 @@ export default function InternProfilePage() {
           college: college.trim(),
           githubUrl: githubUrl.trim(),
           linkedinUrl: linkedinUrl.trim(),
+          portfolioUrl: portfolioUrl.trim(),
+          twitterUrl: twitterUrl.trim(),
+          skills: parsedSkills,
           bio: bio.trim(),
         }),
       });
@@ -465,7 +479,7 @@ export default function InternProfilePage() {
               />
             </div>
 
-            {/* Social Links */}
+            {/* Social & Professional Portfolio Links */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* LinkedIn URL */}
               <div>
@@ -486,7 +500,7 @@ export default function InternProfilePage() {
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
                   <Globe className="w-3.5 h-3.5 text-sky-500" />
-                  GitHub / Portfolio URL
+                  GitHub Profile URL
                 </label>
                 <input
                   type="url"
@@ -496,19 +510,67 @@ export default function InternProfilePage() {
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
                 />
               </div>
+
+              {/* Personal Portfolio Website */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-sky-500" />
+                  Personal Portfolio Website
+                </label>
+                <input
+                  type="url"
+                  value={portfolioUrl}
+                  onChange={(e) => setPortfolioUrl(e.target.value)}
+                  placeholder="https://myportfolio.dev or your personal website"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                />
+              </div>
+
+              {/* Twitter / X URL */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <Link2 className="w-3.5 h-3.5 text-sky-500" />
+                  Twitter / X or Other Professional Link
+                </label>
+                <input
+                  type="url"
+                  value={twitterUrl}
+                  onChange={(e) => setTwitterUrl(e.target.value)}
+                  placeholder="https://x.com/username"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Core Skills */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-sky-500" />
+                Key Skills & Technologies (comma separated)
+              </label>
+              <input
+                type="text"
+                value={skillsStr}
+                onChange={(e) => setSkillsStr(e.target.value)}
+                placeholder="e.g. Next.js, React, Node.js, Python, UI/UX Design, Docker"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+              />
+              <p className="text-[11px] text-slate-500 mt-1">
+                These tags will show up as highlight badges on your official Vyorai verification public portfolio.
+              </p>
             </div>
 
             {/* Bio / About */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-sky-500" />
-                Short Bio / Skills Summary
+                Short Bio / Professional Summary
               </label>
               <textarea
                 rows={3}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="Briefly describe your skill set, key domains (e.g. Frontend, React, Python), and career goals..."
+                placeholder="Briefly describe your background, key technical strengths, and what you are building during your Vyorai internship..."
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none resize-none"
               />
             </div>

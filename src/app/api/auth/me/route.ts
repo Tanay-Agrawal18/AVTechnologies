@@ -12,7 +12,7 @@ export async function GET() {
   try {
     await connectDB();
     const dbUser = await User.findById(sessionUser.id)
-      .select("name email role internId status profilePicture phone address college githubUrl linkedinUrl bio department designation onboardingCompleted startDate endDate certificateUrl createdAt")
+      .select("name email role internId status profilePicture phone address college githubUrl linkedinUrl portfolioUrl twitterUrl skills bio department designation onboardingCompleted startDate endDate certificateUrl createdAt")
       .lean();
 
     if (!dbUser) {
@@ -60,6 +60,9 @@ export async function GET() {
         college: dbUser.college,
         githubUrl: dbUser.githubUrl,
         linkedinUrl: dbUser.linkedinUrl,
+        portfolioUrl: dbUser.portfolioUrl,
+        twitterUrl: dbUser.twitterUrl,
+        skills: dbUser.skills || [],
         bio: dbUser.bio,
         department: dbUser.department,
         designation: dbUser.designation,

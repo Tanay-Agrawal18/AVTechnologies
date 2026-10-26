@@ -14,6 +14,9 @@ export interface IUserDocument extends Document {
   college?: string;
   githubUrl?: string;
   linkedinUrl?: string;
+  portfolioUrl?: string;
+  twitterUrl?: string;
+  skills?: string[];
   bio?: string;
   startDate?: string;
   endDate?: string;
@@ -92,6 +95,18 @@ const UserSchema = new Schema<IUserDocument>(
     linkedinUrl: {
       type: String,
       trim: true,
+    },
+    portfolioUrl: {
+      type: String,
+      trim: true,
+    },
+    twitterUrl: {
+      type: String,
+      trim: true,
+    },
+    skills: {
+      type: [String],
+      default: [],
     },
     bio: {
       type: String,
