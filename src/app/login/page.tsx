@@ -156,9 +156,6 @@ export default function LoginPage() {
         <h2 className="text-3xl font-extrabold tracking-tight" style={{ color: "var(--iwms-navy)" }}>
           Vyorai Login
         </h2>
-        <p className="mt-2 text-sm" style={{ color: "rgba(11,31,58,0.65)" }}>
-          Vyorai Intern Workspace • Secure Role-Based Access
-        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
