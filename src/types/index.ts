@@ -14,6 +14,8 @@ export interface IUser {
   phone?: string;
   startDate?: string; // ISO date string
   endDate?: string;
+  profilePicture?: string;
+  profilePicturePublicId?: string;
   passwordHash?: string;
   activationToken?: string;
   activationExpires?: Date;
@@ -150,6 +152,7 @@ export interface SessionUser {
   role: UserRole;
   internId?: string;
   status: UserStatus;
+  profilePicture?: string;
 }
 
 export type NotificationType =

@@ -43,10 +43,6 @@ export default function InternTaskDetailPage({
   const [workDescription, setWorkDescription] = useState("");
   const [linkInput, setLinkInput] = useState("");
   const [externalLinks, setExternalLinks] = useState<string[]>([]);
-  const [attachments, setAttachments] = useState<
-    Array<{ fileKey: string; fileName: string; fileSize: number; mimeType: string }>
-  >([]);
-  const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
@@ -130,40 +126,7 @@ export default function InternTaskDetailPage({
     setExternalLinks(externalLinks.filter((_, i) => i !== index));
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !e.target.files[0]) return;
-    const file = e.target.files[0];
 
-    setIsUploadingFile(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await fetch("/api/files/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "File upload failed");
-      }
-
-      setAttachments([
-        ...attachments,
-        {
-          fileKey: data.fileKey,
-          fileName: data.fileName,
-          fileSize: data.fileSize,
-          mimeType: data.mimeType,
-        },
-      ]);
-    } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "Upload error");
-    } finally {
-      setIsUploadingFile(false);
-    }
-  };
 
   const handleProgressImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files[0]) return;
@@ -212,7 +175,7 @@ export default function InternTaskDetailPage({
         body: JSON.stringify({
           workDescription,
           externalLinks,
-          attachments,
+          attachments: [],
         }),
       });
 
@@ -224,7 +187,6 @@ export default function InternTaskDetailPage({
       setSubmitSuccess("Work submitted successfully for supervisor review!");
       setWorkDescription("");
       setExternalLinks([]);
-      setAttachments([]);
       fetchTaskDetail();
     } catch (err: unknown) {
       setSubmitError(err instanceof Error ? err.message : "Failed to submit work");
@@ -473,7 +435,7 @@ export default function InternTaskDetailPage({
                     {submissions.length > 0 ? "Submit Work Revision" : "Submit Deliverables"}
                   </h3>
                   <p className="text-[10px] sm:text-xs mt-0.5" style={{ color: "rgba(11,31,58,.50)" }}>
-                    Provide completion notes, repository/demo URLs, and upload documents (Max 10MB per file).
+                    Provide completion notes and repository or demo URLs for review.
                   </p>
                 </div>
 
@@ -538,53 +500,7 @@ export default function InternTaskDetailPage({
                     )}
                   </div>
 
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="block text-[11px] sm:text-xs font-semibold" style={{ color: "var(--iwms-navy)" }}>
-                        Upload Private Files (PDF, ZIP, DOCX, XLSX, Images, TXT)
-                      </label>
-                      <span className="text-[10px] text-slate-400">Max 10MB</span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-lg bg-white text-xs font-semibold transition-colors hover:bg-sky-50" style={{ border: "1px solid var(--iwms-border)", color: "var(--iwms-navy)" }}>
-                        <Upload className="w-3.5 h-3.5" /> Select File
-                        <input
-                          type="file"
-                          accept=".pdf,.zip,.docx,.xlsx,.png,.jpg,.jpeg,.txt"
-                          className="sr-only"
-                          onChange={handleFileUpload}
-                          disabled={isUploadingFile}
-                        />
-                      </label>
-                      {isUploadingFile && (
-                        <span className="text-[11px] sm:text-xs font-medium" style={{ color: "var(--iwms-sky)" }}>Uploading…</span>
-                      )}
-                    </div>
 
-                    {attachments.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {attachments.map((att, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] sm:text-xs"
-                            style={{ background: "rgba(11,31,58,.06)", color: "var(--iwms-navy)", border: "1px solid var(--iwms-border)" }}
-                          >
-                            <Paperclip className="w-3 h-3 shrink-0" style={{ color: "var(--iwms-sky)" }} />
-                            <span className="truncate max-w-[120px]">{att.fileName}</span>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setAttachments(attachments.filter((_, i) => i !== idx))
-                              }
-                              className="text-rose-500 hover:text-rose-700 font-bold ml-0.5"
-                            >
-                              &times;
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
 
                   <div className="pt-1">
                     <button

@@ -12,7 +12,7 @@ export async function GET() {
   try {
     await connectDB();
     const dbUser = await User.findById(sessionUser.id)
-      .select("name email role internId status")
+      .select("name email role internId status profilePicture")
       .lean();
 
     if (!dbUser) {
@@ -54,6 +54,7 @@ export async function GET() {
         role: dbUser.role,
         internId: dbUser.internId,
         status: dbUser.status,
+        profilePicture: dbUser.profilePicture,
       },
     });
     response.headers.set("Cache-Control", "no-store, max-age=0");

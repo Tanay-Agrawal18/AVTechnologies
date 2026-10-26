@@ -16,6 +16,7 @@ export async function createSessionToken(user: SessionUser): Promise<string> {
     role: user.role,
     internId: user.internId,
     status: user.status,
+    profilePicture: user.profilePicture,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -64,6 +65,7 @@ export async function getSession(): Promise<SessionUser | null> {
       role: payload.role as "admin" | "intern",
       internId: payload.internId as string | undefined,
       status: payload.status as "active" | "inactive" | "pending_setup",
+      profilePicture: payload.profilePicture as string | undefined,
     };
   } catch {
     return null;

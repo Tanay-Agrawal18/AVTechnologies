@@ -12,6 +12,8 @@ export interface IUserDocument extends Document {
   phone?: string;
   startDate?: string;
   endDate?: string;
+  profilePicture?: string;
+  profilePicturePublicId?: string;
   passwordHash?: string;
   activationToken?: string;
   activationExpires?: Date;
@@ -73,6 +75,14 @@ const UserSchema = new Schema<IUserDocument>(
     },
     endDate: {
       type: String,
+    },
+    profilePicture: {
+      type: String,
+      trim: true,
+    },
+    profilePicturePublicId: {
+      type: String,
+      trim: true,
     },
     passwordHash: {
       type: String,

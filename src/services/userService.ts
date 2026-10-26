@@ -284,6 +284,15 @@ export class UserService {
     });
 
     const hasCloudinary = isCloudinaryConfigured();
+    // Also delete user's profile picture from Cloudinary if set
+    if (hasCloudinary && intern.profilePicturePublicId) {
+      try {
+        await deleteFromCloudinary(intern.profilePicturePublicId);
+      } catch (err) {
+        console.error(`Failed to delete profile picture ${intern.profilePicturePublicId} from Cloudinary:`, err);
+      }
+    }
+
     for (const img of progressImages) {
       if (hasCloudinary && img.cloudinaryPublicId) {
         try {

@@ -99,6 +99,11 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
     checkAuth();
     fetchNotifications();
 
+    const handleProfileUpdate = () => {
+      checkAuth();
+    };
+    window.addEventListener("profile-picture-updated", handleProfileUpdate);
+
     // Periodic check every 20 seconds for notifications & auth status
     const interval = setInterval(() => {
       checkAuth();
@@ -107,6 +112,7 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
 
     return () => {
       isMounted = false;
+      window.removeEventListener("profile-picture-updated", handleProfileUpdate);
       clearInterval(interval);
     };
   }, []);
@@ -466,16 +472,24 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
 
           {/* User profile button / chip */}
           <div className="flex items-center gap-2 pl-1 sm:pl-2">
-            <div
-              className="h-8 w-8 sm:h-9 sm:w-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ring-2 ring-sky-200/70 shadow-xs"
-              style={{
-                background: "linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%)",
-                color: "#0369A1",
-              }}
-              title={currentUser?.name || "User"}
-            >
-              {initials}
-            </div>
+            {currentUser?.profilePicture ? (
+              <img
+                src={currentUser.profilePicture}
+                alt={currentUser.name || "User"}
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover shrink-0 ring-2 ring-sky-200/70 shadow-xs"
+              />
+            ) : (
+              <div
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ring-2 ring-sky-200/70 shadow-xs"
+                style={{
+                  background: "linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%)",
+                  color: "#0369A1",
+                }}
+                title={currentUser?.name || "User"}
+              >
+                {initials}
+              </div>
+            )}
 
             <div className="hidden md:block text-left max-w-[130px] lg:max-w-[180px]">
               <p
