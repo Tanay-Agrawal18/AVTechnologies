@@ -522,9 +522,22 @@ export default function AdminInternDetailPage({
 
       {/* Edit Member Modal */}
       {isEditOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-1">Edit Member Profile</h3>
+        <div
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsEditOpen(false);
+          }}
+        >
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full p-5 sm:p-6 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-150 relative">
+            <button
+              type="button"
+              onClick={() => setIsEditOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              title="Close modal"
+            >
+              <XCircle className="w-5 h-5" />
+            </button>
+            <h3 className="text-lg font-bold text-slate-900 mb-1 pr-8">Edit Member Profile</h3>
             <p className="text-xs text-slate-500 mb-5">
               Update intern details. Roles, credentials, and authentication secrets are strictly protected.
             </p>
@@ -745,18 +758,18 @@ export default function AdminInternDetailPage({
                 </p>
               </div>
 
-              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="sticky bottom-0 bg-white/95 backdrop-blur-xs flex justify-end gap-3 pt-3 pb-1 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsEditOpen(false)}
-                  className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingEdit}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm"
                 >
                   {isSavingEdit ? "Saving Changes..." : "Save Profile Details"}
                 </button>

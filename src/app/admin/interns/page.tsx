@@ -830,18 +830,18 @@ export default function AdminInternsPage() {
                 </p>
               </div>
 
-              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="sticky bottom-0 bg-white/95 backdrop-blur-xs flex justify-end gap-3 pt-3 pb-1 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setEditingIntern(null)}
-                  className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingEdit}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm"
                 >
                   {isSavingEdit ? "Saving Changes..." : "Save Profile Details"}
                 </button>
