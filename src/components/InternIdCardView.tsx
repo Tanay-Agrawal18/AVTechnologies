@@ -43,7 +43,6 @@ export function InternIdCardView({
 }: InternIdCardProps) {
   const [isFlipped, setIsFlipped] = useState(showBackDefault);
   const [isCopied, setIsCopied] = useState(false);
-  const [frontQrDataUrl, setFrontQrDataUrl] = useState<string>("");
   const [backQrDataUrl, setBackQrDataUrl] = useState<string>("");
   const [verificationUrl, setVerificationUrl] = useState<string>("");
   const cardRef = useRef<HTMLDivElement>(null);
@@ -86,7 +85,7 @@ export function InternIdCardView({
         .toUpperCase()
     : "DR";
 
-  // Generate secure token & render QR codes
+  // Generate secure token & render QR code for back side
   useEffect(() => {
     let isMounted = true;
 
@@ -116,17 +115,6 @@ export function InternIdCardView({
         if (!isMounted) return;
         setVerificationUrl(targetUrl);
 
-        // Generate high-resolution Front QR code (compact, 240x240)
-        const frontUrl = await QRCode.toDataURL(targetUrl, {
-          width: 240,
-          margin: 1,
-          color: {
-            dark: "#0B1F3A",
-            light: "#FFFFFF",
-          },
-          errorCorrectionLevel: "M",
-        });
-
         // Generate large high-resolution Back QR code (480x480 for crystal-clear scanning & print)
         const backUrl = await QRCode.toDataURL(targetUrl, {
           width: 480,
@@ -139,12 +127,10 @@ export function InternIdCardView({
         });
 
         if (isMounted) {
-          setFrontQrDataUrl(frontUrl);
           setBackQrDataUrl(backUrl);
         }
       } catch (err) {
         console.error("Failed to generate QR code data URL", err);
-        // Fallback to QR server if canvas generation fails
         const fallbackTarget = `${
           typeof window !== "undefined" ? window.location.origin : "https://vyorai.com"
         }/intern/profile`;
@@ -152,7 +138,6 @@ export function InternIdCardView({
           fallbackTarget
         )}&color=0b1f3a&bgcolor=ffffff&margin=1`;
         if (isMounted) {
-          setFrontQrDataUrl(fallbackUrl);
           setBackQrDataUrl(fallbackUrl);
           setVerificationUrl(fallbackTarget);
         }
@@ -456,33 +441,20 @@ export function InternIdCardView({
                 </div>
               </div>
 
-              {/* ── BOTTOM: Front QR Code Strip (Replaces Barcode) ── */}
-              <div className="relative z-10 pt-2 border-t border-sky-100 flex items-center justify-between px-1">
-                <div className="flex items-center gap-3">
-                  <div className="w-13 h-13 rounded-xl bg-white p-1 border border-sky-200 shadow-sm flex items-center justify-center shrink-0">
-                    {frontQrDataUrl ? (
-                      <img
-                        src={frontQrDataUrl}
-                        alt="Verification QR"
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <QrCodeIcon className="w-7 h-7 text-sky-600 animate-pulse" />
-                    )}
-                  </div>
-                  <div className="text-left">
-                    <span className="text-[10px] font-mono font-bold tracking-wider text-[#0B1F3A] uppercase block">
-                      {formattedInternId}
-                    </span>
-                    <span className="text-[9px] font-bold text-sky-600 uppercase tracking-widest block">
-                      SCAN TO VERIFY
-                    </span>
-                  </div>
+              {/* ── BOTTOM: Front Security & Verification Footer (No QR code on front) ── */}
+              <div className="relative z-10 pt-2.5 border-t border-sky-100/90 flex items-center justify-between px-1">
+                <div className="text-left">
+                  <span className="text-[11px] font-mono font-bold tracking-wider text-[#0B1F3A] uppercase block">
+                    {formattedInternId}
+                  </span>
+                  <span className="text-[9px] font-bold text-sky-600 uppercase tracking-widest block">
+                    OFFICIAL SMART PASS
+                  </span>
                 </div>
 
                 <div className="text-right">
                   <span className="text-[8px] font-mono uppercase text-slate-400 tracking-widest block">
-                    Vyorai Smart Pass
+                    Vyorai Technologies
                   </span>
                   <span className="text-[9px] font-bold text-slate-600 tracking-wider uppercase block">
                     CR80 COMPLIANT
