@@ -4,6 +4,22 @@ import { connectDB } from "@/lib/db";
 import { User, Project, Task } from "@/models";
 import { verifyIdVerificationToken } from "@/lib/idVerification";
 
+interface LeanProjectDoc {
+  _id: mongoose.Types.ObjectId;
+  title: string;
+  description?: string;
+  status: string;
+  startDate?: Date;
+  dueDate?: Date;
+}
+
+interface LeanTaskDoc {
+  _id: mongoose.Types.ObjectId;
+  title: string;
+  status: string;
+  priority: string;
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
@@ -73,7 +89,7 @@ export async function GET(
       })
       .select("title description status startDate dueDate")
       .sort({ createdAt: -1 })
-      .lean();
+      .lean<LeanProjectDoc[]>();
 
     // Fetch Tasks worked on
     const tasks = await mongoose
@@ -83,7 +99,7 @@ export async function GET(
       })
       .select("title description status priority assignmentDate dueDate")
       .sort({ createdAt: -1 })
-      .lean();
+      .lean<LeanTaskDoc[]>();
 
     let idStatus: "active" | "completed" | "inactive" | "pending_setup" = "active";
     if (isRevoked) {
@@ -125,7 +141,7 @@ export async function GET(
         certificateUrl: user.certificateUrl || null,
         status: user.status,
       },
-      projects: projects.map((p: any) => ({
+      projects: projects.map((p: LeanProjectDoc) => ({
         id: p._id.toString(),
         title: p.title,
         description: p.description,
@@ -135,10 +151,10 @@ export async function GET(
       })),
       tasksSummary: {
         total: tasks.length,
-        completed: tasks.filter((t: any) => t.status === "approved").length,
-        inProgress: tasks.filter((t: any) => t.status === "in_progress" || t.status === "submitted").length,
+        completed: tasks.filter((t: LeanTaskDoc) => t.status === "approved").length,
+        inProgress: tasks.filter((t: LeanTaskDoc) => t.status === "in_progress" || t.status === "submitted").length,
       },
-      recentTasks: tasks.slice(0, 6).map((t: any) => ({
+      recentTasks: tasks.slice(0, 6).map((t: LeanTaskDoc) => ({
         id: t._id.toString(),
         title: t.title,
         status: t.status,
