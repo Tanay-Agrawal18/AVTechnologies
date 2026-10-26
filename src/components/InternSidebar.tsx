@@ -11,6 +11,7 @@ import {
   LogOut,
   FolderGit2,
   X,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ const navItems = [
   { label: "My Tasks", href: "/intern/tasks", icon: CheckSquare },
   { label: "Team Projects", href: "/intern/projects", icon: FolderGit2 },
   { label: "Work History", href: "/intern/history", icon: Clock },
+  { label: "My ID Card", href: "/intern/id-card", icon: CreditCard },
   { label: "My Profile", href: "/intern/profile", icon: User },
 ];
 

@@ -21,7 +21,9 @@ import {
   FileText,
   Save,
   Layers,
+  CreditCard,
 } from "lucide-react";
+import Link from "next/link";
 import { Skeleton } from "@/components/Skeleton";
 
 export default function InternProfilePage() {
@@ -294,6 +296,14 @@ export default function InternProfilePage() {
                     Remove
                   </button>
                 )}
+
+                <Link
+                  href="/intern/id-card"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 transition-colors shadow-xs"
+                >
+                  <CreditCard className="w-3.5 h-3.5 text-sky-600" />
+                  View ID Card
+                </Link>
               </div>
               <p className="text-[11px] text-slate-400">
                 JPEG, PNG, or WebP (Max 5MB). Previous photos are securely deleted from Cloudinary.

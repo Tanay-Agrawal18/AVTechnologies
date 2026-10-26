@@ -166,6 +166,9 @@ export interface SessionUser {
   bio?: string;
   department?: string;
   designation?: string;
+  startDate?: string;
+  endDate?: string;
+  createdAt?: string | Date;
 }
 
 export type NotificationType =
