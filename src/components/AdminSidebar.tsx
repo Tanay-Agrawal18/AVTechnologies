@@ -37,8 +37,10 @@ export function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handleToggle = () => setIsOpen((prev) => !prev);
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -134,7 +136,7 @@ export function AdminSidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <nav suppressHydrationWarning className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
