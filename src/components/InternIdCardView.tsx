@@ -266,27 +266,27 @@ export function InternIdCardView({
           ref={cardRef}
           onClick={() => setIsFlipped((prev) => !prev)}
           title="Click to flip badge"
-          className="cursor-pointer select-none transition-transform duration-500 hover:scale-[1.01] active:scale-[0.99] print:cursor-default"
+          className="cursor-pointer select-none print:cursor-default"
           style={{ perspective: "1500px" }}
         >
           <div
-            className="w-[340px] sm:w-[380px] h-[610px] sm:h-[635px] relative rounded-[32px] overflow-hidden shadow-[0_20px_50px_rgba(11,31,58,0.18)] transition-all duration-700 transform-gpu border border-slate-200/80 print:shadow-none print:border-slate-300"
+            className="w-[340px] sm:w-[380px] h-[610px] sm:h-[635px] relative transition-transform duration-700 ease-in-out"
             style={{
               transformStyle: "preserve-3d",
               transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-              backgroundColor: "#FFFFFF",
             }}
           >
             {/* ════════════════════════════════════════════════════════════════ */}
             {/* FRONT SIDE (QR-Based Smart ID with Light Aesthetic) */}
             {/* ════════════════════════════════════════════════════════════════ */}
             <div
-              className={`absolute inset-0 flex flex-col justify-between p-6 sm:p-7 text-slate-900 ${
-                isFlipped ? "pointer-events-none opacity-0" : "opacity-100"
-              } transition-opacity duration-300`}
+              className="absolute inset-0 flex flex-col justify-between p-6 sm:p-7 text-slate-900 rounded-[32px] overflow-hidden border border-slate-200/80 shadow-[0_20px_50px_rgba(11,31,58,0.18)]"
               style={{
                 backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
+                transform: "rotateY(0deg)",
                 background: "#FFFFFF",
+                zIndex: isFlipped ? 0 : 2,
               }}
             >
               {/* Soft, modern cyan curved wave gradients */}
@@ -467,13 +467,13 @@ export function InternIdCardView({
             {/* BACK SIDE (Large Centered Scannable QR Code Layout) */}
             {/* ════════════════════════════════════════════════════════════════ */}
             <div
-              className={`absolute inset-0 flex flex-col justify-between p-6 sm:p-7 text-slate-900 ${
-                !isFlipped ? "pointer-events-none opacity-0" : "opacity-100"
-              } transition-opacity duration-300`}
+              className="absolute inset-0 flex flex-col justify-between p-6 sm:p-7 text-slate-900 rounded-[32px] overflow-hidden border border-slate-200/80 shadow-[0_20px_50px_rgba(11,31,58,0.18)]"
               style={{
                 backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
                 transform: "rotateY(180deg)",
                 background: "#FFFFFF",
+                zIndex: isFlipped ? 2 : 0,
               }}
             >
               {/* Soft wave background mirroring front side */}
