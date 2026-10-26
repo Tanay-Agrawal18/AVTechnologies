@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const token = await createSessionToken(user);
     await setSessionCookie(token);
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       user: {
         id: user.id,
@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
       },
       redirectTo: user.role === "admin" ? "/admin/dashboard" : "/intern/dashboard",
     });
+    res.headers.set("Cache-Control", "no-store, max-age=0");
+    return res;
   } catch (err: unknown) {
     console.error("Login route error:", err);
     return NextResponse.json(

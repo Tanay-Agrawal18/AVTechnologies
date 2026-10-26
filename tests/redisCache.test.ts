@@ -141,4 +141,48 @@ describe("Upstash Redis Integration & Caching Layer", () => {
     expect(cachedDetail).toBeNull();
     expect(cachedList).toBeNull();
   });
+
+  it("isolates Review Queue cache keys across different filters, pages, and admins", () => {
+    const keyA = CACHE_KEYS.reviewQueue("admin", "admin_1", "pending", "intern_1", "Engineering", 1, 15);
+    const keyB = CACHE_KEYS.reviewQueue("admin", "admin_1", "changes_requested", "intern_1", "Engineering", 1, 15);
+    const keyDiffPage = CACHE_KEYS.reviewQueue("admin", "admin_1", "pending", "intern_1", "Engineering", 2, 15);
+    const keyDiffAdmin = CACHE_KEYS.reviewQueue("admin", "admin_2", "pending", "intern_1", "Engineering", 1, 15);
+
+    expect(keyA).not.toEqual(keyB);
+    expect(keyA).not.toEqual(keyDiffPage);
+    expect(keyA).not.toEqual(keyDiffAdmin);
+    expect(keyA).toContain("Engineering");
+    expect(keyA).toContain("intern_1");
+  });
+
+  it("coalesces concurrent requests to protect against cache stampedes", async () => {
+    const stampedeKey = `test:stampede:${Date.now()}`;
+    let expensiveCallCount = 0;
+
+    const slowFetcher = async () => {
+      expensiveCallCount++;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      return { payload: "computed_expensive_data", count: expensiveCallCount };
+    };
+
+    // Fire 5 concurrent requests simultaneously for the same missing key
+    const results = await Promise.all([
+      getOrSetCache(stampedeKey, 10, slowFetcher),
+      getOrSetCache(stampedeKey, 10, slowFetcher),
+      getOrSetCache(stampedeKey, 10, slowFetcher),
+      getOrSetCache(stampedeKey, 10, slowFetcher),
+      getOrSetCache(stampedeKey, 10, slowFetcher),
+    ]);
+
+    // All results must be identical
+    expect(results).toHaveLength(5);
+    for (const res of results) {
+      expect(res.payload).toBe("computed_expensive_data");
+    }
+
+    // Thanks to in-memory promise coalescing, the fetcher should only execute once
+    expect(expensiveCallCount).toBe(1);
+
+    await invalidateCacheKeys(stampedeKey);
+  });
 });

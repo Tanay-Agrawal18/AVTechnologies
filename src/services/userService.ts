@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import { User, IUserDocument } from "@/models/User";
 import { SessionUser } from "@/types";
-import { invalidateKpiCache, invalidateProjectsCache } from "@/lib/cache";
+import { invalidateKpiCache, invalidateProjectsCache, invalidateReviewQueueCache } from "@/lib/cache";
 
 export interface CreateInternInput {
   name: string;
@@ -361,6 +361,7 @@ export class UserService {
 
     await invalidateKpiCache();
     await invalidateProjectsCache();
+    await invalidateReviewQueueCache();
 
     return {
       deletedIntern: {
