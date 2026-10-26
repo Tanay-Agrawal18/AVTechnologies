@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import {
   Bell,
-  ChevronDown,
   Menu,
   CheckCircle2,
   Clock,
@@ -525,11 +524,6 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
                 </div>
               )}
             </div>
-
-            <ChevronDown
-              className="hidden md:block w-3.5 h-3.5 shrink-0"
-              style={{ color: "rgba(11,31,58,.35)" }}
-            />
           </div>
         </div>
       </div>
