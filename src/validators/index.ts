@@ -75,6 +75,7 @@ export const UpdateInternSchema = z.object({
   bio: z.string().trim().optional(),
   startDate: z.string().trim().optional(),
   endDate: z.string().trim().optional(),
+  certificateUrl: z.string().trim().url("Invalid certificate URL (must be valid link, e.g. Google Drive)").or(z.literal("")).optional(),
   status: UserStatusSchema.optional(),
 });
 

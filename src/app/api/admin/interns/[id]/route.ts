@@ -135,6 +135,10 @@ export async function PATCH(
       changes.endDate = { from: intern.endDate, to: parsed.data.endDate };
       intern.endDate = parsed.data.endDate;
     }
+    if (parsed.data.certificateUrl !== undefined && parsed.data.certificateUrl !== intern.certificateUrl) {
+      changes.certificateUrl = { from: intern.certificateUrl, to: parsed.data.certificateUrl };
+      intern.certificateUrl = parsed.data.certificateUrl;
+    }
     if (parsed.data.status !== undefined && parsed.data.status !== intern.status) {
       changes.status = { from: intern.status, to: parsed.data.status };
       intern.status = parsed.data.status;

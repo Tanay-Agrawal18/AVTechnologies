@@ -12,7 +12,7 @@ export async function GET() {
   try {
     await connectDB();
     const dbUser = await User.findById(sessionUser.id)
-      .select("name email role internId status profilePicture phone address college githubUrl linkedinUrl bio department designation onboardingCompleted startDate endDate createdAt")
+      .select("name email role internId status profilePicture phone address college githubUrl linkedinUrl bio department designation onboardingCompleted startDate endDate certificateUrl createdAt")
       .lean();
 
     if (!dbUser) {
@@ -66,6 +66,7 @@ export async function GET() {
         onboardingCompleted: dbUser.onboardingCompleted ?? false,
         startDate: dbUser.startDate,
         endDate: dbUser.endDate,
+        certificateUrl: dbUser.certificateUrl,
         createdAt: dbUser.createdAt,
       },
     });

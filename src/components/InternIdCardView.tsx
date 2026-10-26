@@ -47,8 +47,8 @@ export function InternIdCardView({
   const [verificationUrl, setVerificationUrl] = useState<string>("");
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const formattedInternId = intern.internId || "VYOR-26-03";
-  const displayDepartment = intern.department || "AI-ML";
+  const formattedInternId = intern.internId || (intern._id ? `VYOR-26-${intern._id.slice(-2).toUpperCase()}` : "VYOR-26-01");
+  const displayDepartment = intern.department || "Technology";
   const displayDesignation = intern.designation || "Software Development Intern";
   const displayStatus = (intern.status || "ACTIVE").toUpperCase();
 
@@ -64,7 +64,7 @@ export function InternIdCardView({
         day: "numeric",
         year: "numeric",
       })
-    : "Nov 1, 2026";
+    : "Active Term";
 
   const validThruStr = intern.endDate
     ? new Date(intern.endDate).toLocaleDateString("en-US", {
@@ -72,7 +72,7 @@ export function InternIdCardView({
         day: "numeric",
         year: "numeric",
       })
-    : "Nov 1, 2027";
+    : "Term End";
 
   // Generate initials for avatar fallback
   const initials = intern.name

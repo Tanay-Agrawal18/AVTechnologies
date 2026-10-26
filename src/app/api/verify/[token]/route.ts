@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
-import { User } from "@/models";
+import { User, Project, Task } from "@/models";
 import { verifyIdVerificationToken } from "@/lib/idVerification";
 
 export async function GET(
@@ -39,7 +40,7 @@ export async function GET(
     }
 
     const user = await User.findOne(query).select(
-      "name internId role status department designation college profilePicture startDate endDate createdAt"
+      "name internId role status department designation college profilePicture startDate endDate certificateUrl createdAt bio githubUrl linkedinUrl"
     );
 
     if (!user) {
@@ -59,28 +60,50 @@ export async function GET(
     const isPending = statusLower === "pending_setup";
     const isActive = statusLower === "active";
 
-    // Check expiration
+    // Check expiration / completion
     const now = new Date();
-    const isExpired = user.endDate ? new Date(user.endDate) < now : false;
+    const hasEndDate = Boolean(user.endDate);
+    const isPastEndDate = hasEndDate ? new Date(user.endDate!) <= now : false;
 
-    let idStatus: "active" | "inactive" | "expired" | "pending_setup" = "active";
+    // Fetch Collaborative Projects where intern is a member
+    const projects = await mongoose
+      .model("Project")
+      .find({
+        "teamMembers.internId": user._id,
+      })
+      .select("title description status startDate dueDate")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Fetch Tasks worked on
+    const tasks = await mongoose
+      .model("Task")
+      .find({
+        assignedInternId: user._id,
+      })
+      .select("title description status priority assignmentDate dueDate")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    let idStatus: "active" | "completed" | "inactive" | "pending_setup" = "active";
     if (isRevoked) {
       idStatus = "inactive";
-    } else if (isExpired) {
-      idStatus = "expired";
+    } else if (isPastEndDate || user.certificateUrl) {
+      idStatus = "completed";
     } else if (isPending) {
       idStatus = "pending_setup";
     }
 
-    const isVerifiedValid = isActive && !isExpired;
+    const isVerifiedValid = !isRevoked && !isPending;
 
     return NextResponse.json({
       verified: isVerifiedValid,
       idStatus,
-      statusLabel: isVerifiedValid
+      isInternshipCompleted: isPastEndDate || Boolean(user.certificateUrl),
+      statusLabel: isPastEndDate
+        ? "Internship Completed (Alumnus)"
+        : isVerifiedValid
         ? "Official & Active Credential"
-        : isExpired
-        ? "Expired Credential"
         : isRevoked
         ? "Revoked / Inactive Credential"
         : "Pending Setup",
@@ -90,11 +113,34 @@ export async function GET(
         department: user.department || "Engineering & Innovation",
         designation: user.designation || "Software Development Intern",
         college: user.college,
+        bio: user.bio,
+        githubUrl: user.githubUrl,
+        linkedinUrl: user.linkedinUrl,
         profilePicture: user.profilePicture,
         startDate: user.startDate,
         endDate: user.endDate,
+        certificateUrl: user.certificateUrl || null,
         status: user.status,
       },
+      projects: projects.map((p: any) => ({
+        id: p._id.toString(),
+        title: p.title,
+        description: p.description,
+        status: p.status,
+        startDate: p.startDate,
+        dueDate: p.dueDate,
+      })),
+      tasksSummary: {
+        total: tasks.length,
+        completed: tasks.filter((t: any) => t.status === "approved").length,
+        inProgress: tasks.filter((t: any) => t.status === "in_progress" || t.status === "submitted").length,
+      },
+      recentTasks: tasks.slice(0, 6).map((t: any) => ({
+        id: t._id.toString(),
+        title: t.title,
+        status: t.status,
+        priority: t.priority,
+      })),
       verifiedAt: new Date().toISOString(),
     });
   } catch (error: unknown) {

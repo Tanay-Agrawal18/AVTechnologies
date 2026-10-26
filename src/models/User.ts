@@ -17,6 +17,7 @@ export interface IUserDocument extends Document {
   bio?: string;
   startDate?: string;
   endDate?: string;
+  certificateUrl?: string; // Google Drive link or verified document URL
   profilePicture?: string;
   profilePicturePublicId?: string;
   passwordHash?: string;
@@ -101,6 +102,10 @@ const UserSchema = new Schema<IUserDocument>(
     },
     endDate: {
       type: String,
+    },
+    certificateUrl: {
+      type: String,
+      trim: true,
     },
     profilePicture: {
       type: String,

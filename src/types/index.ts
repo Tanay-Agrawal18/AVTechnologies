@@ -19,6 +19,7 @@ export interface IUser {
   bio?: string;
   startDate?: string; // ISO date string
   endDate?: string;
+  certificateUrl?: string; // Google Drive link or verified document URL
   profilePicture?: string;
   profilePicturePublicId?: string;
   passwordHash?: string;
@@ -170,6 +171,7 @@ export interface SessionUser {
   onboardingCompleted?: boolean;
   startDate?: string;
   endDate?: string;
+  certificateUrl?: string;
   createdAt?: string | Date;
 }
 
