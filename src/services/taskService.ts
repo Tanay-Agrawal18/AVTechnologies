@@ -7,7 +7,14 @@ import { User } from "@/models/User";
 import { AuditLog } from "@/models/AuditLog";
 import { canTransitionStatus } from "./taskStateService";
 import { TaskPriority, TaskStatus, SessionUser } from "@/types";
-import { invalidateKpiCache, invalidateProjectsCache } from "@/lib/cache";
+import {
+  invalidateKpiCache,
+  invalidateProjectsCache,
+  invalidateReviewQueueCache,
+  getOrSetCache,
+  CACHE_KEYS,
+  CACHE_TTL,
+} from "@/lib/cache";
 import { NotificationService } from "./notificationService";
 
 export interface CreateTaskInput {
@@ -113,225 +120,245 @@ export class TaskService {
       throw new Error("Unauthorized: Only administrators can access the task review queue");
     }
 
-    await connectDB();
-
     const page = Math.max(1, Number(filter.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(filter.limit) || 15));
-    const skip = (page - 1) * limit;
-
-    // Build matching criteria
-    // A task in the review queue is typically submitted or changes_requested or approved with a submission
-    const taskQuery: Record<string, unknown> = {
-      isArchived: false,
-    };
-
-    if (filter.internId && filter.internId !== "all" && mongoose.Types.ObjectId.isValid(filter.internId)) {
-      taskQuery.assignedInternId = new mongoose.Types.ObjectId(filter.internId);
-    }
-
-    // Filter by task status depending on review filter
     const statusFilter = filter.status || "pending";
-    if (statusFilter === "pending") {
-      taskQuery.status = "submitted";
-    } else if (statusFilter === "changes_requested") {
-      taskQuery.status = "changes_requested";
-    } else if (statusFilter === "approved") {
-      taskQuery.status = "approved";
-    } else if (statusFilter === "all") {
-      taskQuery.status = { $in: ["submitted", "changes_requested", "approved"] };
-    }
+    const internId = filter.internId && filter.internId !== "all" ? filter.internId : undefined;
+    const department = filter.department && filter.department !== "all" ? filter.department : undefined;
 
-    // Aggregate to fetch matching tasks, intern info, and their latest submission
-    const pipeline: mongoose.PipelineStage[] = [
-      { $match: taskQuery },
-      {
-        $lookup: {
-          from: "users",
-          localField: "assignedInternId",
-          foreignField: "_id",
-          as: "intern",
-        },
-      },
-      { $unwind: { path: "$intern", preserveNullAndEmptyArrays: false } },
-    ];
-
-    if (filter.department && filter.department !== "all") {
-      pipeline.push({
-        $match: {
-          "intern.department": filter.department,
-        },
-      });
-    }
-
-    // Lookup submissions for each task
-    pipeline.push(
-      {
-        $lookup: {
-          from: "submissions",
-          let: { taskId: "$_id" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$taskId", "$$taskId"] } } },
-            { $sort: { version: -1 } },
-          ],
-          as: "submissions",
-        },
-      },
-      // Ensure task has at least one submission
-      {
-        $match: {
-          "submissions.0": { $exists: true },
-        },
-      }
+    const cacheKey = CACHE_KEYS.reviewQueue(
+      actor.role,
+      actor.id,
+      statusFilter,
+      internId,
+      department,
+      page,
+      limit
     );
 
-    // If specific submission reviewStatus filtering requested:
-    if (statusFilter === "pending") {
-      pipeline.push({
-        $match: {
-          "submissions.0.reviewStatus": "pending",
-        },
-      });
-    } else if (statusFilter === "changes_requested") {
-      pipeline.push({
-        $match: {
-          "submissions.0.reviewStatus": "changes_requested",
-        },
-      });
-    } else if (statusFilter === "approved") {
-      pipeline.push({
-        $match: {
-          "submissions.0.reviewStatus": "approved",
-        },
-      });
-    }
+    return getOrSetCache(
+      cacheKey,
+      CACHE_TTL.REVIEW_QUEUE,
+      async () => {
+        await connectDB();
 
-    // Count summary aggregation across all reviewable tasks
-    const countPromise = Task.aggregate([
-      { $match: { isArchived: false, status: { $in: ["submitted", "changes_requested", "approved"] } } },
-      {
-        $lookup: {
-          from: "submissions",
-          let: { taskId: "$_id" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$taskId", "$$taskId"] } } },
-            { $sort: { version: -1 } },
-            { $limit: 1 },
-          ],
-          as: "latestSub",
-        },
+        const skip = (page - 1) * limit;
+
+        // Build matching criteria
+        // A task in the review queue is typically submitted or changes_requested or approved with a submission
+        const taskQuery: Record<string, unknown> = {
+          isArchived: false,
+        };
+
+        if (internId && mongoose.Types.ObjectId.isValid(internId)) {
+          taskQuery.assignedInternId = new mongoose.Types.ObjectId(internId);
+        }
+
+        // Filter by task status depending on review filter
+        if (statusFilter === "pending") {
+          taskQuery.status = "submitted";
+        } else if (statusFilter === "changes_requested") {
+          taskQuery.status = "changes_requested";
+        } else if (statusFilter === "approved") {
+          taskQuery.status = "approved";
+        } else if (statusFilter === "all") {
+          taskQuery.status = { $in: ["submitted", "changes_requested", "approved"] };
+        }
+
+        // Aggregate to fetch matching tasks, intern info, and their latest submission
+        const pipeline: mongoose.PipelineStage[] = [
+          { $match: taskQuery },
+          {
+            $lookup: {
+              from: "users",
+              localField: "assignedInternId",
+              foreignField: "_id",
+              as: "intern",
+            },
+          },
+          { $unwind: { path: "$intern", preserveNullAndEmptyArrays: false } },
+        ];
+
+        if (department) {
+          pipeline.push({
+            $match: {
+              "intern.department": department,
+            },
+          });
+        }
+
+        // Lookup submissions for each task
+        pipeline.push(
+          {
+            $lookup: {
+              from: "submissions",
+              let: { taskId: "$_id" },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$taskId", "$$taskId"] } } },
+                { $sort: { version: -1 } },
+              ],
+              as: "submissions",
+            },
+          },
+          // Ensure task has at least one submission
+          {
+            $match: {
+              "submissions.0": { $exists: true },
+            },
+          }
+        );
+
+        // If specific submission reviewStatus filtering requested:
+        if (statusFilter === "pending") {
+          pipeline.push({
+            $match: {
+              "submissions.0.reviewStatus": "pending",
+            },
+          });
+        } else if (statusFilter === "changes_requested") {
+          pipeline.push({
+            $match: {
+              "submissions.0.reviewStatus": "changes_requested",
+            },
+          });
+        } else if (statusFilter === "approved") {
+          pipeline.push({
+            $match: {
+              "submissions.0.reviewStatus": "approved",
+            },
+          });
+        }
+
+        // Count summary aggregation across all reviewable tasks
+        const countPromise = Task.aggregate([
+          { $match: { isArchived: false, status: { $in: ["submitted", "changes_requested", "approved"] } } },
+          {
+            $lookup: {
+              from: "submissions",
+              let: { taskId: "$_id" },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$taskId", "$$taskId"] } } },
+                { $sort: { version: -1 } },
+                { $limit: 1 },
+              ],
+              as: "latestSub",
+            },
+          },
+          { $unwind: "$latestSub" },
+          {
+            $group: {
+              _id: "$latestSub.reviewStatus",
+              count: { $sum: 1 },
+            },
+          },
+        ]);
+
+        // Facet for total filtered count and paginated data
+        pipeline.push({
+          $facet: {
+            totalData: [
+              { $sort: { "submissions.0.createdAt": -1, updatedAt: -1 } },
+              { $skip: skip },
+              { $limit: limit },
+            ],
+            totalCount: [{ $count: "count" }],
+          },
+        });
+
+        const [facetResults, countGroups] = await Promise.all([
+          Task.aggregate(pipeline),
+          countPromise,
+        ]);
+
+        const facet = facetResults[0] || { totalData: [], totalCount: [] };
+        const total = facet.totalCount[0]?.count || 0;
+        const totalPages = Math.ceil(total / limit) || 1;
+
+        const counts = {
+          pending: 0,
+          changesRequested: 0,
+          approved: 0,
+          total: 0,
+        };
+
+        for (const g of countGroups) {
+          if (g._id === "pending") counts.pending = g.count;
+          else if (g._id === "changes_requested") counts.changesRequested = g.count;
+          else if (g._id === "approved") counts.approved = g.count;
+          counts.total += g.count;
+        }
+
+        type RawAggregationDoc = {
+          _id: mongoose.Types.ObjectId;
+          title: string;
+          priority: TaskPriority;
+          status: TaskStatus;
+          dueDate: Date;
+          assignmentDate: Date;
+          intern: {
+            _id: mongoose.Types.ObjectId;
+            name: string;
+            email: string;
+            internId?: string;
+            department?: string;
+          };
+          submissions: Array<{
+            _id: mongoose.Types.ObjectId;
+            version: number;
+            workDescription: string;
+            externalLinks: string[];
+            attachments?: Array<unknown>;
+            reviewStatus: "pending" | "changes_requested" | "approved";
+            adminFeedback?: string;
+            createdAt: Date;
+            reviewedAt?: Date;
+          }>;
+        };
+
+        const items: ReviewQueueItem[] = (facet.totalData as RawAggregationDoc[]).map((doc) => {
+          const latest = doc.submissions[0];
+          return {
+            taskId: doc._id.toString(),
+            taskTitle: doc.title,
+            taskPriority: doc.priority,
+            taskStatus: doc.status,
+            taskDueDate: doc.dueDate,
+            taskAssignmentDate: doc.assignmentDate,
+            intern: {
+              _id: doc.intern._id.toString(),
+              name: doc.intern.name,
+              email: doc.intern.email,
+              internId: doc.intern.internId,
+              department: doc.intern.department,
+            },
+            latestSubmission: {
+              _id: latest._id.toString(),
+              version: latest.version,
+              workDescription: latest.workDescription,
+              externalLinks: latest.externalLinks || [],
+              attachmentsCount: latest.attachments?.length || 0,
+              reviewStatus: latest.reviewStatus,
+              adminFeedback: latest.adminFeedback,
+              submittedAt: latest.createdAt,
+              reviewedAt: latest.reviewedAt,
+            },
+            totalSubmissionsCount: doc.submissions.length,
+          };
+        });
+
+        return {
+          items,
+          pagination: {
+            total,
+            page,
+            limit,
+            totalPages,
+          },
+          counts,
+        };
       },
-      { $unwind: "$latestSub" },
-      {
-        $group: {
-          _id: "$latestSub.reviewStatus",
-          count: { $sum: 1 },
-        },
-      },
-    ]);
-
-    // Facet for total filtered count and paginated data
-    pipeline.push({
-      $facet: {
-        totalData: [
-          { $sort: { "submissions.0.createdAt": -1, updatedAt: -1 } },
-          { $skip: skip },
-          { $limit: limit },
-        ],
-        totalCount: [{ $count: "count" }],
-      },
-    });
-
-    const [facetResults, countGroups] = await Promise.all([
-      Task.aggregate(pipeline),
-      countPromise,
-    ]);
-
-    const facet = facetResults[0] || { totalData: [], totalCount: [] };
-    const total = facet.totalCount[0]?.count || 0;
-    const totalPages = Math.ceil(total / limit) || 1;
-
-    const counts = {
-      pending: 0,
-      changesRequested: 0,
-      approved: 0,
-      total: 0,
-    };
-
-    for (const g of countGroups) {
-      if (g._id === "pending") counts.pending = g.count;
-      else if (g._id === "changes_requested") counts.changesRequested = g.count;
-      else if (g._id === "approved") counts.approved = g.count;
-      counts.total += g.count;
-    }
-
-    type RawAggregationDoc = {
-      _id: mongoose.Types.ObjectId;
-      title: string;
-      priority: TaskPriority;
-      status: TaskStatus;
-      dueDate: Date;
-      assignmentDate: Date;
-      intern: {
-        _id: mongoose.Types.ObjectId;
-        name: string;
-        email: string;
-        internId?: string;
-        department?: string;
-      };
-      submissions: Array<{
-        _id: mongoose.Types.ObjectId;
-        version: number;
-        workDescription: string;
-        externalLinks: string[];
-        attachments?: Array<unknown>;
-        reviewStatus: "pending" | "changes_requested" | "approved";
-        adminFeedback?: string;
-        createdAt: Date;
-        reviewedAt?: Date;
-      }>;
-    };
-
-    const items: ReviewQueueItem[] = (facet.totalData as RawAggregationDoc[]).map((doc) => {
-      const latest = doc.submissions[0];
-      return {
-        taskId: doc._id.toString(),
-        taskTitle: doc.title,
-        taskPriority: doc.priority,
-        taskStatus: doc.status,
-        taskDueDate: doc.dueDate,
-        taskAssignmentDate: doc.assignmentDate,
-        intern: {
-          _id: doc.intern._id.toString(),
-          name: doc.intern.name,
-          email: doc.intern.email,
-          internId: doc.intern.internId,
-          department: doc.intern.department,
-        },
-        latestSubmission: {
-          _id: latest._id.toString(),
-          version: latest.version,
-          workDescription: latest.workDescription,
-          externalLinks: latest.externalLinks || [],
-          attachmentsCount: latest.attachments?.length || 0,
-          reviewStatus: latest.reviewStatus,
-          adminFeedback: latest.adminFeedback,
-          submittedAt: latest.createdAt,
-          reviewedAt: latest.reviewedAt,
-        },
-        totalSubmissionsCount: doc.submissions.length,
-      };
-    });
-
-    return {
-      items,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages,
-      },
-      counts,
-    };
+      CACHE_KEYS.allReviewQueueKeys()
+    );
   }
   static async createTask(data: CreateTaskInput, actor: SessionUser): Promise<ITaskDocument> {
     const tasks = await this.createTasks(data, actor);
@@ -425,6 +452,7 @@ export class TaskService {
     }
 
     await invalidateKpiCache();
+    await invalidateReviewQueueCache();
     if (data.projectId) {
       await invalidateProjectsCache(data.projectId);
     }
@@ -515,6 +543,7 @@ export class TaskService {
     }
 
     await invalidateKpiCache();
+    await invalidateReviewQueueCache();
     if (task.projectId) {
       await invalidateProjectsCache(task.projectId.toString());
     }
@@ -561,6 +590,7 @@ export class TaskService {
     });
 
     await invalidateKpiCache();
+    await invalidateReviewQueueCache();
     if (task.projectId) {
       await invalidateProjectsCache(task.projectId.toString());
     }
@@ -619,6 +649,7 @@ export class TaskService {
     });
 
     await invalidateKpiCache();
+    await invalidateReviewQueueCache();
     if (task.projectId) {
       await invalidateProjectsCache(task.projectId.toString());
     }
@@ -678,6 +709,7 @@ export class TaskService {
     });
 
     await invalidateKpiCache();
+    await invalidateReviewQueueCache();
     if (task.projectId) {
       await invalidateProjectsCache(task.projectId.toString());
     }
@@ -763,6 +795,7 @@ export class TaskService {
     });
 
     await invalidateKpiCache();
+    await invalidateReviewQueueCache();
     if (task.projectId) {
       await invalidateProjectsCache(task.projectId.toString());
     }
@@ -955,6 +988,7 @@ export class TaskService {
       }
 
       await invalidateKpiCache();
+      await invalidateReviewQueueCache();
       if (previousTask.projectId) {
         await invalidateProjectsCache(previousTask.projectId.toString());
       }

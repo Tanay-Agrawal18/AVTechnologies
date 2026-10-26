@@ -16,10 +16,12 @@ export async function POST(req: NextRequest) {
 
     await UserService.activateAccount(parsed.data.token, parsed.data.password);
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       message: "Password configured successfully. You may now log in.",
     });
+    res.headers.set("Cache-Control", "no-store, max-age=0");
+    return res;
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Password setup failed";
     return NextResponse.json({ error: errorMsg }, { status: 400 });

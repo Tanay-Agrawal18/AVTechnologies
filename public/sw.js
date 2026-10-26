@@ -1,18 +1,33 @@
-const CACHE_VERSION = "vyorai-v1";
+const CACHE_VERSION = "vyorai-v2";
 const STATIC_CACHE = `vyorai-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `vyorai-runtime-${CACHE_VERSION}`;
 
-// Assets to precache immediately
+const MAX_RUNTIME_ITEMS = 60;
+
+// Explicit allowlist of safe static assets to precache immediately
 const PRECACHE_ASSETS = [
   "/offline.html",
   "/manifest.json",
+  "/manifest.webmanifest",
   "/favicon.ico",
   "/apple-touch-icon.png",
+  "/image.png",
   "/icons/icon-192.png",
+  "/icons/icon-384.png",
   "/icons/icon-512.png",
   "/icons/icon-maskable-192.png",
   "/icons/icon-maskable-512.png",
 ];
+
+// Helper to trim caches to limit memory and disk usage
+async function trimCache(cacheName, maxItems) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length > maxItems) {
+    await cache.delete(keys[0]);
+    await trimCache(cacheName, maxItems);
+  }
+}
 
 // Install: precache offline fallback and essential icons
 self.addEventListener("install", (event) => {
@@ -24,7 +39,7 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Activate: purge older version caches
+// Activate: purge obsolete application-owned caches immediately
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
@@ -40,7 +55,7 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Listen for skipWaiting messages from client
+// Listen for skipWaiting messages from client / PwaManager
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
@@ -51,28 +66,29 @@ self.addEventListener("message", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
-  // Only handle GET requests
+  // 1. Only handle GET requests
   if (request.method !== "GET") {
     return;
   }
 
+  // 2. Cross-origin / Protocol check: Intercept only same-origin HTTP/HTTPS requests
   const url = new URL(request.url);
-
-  // Ignore chrome extensions or non-http protocols
-  if (!url.protocol.startsWith("http")) {
+  if (!url.protocol.startsWith("http") || url.origin !== self.location.origin) {
     return;
   }
 
-  // 1. NEVER cache authenticated APIs, sensitive endpoints, or file downloads
+  // 3. NEVER cache /api/**, Next.js data chunks, auth flows, document downloads, or private files
   if (
     url.pathname.startsWith("/api/") ||
-    url.pathname.startsWith("/_next/data/")
+    url.pathname.startsWith("/_next/data/") ||
+    url.pathname === "/login" ||
+    url.pathname === "/setup-password"
   ) {
     return; // Pass through to network natively
   }
 
-  // 2. Navigation requests (HTML documents)
-  // Use Network-First strategy to ensure fresh data and authentication state
+  // 4. Navigation requests (HTML documents)
+  // Use Network-First strategy to ensure fresh authentication state and dynamic role views
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -86,39 +102,50 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 3. Next.js static immutable assets (_next/static/*)
-  // These have content hashes, so Cache-First is safe and high-performance
+  // 5. Next.js static immutable assets (_next/static/*)
+  // Content-hashed assets: Cache-First is safe, fast, and resilient
   if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(
       caches.open(RUNTIME_CACHE).then(async (cache) => {
         const cached = await cache.match(request);
         if (cached) return cached;
-        const response = await fetch(request);
-        if (response && response.status === 200) {
-          cache.put(request, response.clone());
+
+        try {
+          const response = await fetch(request);
+          // Only cache standard successful GET responses (status 200, basic type)
+          if (response && response.status === 200 && response.type === "basic") {
+            cache.put(request, response.clone());
+            trimCache(RUNTIME_CACHE, MAX_RUNTIME_ITEMS).catch(() => {});
+          }
+          return response;
+        } catch {
+          return Response.error();
         }
-        return response;
       })
     );
     return;
   }
 
-  // 4. Static icons and images in /icons/ or public images
-  if (
+  // 6. Explicit allowlist of static public assets (icons, manifest, logo, offline page)
+  const isAllowlistedStatic =
     url.pathname.startsWith("/icons/") ||
-    url.pathname === "/favicon.ico" ||
-    url.pathname === "/apple-touch-icon.png" ||
-    url.pathname === "/manifest.json"
-  ) {
+    PRECACHE_ASSETS.includes(url.pathname);
+
+  if (isAllowlistedStatic) {
     event.respondWith(
       caches.open(STATIC_CACHE).then(async (cache) => {
         const cached = await cache.match(request);
         if (cached) return cached;
-        const response = await fetch(request);
-        if (response && response.status === 200) {
-          cache.put(request, response.clone());
+
+        try {
+          const response = await fetch(request);
+          if (response && response.status === 200 && response.type === "basic") {
+            cache.put(request, response.clone());
+          }
+          return response;
+        } catch {
+          return Response.error();
         }
-        return response;
       })
     );
     return;

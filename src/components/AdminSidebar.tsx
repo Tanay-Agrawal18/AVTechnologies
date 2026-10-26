@@ -62,10 +62,18 @@ export function AdminSidebar() {
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // Ignore network errors on logout
+    } finally {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.clear();
+        } catch {
+          // Ignore if access blocked
+        }
+      }
       router.push("/login");
       router.refresh();
-    } catch {
-      router.push("/login");
     }
   };
 
