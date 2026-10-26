@@ -83,7 +83,7 @@ function LoginForm() {
                 border: "1px solid var(--iwms-border)",
                 color: "var(--iwms-black)",
               }}
-              placeholder="admin@vyorai.com or intern@vyorai.com"
+              placeholder="name@company.com"
             />
           </div>
         </div>
