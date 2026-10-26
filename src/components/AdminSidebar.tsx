@@ -12,10 +12,8 @@ import {
   LogOut,
   ShieldAlert,
   Mail,
-  Award,
   FolderGit2,
   Clock,
-  Layers,
   Menu,
   X,
 } from "lucide-react";
@@ -26,12 +24,9 @@ const navItems = [
   { label: "Interns", href: "/admin/interns", icon: Users },
   { label: "Bulk Import", href: "/admin/import", icon: FileSpreadsheet },
   { label: "Tasks", href: "/admin/tasks", icon: CheckSquare },
-  { label: "Task Templates", href: "/admin/templates", icon: Layers },
   { label: "Review Queue", href: "/admin/review-queue", icon: Clock },
   { label: "Team Projects", href: "/admin/projects", icon: FolderGit2 },
   { label: "Bulk Email", href: "/admin/emails", icon: Mail },
-  { label: "Offer Letters", href: "/admin/offer-letters", icon: FileSpreadsheet },
-  { label: "Documents & Certs", href: "/admin/documents", icon: Award },
   { label: "Reports & KPIs", href: "/admin/reports", icon: BarChart3 },
 ];
 

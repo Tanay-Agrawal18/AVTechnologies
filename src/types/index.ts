@@ -193,17 +193,3 @@ export interface INotification {
   createdAt: Date;
   updatedAt: Date;
 }
-
-export interface ITaskTemplate {
-  _id: string;
-  title: string;
-  description: string;
-  priority: TaskPriority;
-  defaultDueDaysOffset?: number | null;
-  tags?: string[];
-  isActive: boolean;
-  usageCount: number;
-  createdByAdminId: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
