@@ -23,6 +23,7 @@ import {
   Link2,
   FileText,
   ExternalLink,
+  CreditCard,
 } from "lucide-react";
 
 export default function AdminInternDetailPage({
@@ -238,6 +239,12 @@ export default function AdminInternDetailPage({
           </Link>
 
           <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3">
+            <Link
+              href={`/admin/interns/${intern._id}/id-card`}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-medium text-sky-700 bg-sky-50 border border-sky-200 rounded-lg hover:bg-sky-100"
+            >
+              <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-600 shrink-0" /> ID Card
+            </Link>
             <button
               onClick={openEditModal}
               className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"

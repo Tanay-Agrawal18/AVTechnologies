@@ -168,6 +168,9 @@ export interface SessionUser {
   department?: string;
   designation?: string;
   onboardingCompleted?: boolean;
+  startDate?: string;
+  endDate?: string;
+  createdAt?: string | Date;
 }
 
 export type NotificationType =
