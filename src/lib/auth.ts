@@ -28,12 +28,14 @@ export async function createSessionToken(user: SessionUser): Promise<string> {
 
 export async function setSessionCookie(token: string) {
   const cookieStore = await cookies();
+  const expires = new Date(Date.now() + SESSION_DURATION_SECONDS * 1000);
   cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_DURATION_SECONDS,
+    expires,
   });
 }
 

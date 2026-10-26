@@ -38,6 +38,16 @@ export async function POST(req: NextRequest) {
       },
       redirectTo: user.role === "admin" ? "/admin/dashboard" : "/intern/dashboard",
     });
+
+    const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    res.cookies.set("iwms_session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60,
+      expires,
+    });
     res.headers.set("Cache-Control", "no-store, max-age=0");
     return res;
   } catch (err: unknown) {

@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Vyorai",
     description:
       "Vyorai Intern Workspace Management System — manage tasks, deliverables, projects, and work history.",
-    start_url: "/login",
+    start_url: "/",
     scope: "/",
     display: "standalone",
     orientation: "any",

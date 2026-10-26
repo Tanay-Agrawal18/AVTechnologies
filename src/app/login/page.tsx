@@ -22,6 +22,20 @@ function LoginForm() {
       setError("Your account is currently inactive. Please contact your workspace administrator to restore access.");
     } else if (errorParam === "unauthorized") {
       setError("Please sign in to access that page.");
+    } else {
+      // If user landed on /login with an already valid session, redirect automatically
+      fetch("/api/auth/me", { cache: "no-store" })
+        .then((res) => {
+          if (res.ok) return res.json();
+          return null;
+        })
+        .then((data) => {
+          if (data?.authenticated && data?.user?.status === "active") {
+            const dest = data.user.role === "admin" ? "/admin/dashboard" : "/intern/dashboard";
+            router.replace(dest);
+          }
+        })
+        .catch(() => {});
     }
   }, [searchParams, router]);
 
