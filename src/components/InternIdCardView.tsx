@@ -590,8 +590,12 @@ export function InternIdCardView({
               <div className="relative z-10 pt-2 border-t border-slate-100 space-y-2 text-center">
                 <div className="flex items-end justify-between px-1">
                   <div className="text-left">
-                    <div className="font-serif italic text-sm text-[#0B1F3A] tracking-wider font-semibold">
-                      Tanay Agrawal
+                    <div className="h-9 flex items-end">
+                      <img
+                        src="/signature.png"
+                        alt="Authorized Signature"
+                        className="h-8 max-w-[110px] object-contain drop-shadow-2xs"
+                      />
                     </div>
                     <div className="w-24 h-[1px] bg-sky-500 mt-0.5" />
                     <span className="text-[8px] text-slate-500 uppercase font-bold tracking-wider block mt-0.5">

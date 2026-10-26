@@ -20,6 +20,7 @@ import {
   Link2,
   FileCheck,
 } from "lucide-react";
+import { Skeleton } from "@/components/Skeleton";
 
 interface ProjectItem {
   id: string;
@@ -131,16 +132,68 @@ export default function VerificationPage({
       {/* ── Main Container ── */}
       <main className="max-w-2xl mx-auto w-full my-auto py-6">
         {isLoading ? (
-          <div className="bg-white rounded-3xl p-8 sm:p-12 shadow-xl border border-slate-200/80 text-center space-y-4">
-            <div className="w-14 h-14 rounded-full bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center mx-auto animate-spin">
-              <Sparkles className="w-6 h-6" />
+          <div className="bg-white rounded-3xl p-5 sm:p-8 shadow-xl border border-slate-200/90 space-y-6 relative overflow-hidden">
+            {/* Header Badge Skeleton */}
+            <div className="text-center space-y-3">
+              <Skeleton className="w-16 h-16 rounded-2xl mx-auto" />
+              <div className="flex justify-center">
+                <Skeleton className="h-6 w-48 rounded-full" />
+              </div>
+              <Skeleton className="h-8 w-64 mx-auto rounded-lg" />
+              <Skeleton className="h-3.5 w-72 mx-auto rounded" />
             </div>
-            <h2 className="text-lg font-bold text-slate-800">
-              Verifying Smart Pass Credential...
-            </h2>
-            <p className="text-xs text-slate-500">
-              Querying cryptographic signatures, projects, and live verification records.
-            </p>
+
+            {/* Profile Card Skeleton */}
+            <div className="flex flex-col sm:flex-row items-center gap-5 p-5 rounded-2xl bg-sky-50/50 border border-sky-100">
+              <Skeleton className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl shrink-0" />
+              <div className="text-center sm:text-left flex-1 w-full space-y-2.5">
+                <Skeleton className="h-6 w-48 mx-auto sm:mx-0 rounded" />
+                <Skeleton className="h-4 w-40 mx-auto sm:mx-0 rounded" />
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+                  <Skeleton className="h-6 w-24 rounded-lg" />
+                  <Skeleton className="h-6 w-20 rounded-lg" />
+                </div>
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-2">
+                  <Skeleton className="h-7 w-24 rounded-lg" />
+                  <Skeleton className="h-7 w-20 rounded-lg" />
+                  <Skeleton className="h-7 w-20 rounded-lg" />
+                </div>
+              </div>
+            </div>
+
+            {/* Key Metadata 4-Grid Skeleton */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                  <Skeleton className="h-2.5 w-16 rounded" />
+                  <Skeleton className="h-4 w-24 rounded" />
+                </div>
+              ))}
+            </div>
+
+            {/* Projects Section Skeleton */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-5 w-40 rounded" />
+                <Skeleton className="h-4 w-16 rounded" />
+              </div>
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <Skeleton className="h-4 w-1/3 rounded" />
+                <Skeleton className="h-3 w-4/5 rounded" />
+              </div>
+            </div>
+
+            {/* Tasks Summary Skeleton */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-5 w-48 rounded" />
+                <Skeleton className="h-4 w-24 rounded" />
+              </div>
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+                <Skeleton className="h-4 w-2/5 rounded" />
+                <Skeleton className="h-3 w-3/4 rounded" />
+              </div>
+            </div>
           </div>
         ) : errorMessage || !data ? (
           <div className="bg-white rounded-3xl p-8 sm:p-10 shadow-xl border border-rose-200 text-center space-y-5">
