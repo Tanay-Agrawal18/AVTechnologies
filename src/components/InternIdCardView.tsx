@@ -366,27 +366,6 @@ export function InternIdCardView({
                     <span>{displayStatus}</span>
                   </div>
                 </div>
-
-                {/* ── EMV Gold Chip + Smart ID Badge (No NFC) ── */}
-                <div className="flex items-center justify-between mt-4 px-0.5">
-                  {/* Metallic Gold Smart Chip */}
-                  <div className="w-12 h-9 rounded-lg bg-gradient-to-br from-[#fde68a] via-[#f59e0b] to-[#b45309] p-[1.5px] shadow-sm relative overflow-hidden">
-                    <div className="w-full h-full bg-gradient-to-tr from-[#fbbf24] via-[#fde68a] to-[#d97706] rounded-[6px] p-1 flex flex-col justify-between">
-                      <div className="w-full h-[1px] bg-[#92400e]/40" />
-                      <div className="flex justify-between items-center px-1">
-                        <div className="w-2 h-2.5 rounded-xs border border-[#92400e]/40 bg-[#fef3c7]/60" />
-                        <div className="w-2 h-2.5 rounded-xs border border-[#92400e]/40 bg-[#fef3c7]/60" />
-                      </div>
-                      <div className="w-full h-[1px] bg-[#92400e]/40" />
-                    </div>
-                  </div>
-
-                  {/* Digital Verified Pass Badge */}
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#0B1F3A] tracking-wider uppercase">
-                    <ShieldCheck className="w-3.5 h-3.5 text-sky-500" />
-                    <span>SMART ID PASS</span>
-                  </div>
-                </div>
               </div>
 
               {/* ── CENTER: Photo Frame, Verified Badge, Name & Role ── */}
