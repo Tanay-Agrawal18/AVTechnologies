@@ -590,21 +590,21 @@ export function InternIdCardView({
               <div className="relative z-10 pt-1.5 border-t border-slate-100 space-y-1 text-center">
                 <div className="flex items-end justify-between px-1">
                   <div className="text-left">
-                    <div className="h-7 flex items-end">
+                    <div className="h-10 flex items-end">
                       <img
                         src="/signature.png"
                         alt="Authorized Signature"
-                        className="h-6 max-w-[95px] object-contain drop-shadow-2xs"
+                        className="h-9 max-w-[130px] object-contain drop-shadow-2xs"
                       />
                     </div>
-                    <div className="w-20 h-[1px] bg-sky-500 mt-0.5" />
-                    <span className="text-[8px] text-slate-500 uppercase font-bold tracking-wider block mt-0.5">
+                    <div className="w-28 h-[1.5px] bg-sky-500 mt-0.5" />
+                    <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider block mt-0.5">
                       Authorized Signatory
                     </span>
                   </div>
 
                   {/* Company Stamp / Logo */}
-                  <div className="w-9 h-9 rounded-full border border-sky-300 p-1 flex items-center justify-center bg-white shadow-xs">
+                  <div className="w-10 h-10 rounded-full border border-sky-300 p-1 flex items-center justify-center bg-white shadow-xs">
                     <img
                       src="/image.png"
                       alt="Stamp"
