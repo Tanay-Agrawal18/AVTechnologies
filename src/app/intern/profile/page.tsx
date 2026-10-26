@@ -21,7 +21,6 @@ import {
   FileText,
   Save,
   Layers,
-  HelpCircle,
   CreditCard,
 } from "lucide-react";
 import Link from "next/link";
@@ -396,25 +395,13 @@ export default function InternProfilePage() {
           className="iwms-card p-4 sm:p-7 space-y-5"
           style={{ borderRadius: "16px" }}
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
-            <div>
-              <h3 className="font-bold text-base sm:text-lg text-slate-900">
-                Personal & Contact Details
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Fill in your contact and background info. These details will be directly visible to the management team in the Admin Panel.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                window.dispatchEvent(new Event("iwms:replay-onboarding"));
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition-colors self-start sm:self-auto"
-            >
-              <HelpCircle className="w-3.5 h-3.5 text-sky-600" />
-              Replay Orientation Walkthrough
-            </button>
+          <div className="pb-4 border-b border-slate-100">
+            <h3 className="font-bold text-base sm:text-lg text-slate-900">
+              Personal & Contact Details
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Fill in your contact and background info. These details will be directly visible to the management team in the Admin Panel.
+            </p>
           </div>
 
           {detailsSuccess && (
