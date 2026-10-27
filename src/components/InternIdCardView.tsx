@@ -628,12 +628,17 @@ export function InternIdCardView({
                   </div>
 
                   {/* Company Stamp / Logo */}
-                  <div className="w-10 h-10 rounded-full border border-sky-300 p-1 flex items-center justify-center bg-white shadow-xs">
-                    <img
-                      src="/image.png"
-                      alt="Stamp"
-                      className="w-full h-full object-contain"
-                    />
+                  <div className="flex flex-col items-center justify-end">
+                    <div className="w-11 h-11 rounded-xl border border-sky-200/80 p-1 flex items-center justify-center bg-white/90 shadow-sm backdrop-blur-xs">
+                      <img
+                        src="/image.png"
+                        alt="Stamp"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <span className="text-[7.5px] uppercase font-bold text-sky-600 tracking-wider mt-1 block">
+                      OFFICIAL SEAL
+                    </span>
                   </div>
                 </div>
 
