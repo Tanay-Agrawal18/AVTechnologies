@@ -5,7 +5,6 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { UnifiedCalendarView } from "@/components/UnifiedCalendarView";
 import { AdminCreateEventModal } from "@/components/AdminCreateEventModal";
 import { ITask, IUser, ICalendarEvent } from "@/types";
-import { Plus } from "lucide-react";
 
 export default function AdminCalendarPage() {
   const [tasks, setTasks] = useState<ITask[]>([]);
@@ -136,16 +135,6 @@ export default function AdminCalendarPage() {
       <DashboardHeader
         title="Admin Calendar & Announcements"
         description="Unified visual view of team deadlines, official notices, meetings, and company holidays"
-        action={
-          <button
-            type="button"
-            onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-lg shadow-2xs transition-all active:scale-95"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Create Event</span>
-          </button>
-        }
       />
 
       <main className="p-3 sm:p-5 lg:p-8 space-y-4">
