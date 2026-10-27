@@ -22,6 +22,9 @@ import {
   Save,
   Layers,
   CreditCard,
+  Maximize2,
+  X,
+  ZoomIn,
 } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/Skeleton";
@@ -32,6 +35,7 @@ export default function InternProfilePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form states for editable personal details
@@ -227,11 +231,21 @@ export default function InternProfilePage() {
             {/* Profile Picture with overlay action */}
             <div className="relative group shrink-0">
               {user?.profilePicture ? (
-                <img
-                  src={user.profilePicture}
-                  alt={user.name || "Profile"}
-                  className="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover ring-4 ring-sky-100 shadow-md"
-                />
+                <button
+                  type="button"
+                  onClick={() => setIsPreviewOpen(true)}
+                  className="relative block rounded-full focus:outline-none focus:ring-4 focus:ring-sky-300 group/avatar cursor-pointer"
+                  title="Click to view full photo"
+                >
+                  <img
+                    src={user.profilePicture}
+                    alt={user.name || "Profile"}
+                    className="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover ring-4 ring-sky-100 shadow-md transition-transform duration-200 group-hover/avatar:scale-105"
+                  />
+                  <div className="absolute inset-0 rounded-full bg-black/30 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center text-white backdrop-blur-[1px]">
+                    <ZoomIn className="w-5 h-5 drop-shadow" />
+                  </div>
+                </button>
               ) : (
                 <div
                   className="h-20 w-20 sm:h-24 sm:w-24 rounded-full flex items-center justify-center font-bold text-2xl sm:text-3xl shrink-0"
@@ -247,7 +261,7 @@ export default function InternProfilePage() {
 
               {/* Upload Loading Spinner */}
               {isUploading && (
-                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center text-white">
+                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center text-white pointer-events-none">
                   <Loader2 className="w-6 h-6 animate-spin" />
                 </div>
               )}
@@ -298,6 +312,17 @@ export default function InternProfilePage() {
                   <Camera className="w-3.5 h-3.5" />
                   {user?.profilePicture ? "Change Photo" : "Upload Photo"}
                 </button>
+
+                {user?.profilePicture && (
+                  <button
+                    type="button"
+                    onClick={() => setIsPreviewOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5 text-slate-500" />
+                    View Photo
+                  </button>
+                )}
 
                 {user?.profilePicture && (
                   <button
@@ -585,6 +610,58 @@ export default function InternProfilePage() {
           </form>
         </div>
       </main>
+
+      {/* Profile Picture Fullscreen/Lightbox Preview Modal */}
+      {isPreviewOpen && user?.profilePicture && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setIsPreviewOpen(false)}
+        >
+          <div
+            className="relative max-w-md sm:max-w-lg w-full bg-white rounded-2xl overflow-hidden shadow-2xl border border-white/20 animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/80">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-slate-800 text-sm">
+                  {user.name}&apos;s Profile Picture
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPreviewOpen(false)}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Image Body */}
+            <div className="p-4 sm:p-6 flex items-center justify-center bg-slate-950/5">
+              <img
+                src={user.profilePicture}
+                alt={user.name || "Profile Preview"}
+                className="max-h-[65vh] w-auto max-w-full rounded-xl object-contain shadow-md"
+              />
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100 bg-white text-xs text-slate-500">
+              <span>Click outside or press Close to dismiss</span>
+              <a
+                href={user.profilePicture}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="text-sky-600 hover:text-sky-700 font-semibold hover:underline inline-flex items-center gap-1"
+              >
+                Open Original
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
