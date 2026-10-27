@@ -337,12 +337,19 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
 
             {/* Notification Dropdown Popover */}
             {isOpen && (
-              <div
-                className="absolute right-0 top-full mt-2.5 w-[330px] sm:w-[380px] max-w-[calc(100vw-24px)] rounded-2xl bg-white shadow-2xl border border-slate-200/90 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150"
-                style={{
-                  boxShadow: "0 20px 40px -12px rgba(11, 31, 58, 0.18), 0 8px 16px -6px rgba(11, 31, 58, 0.08)",
-                }}
-              >
+              <>
+                {/* Mobile backdrop */}
+                <div
+                  className="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-xs sm:hidden"
+                  onClick={() => setIsOpen(false)}
+                />
+
+                <div
+                  className="fixed left-3 right-3 top-[58px] z-50 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2.5 sm:w-[380px] max-w-[calc(100vw-24px)] rounded-2xl bg-white shadow-2xl border border-slate-200/90 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+                  style={{
+                    boxShadow: "0 20px 40px -12px rgba(11, 31, 58, 0.18), 0 8px 16px -6px rgba(11, 31, 58, 0.08)",
+                  }}
+                >
                 {/* Header */}
                 <div className="px-4 py-3 border-b border-slate-100/90 flex items-center justify-between bg-slate-50/80 backdrop-blur-xs">
                   <div className="flex items-center gap-2">
@@ -520,7 +527,8 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
                   </div>
                 )}
               </div>
-            )}
+            </>
+          )}
           </div>
 
           {/* User profile button / chip */}
