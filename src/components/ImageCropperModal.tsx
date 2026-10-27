@@ -157,17 +157,15 @@ export function ImageCropperModal({
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Could not get canvas context");
 
-      // Calculate source bounding box from the rendered image coordinates
-      const renderedWidth = img.naturalWidth * zoom;
-      const renderedHeight = img.naturalHeight * zoom;
-
-      // Center of rendered image relative to center of crop window
-      const imgCenterX = renderedWidth / 2 + offset.x;
-      const imgCenterY = renderedHeight / 2 + offset.y;
-
-      // Crop area in rendered coordinates:
-      const cropLeftInRendered = imgCenterX - CROP_SIZE / 2;
-      const cropTopInRendered = imgCenterY - CROP_SIZE / 2;
+      // In the DOM, the image center relative to container center is (offset.x, offset.y).
+      // The crop window is centered at (0, 0) relative to container center.
+      // Therefore, the center of the crop window relative to the image top-left:
+      // imageLeft in container coords = - (naturalWidth * zoom)/2 + offset.x
+      // cropCenter in container coords = 0
+      // distance from imageLeft to cropCenter = 0 - imageLeft = (naturalWidth * zoom)/2 - offset.x
+      // cropWindow Top-Left in rendered image coordinates:
+      const cropLeftInRendered = (img.naturalWidth * zoom) / 2 - offset.x - CROP_SIZE / 2;
+      const cropTopInRendered = (img.naturalHeight * zoom) / 2 - offset.y - CROP_SIZE / 2;
 
       // Convert rendered coords to natural image coords:
       const sourceX = cropLeftInRendered / zoom;
@@ -181,10 +179,10 @@ export function ImageCropperModal({
       // Draw cropped area into output canvas
       ctx.drawImage(
         img,
-        sourceX,
-        sourceY,
-        sourceSize,
-        sourceSize,
+        Math.max(0, sourceX),
+        Math.max(0, sourceY),
+        Math.min(img.naturalWidth, sourceSize),
+        Math.min(img.naturalHeight, sourceSize),
         0,
         0,
         OUTPUT_SIZE,
@@ -244,7 +242,7 @@ export function ImageCropperModal({
           className="relative w-full h-80 sm:h-96 bg-black flex items-center justify-center overflow-hidden select-none cursor-grab active:cursor-grabbing"
           style={{ touchAction: "none" }}
         >
-          {/* Hidden natural image to measure and render on canvas */}
+          {/* Rendered image to position and preview */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={imageSrc}
@@ -254,9 +252,11 @@ export function ImageCropperModal({
             style={{
               display: imageLoaded ? "block" : "none",
               position: "absolute",
+              top: "50%",
+              left: "50%",
               width: imgRef.current ? `${imgRef.current.naturalWidth * zoom}px` : "auto",
               height: imgRef.current ? `${imgRef.current.naturalHeight * zoom}px` : "auto",
-              transform: `translate(${offset.x}px, ${offset.y}px)`,
+              transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px))`,
               willChange: "transform",
             }}
             draggable={false}
