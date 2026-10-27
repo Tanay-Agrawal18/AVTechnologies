@@ -8,28 +8,45 @@ import { formatDate, getStatusBadgeClass, getPriorityBadgeClass } from "@/lib/ut
 import { CheckSquare, ArrowRight, Filter, CalendarDays } from "lucide-react";
 import { TaskCardSkeleton } from "@/components/Skeleton";
 
+import { saveTasksOffline, getTasksOffline } from "@/lib/offlineStorage";
+
 export default function InternTasksPage() {
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
 
-  const fetchTasks = () => {
+  const fetchTasks = async () => {
     const query = new URLSearchParams();
     if (statusFilter !== "all") query.set("status", statusFilter);
 
-    fetch(`/api/intern/tasks?${query.toString()}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
+    try {
+      const res = await fetch(`/api/intern/tasks?${query.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
         if (data?.tasks) {
           setTasks(data.tasks);
+          setIsOffline(false);
+          // Cache tasks into IndexedDB for offline reading
+          saveTasksOffline(data.tasks as unknown as Array<{ _id: string; [key: string]: unknown }>);
         }
-      })
-      .catch((err) => {
-        console.error("Failed to load intern tasks:", err);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      } else {
+        throw new Error("Network request failed");
+      }
+    } catch (err) {
+      console.warn("Network offline or fetch failed, loading from local cache:", err);
+      setIsOffline(true);
+      const cached = await getTasksOffline();
+      if (cached && cached.length > 0) {
+        let filtered = cached as unknown as ITask[];
+        if (statusFilter !== "all") {
+          filtered = filtered.filter((t) => t.status === statusFilter);
+        }
+        setTasks(filtered);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -59,6 +76,21 @@ export default function InternTasksPage() {
         title="My Assigned Tasks"
         description="View instructions, submit your work deliverables, and track revision requests"
       />
+
+      {isOffline && (
+        <div className="mx-3 sm:mx-5 lg:mx-8 px-3.5 py-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center justify-between text-xs text-amber-700 dark:text-amber-300">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <span><strong>Offline Mode:</strong> Showing your locally cached tasks. Reconnect to sync latest updates.</span>
+          </div>
+          <button
+            onClick={fetchTasks}
+            className="px-2.5 py-1 text-[11px] font-semibold bg-amber-500/20 hover:bg-amber-500/30 rounded-lg transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       <main className="p-3 sm:p-5 lg:p-8 space-y-3 sm:space-y-5">
         {/* ── Filter bar ─────────────────────────────────────── */}

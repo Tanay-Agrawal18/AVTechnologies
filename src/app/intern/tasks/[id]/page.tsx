@@ -25,6 +25,13 @@ import {
   Camera,
 } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
+import {
+  saveTaskDetailOffline,
+  getTaskDetailOffline,
+  saveOfflineDraftSubmission,
+  getOfflineDraftSubmission,
+  clearOfflineDraftSubmission,
+} from "@/lib/offlineStorage";
 
 export default function InternTaskDetailPage({
   params,
@@ -36,6 +43,8 @@ export default function InternTaskDetailPage({
   const [submissions, setSubmissions] = useState<ISubmission[]>([]);
   const [events, setEvents] = useState<ITaskEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
+  const [hasOfflineDraft, setHasOfflineDraft] = useState(false);
 
   // Status transition state
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
@@ -86,6 +95,19 @@ export default function InternTaskDetailPage({
         setTask(data.task);
         setSubmissions(data.submissions || []);
         setEvents(data.events || []);
+        setIsOffline(false);
+        // Cache task detail in IndexedDB
+        if (data.task) {
+          saveTaskDetailOffline(data.task);
+        }
+      } else {
+        throw new Error("Failed to fetch task");
+      }
+    } catch {
+      setIsOffline(true);
+      const cachedTask = await getTaskDetailOffline(id);
+      if (cachedTask) {
+        setTask(cachedTask as unknown as ITask);
       }
     } finally {
       setIsLoading(false);
@@ -95,6 +117,15 @@ export default function InternTaskDetailPage({
   useEffect(() => {
     fetchTaskDetail();
     fetchProgressImages();
+
+    // Check for existing offline draft
+    getOfflineDraftSubmission(id).then((draft) => {
+      if (draft) {
+        setHasOfflineDraft(true);
+        if (!workDescription) setWorkDescription(draft.workDescription);
+        if (externalLinks.length === 0 && draft.externalLinks) setExternalLinks(draft.externalLinks);
+      }
+    });
 
     const handleRealtime = (e: Event) => {
       const custom = e as CustomEvent<{ type: string }>;
@@ -204,12 +235,24 @@ export default function InternTaskDetailPage({
         throw new Error(data.error || "Submission failed");
       }
 
+      await clearOfflineDraftSubmission(id);
+      setHasOfflineDraft(false);
       setSubmitSuccess("Work submitted successfully for supervisor review!");
       setWorkDescription("");
       setExternalLinks([]);
       fetchTaskDetail();
     } catch (err: unknown) {
-      setSubmitError(err instanceof Error ? err.message : "Failed to submit work");
+      // If offline, save the draft locally so no work is lost
+      await saveOfflineDraftSubmission({
+        taskId: id,
+        workDescription,
+        externalLinks,
+        savedAt: Date.now(),
+      });
+      setHasOfflineDraft(true);
+      setSubmitError(
+        "Network connection offline. Your submission draft has been safely saved locally! Click 'Submit Deliverable' once reconnected."
+      );
     } finally {
       setIsSubmitting(false);
     }
