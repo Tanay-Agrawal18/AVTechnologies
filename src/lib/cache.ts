@@ -42,6 +42,46 @@ export const CACHE_KEYS = {
 };
 
 /**
+ * In-memory fallback LRU cache when Redis is unavailable or unconfigured.
+ * Guarantees sub-millisecond retrieval without repetitive database loads.
+ */
+interface MemoryCacheEntry {
+  value: unknown;
+  expiresAt: number;
+}
+
+const memoryCache = new Map<string, MemoryCacheEntry>();
+const MAX_MEMORY_CACHE_SIZE = 1000;
+
+function getMemoryCache<T>(key: string): T | null {
+  const entry = memoryCache.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) {
+    memoryCache.delete(key);
+    return null;
+  }
+  // LRU behavior: refresh key order
+  memoryCache.delete(key);
+  memoryCache.set(key, entry);
+  return entry.value as T;
+}
+
+function setMemoryCache(key: string, value: unknown, ttlSeconds: number) {
+  if (memoryCache.size >= MAX_MEMORY_CACHE_SIZE) {
+    const oldestKey = memoryCache.keys().next().value;
+    if (oldestKey) memoryCache.delete(oldestKey);
+  }
+  memoryCache.set(key, {
+    value,
+    expiresAt: Date.now() + ttlSeconds * 1000,
+  });
+}
+
+function deleteMemoryCache(key: string) {
+  memoryCache.delete(key);
+}
+
+/**
  * In-memory in-flight promise map for request coalescing / stampede protection.
  */
 const inFlightPromises = new Map<string, Promise<unknown>>();
@@ -56,7 +96,13 @@ export function getOrSetCache<T>(
   fetcher: () => Promise<T>,
   trackingKeyTag?: string
 ): Promise<T> {
-  // 1. Cache stampede protection: Coalesce concurrent requests for the exact same key synchronously
+  // 1. Check ultra-fast in-memory cache tier first
+  const memCached = getMemoryCache<T>(key);
+  if (memCached !== null) {
+    return Promise.resolve(memCached);
+  }
+
+  // 2. Cache stampede protection: Coalesce concurrent requests for the exact same key synchronously
   const existingPromise = inFlightPromises.get(key);
   if (existingPromise) {
     return existingPromise as Promise<T>;
@@ -65,7 +111,11 @@ export function getOrSetCache<T>(
   if (!redis) {
     const fallbackPromise = (async () => {
       try {
-        return await fetcher();
+        const freshData = await fetcher();
+        if (freshData !== undefined && freshData !== null) {
+          setMemoryCache(key, freshData, ttlSeconds);
+        }
+        return freshData;
       } finally {
         inFlightPromises.delete(key);
       }
@@ -75,10 +125,11 @@ export function getOrSetCache<T>(
   }
 
   const executionPromise = (async () => {
-    // 2. Try reading from Redis
+    // 3. Try reading from Redis
     try {
       const cached = await redis.get<T>(key);
       if (cached !== null && cached !== undefined) {
+        setMemoryCache(key, cached, Math.min(ttlSeconds, 30)); // sync to local memory for instant subsequent reads
         return cached;
       }
     } catch (err: unknown) {
@@ -89,7 +140,12 @@ export function getOrSetCache<T>(
     try {
       const freshData = await fetcher();
 
-      // Asynchronously populate cache without blocking response if write fails
+      // Populate local memory cache
+      if (freshData !== undefined && freshData !== null) {
+        setMemoryCache(key, freshData, ttlSeconds);
+      }
+
+      // Asynchronously populate Redis cache without blocking response if write fails
       if (redis && freshData !== undefined && freshData !== null) {
         try {
           await redis.set(key, freshData, { ex: ttlSeconds });
@@ -114,12 +170,19 @@ export function getOrSetCache<T>(
 }
 
 /**
- * Invalidate a specific key or list of keys safely.
+ * Invalidate a specific key or list of keys safely across memory and Redis.
  */
 export async function invalidateCacheKeys(...keys: string[]): Promise<void> {
-  if (!redis || keys.length === 0) return;
+  if (keys.length === 0) return;
+  const validKeys = keys.filter(Boolean);
+
+  // Invalidate local memory cache immediately
+  for (const k of validKeys) {
+    deleteMemoryCache(k);
+  }
+
+  if (!redis) return;
   try {
-    const validKeys = keys.filter(Boolean);
     if (validKeys.length > 0) {
       await redis.del(...validKeys);
     }
