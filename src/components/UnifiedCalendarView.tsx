@@ -358,13 +358,13 @@ export function UnifiedCalendarView({
     <div className="space-y-4">
       {/* ── Toolbar & Navigation ─────────────────────────────── */}
       <div
-        className="iwms-card p-2.5 sm:p-4 bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-xs flex flex-col gap-3 transition-all"
-        style={{ borderRadius: "16px" }}
+        className="iwms-card p-2 sm:p-3 bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-xs flex flex-col gap-2.5 transition-all"
+        style={{ borderRadius: "14px" }}
       >
-        {/* Row 1: Navigation & Title & Action */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          {/* Top on mobile: Nav buttons & Title */}
-          <div className="flex items-center justify-between sm:justify-start gap-2 flex-wrap">
+        {/* Row 1: Navigation, Title & Segmented Controls */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+          {/* Left on laptop: Nav buttons & Title & Badge */}
+          <div className="flex items-center gap-2.5 flex-wrap">
             <div className="inline-flex items-center p-0.5 bg-slate-100/90 border border-slate-200/80 rounded-xl shadow-2xs shrink-0">
               <button
                 onClick={handlePrevious}
@@ -376,7 +376,7 @@ export function UnifiedCalendarView({
               </button>
               <button
                 onClick={handleToday}
-                className="px-2 sm:px-3 py-1 text-xs font-bold text-slate-700 hover:text-sky-700 hover:bg-white rounded-lg transition-all active:scale-95 cursor-pointer"
+                className="px-2.5 py-1 text-xs font-bold text-slate-700 hover:text-sky-700 hover:bg-white rounded-lg transition-all active:scale-95 cursor-pointer"
               >
                 Today
               </button>
@@ -391,7 +391,7 @@ export function UnifiedCalendarView({
             </div>
 
             <h2
-              className="text-sm sm:text-lg lg:text-xl font-bold tracking-tight truncate flex-1 min-w-[120px] text-right sm:text-left"
+              className="text-base sm:text-lg font-bold tracking-tight truncate min-w-[120px]"
               style={{ color: "var(--iwms-navy)" }}
             >
               {viewMode === "week"
@@ -407,18 +407,18 @@ export function UnifiedCalendarView({
             </h2>
 
             {/* Total items badge */}
-            <span className="hidden md:inline-flex items-center px-2 py-0.5 text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-100 rounded-full">
+            <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold bg-sky-50 text-sky-700 border border-sky-100 rounded-full">
               {filteredEvents.length + filteredTasks.length} Scheduled
             </span>
           </div>
 
-          {/* Controls: Segmented View Switcher + Filter + Create */}
-          <div className="flex items-center gap-1.5 justify-between sm:justify-end flex-wrap xs:flex-nowrap">
+          {/* Right on laptop: Segmented View Switcher + Create Button + Mobile filter button */}
+          <div className="flex items-center gap-2 justify-between md:justify-end flex-wrap sm:flex-nowrap">
             {/* View Switcher Segmented Control */}
-            <div className="inline-flex items-center p-0.5 bg-slate-100/90 border border-slate-200/80 rounded-xl shadow-2xs shrink-0 flex-1 xs:flex-initial justify-between xs:justify-start">
+            <div className="inline-flex items-center p-0.5 bg-slate-100/90 border border-slate-200/80 rounded-xl shadow-2xs shrink-0">
               <button
                 onClick={() => setViewMode("month")}
-                className={`flex-1 xs:flex-initial inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   viewMode === "month"
                     ? "bg-white text-sky-700 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
@@ -426,11 +426,11 @@ export function UnifiedCalendarView({
                 title="Month View"
               >
                 <Grid3X3 className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-[11px] sm:text-xs">Month</span>
+                <span>Month</span>
               </button>
               <button
                 onClick={() => setViewMode("week")}
-                className={`flex-1 xs:flex-initial inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   viewMode === "week"
                     ? "bg-white text-sky-700 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
@@ -438,11 +438,11 @@ export function UnifiedCalendarView({
                 title="Week View"
               >
                 <Columns className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-[11px] sm:text-xs">Week</span>
+                <span>Week</span>
               </button>
               <button
                 onClick={() => setViewMode("agenda")}
-                className={`flex-1 xs:flex-initial inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   viewMode === "agenda"
                     ? "bg-white text-sky-700 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
@@ -450,7 +450,7 @@ export function UnifiedCalendarView({
                 title="Agenda View"
               >
                 <List className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-[11px] sm:text-xs">Agenda</span>
+                <span>Agenda</span>
               </button>
             </div>
 
@@ -458,14 +458,14 @@ export function UnifiedCalendarView({
             <button
               type="button"
               onClick={() => setMobileFiltersOpen((prev) => !prev)}
-              className={`sm:hidden inline-flex items-center gap-1 px-2 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer shrink-0 ${
+              className={`sm:hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-xl border text-xs font-semibold transition-all cursor-pointer shrink-0 ${
                 mobileFiltersOpen || activeFiltersCount > 0
                   ? "bg-sky-50 border-sky-300 text-sky-700"
                   : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
               }`}
             >
               <Filter className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden xxs:inline text-[11px]">Filter</span>
+              <span className="text-[11px]">Filter</span>
               {activeFiltersCount > 0 && (
                 <span className="w-4 h-4 rounded-full bg-sky-600 text-white text-[10px] inline-flex items-center justify-center font-bold">
                   {activeFiltersCount}
@@ -478,122 +478,124 @@ export function UnifiedCalendarView({
               <button
                 type="button"
                 onClick={onOpenCreateModal}
-                className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-700 hover:to-sky-600 rounded-xl shadow-xs hover:shadow transition-all active:scale-95 cursor-pointer shrink-0"
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-700 hover:to-sky-600 rounded-xl shadow-xs hover:shadow transition-all active:scale-95 cursor-pointer shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">Create Event</span>
-                <span className="xs:hidden">Create</span>
+                <span>Create Event</span>
               </button>
             )}
           </div>
         </div>
 
-        {/* Row 2: Filter Dropdowns (collapsible on mobile, inline on sm+) */}
+        {/* Row 2: Inline Filter Dropdowns + Legend in one streamlined bar on laptop/desktop */}
         <div
           className={`${
             mobileFiltersOpen ? "flex" : "hidden sm:flex"
-          } flex-wrap items-center gap-2 pt-2 border-t border-slate-100 sm:border-0 sm:pt-0`}
+          } flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs`}
         >
-          <div className="hidden sm:flex items-center gap-1 text-slate-400 pl-0.5">
-            <Filter className="w-3.5 h-3.5 text-sky-500 shrink-0" />
-            <span className="text-[11px] font-semibold text-slate-500">Filter:</span>
+          {/* Filters cluster */}
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+            <div className="flex items-center gap-1 text-slate-400 pl-0.5 shrink-0">
+              <Filter className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+              <span className="text-[11px] font-semibold text-slate-500">Filter:</span>
+            </div>
+
+            {/* Event Type Filter */}
+            <select
+              value={selectedEventType}
+              onChange={(e) => handleEventTypeChange(e.target.value)}
+              className="px-2 py-1 text-xs font-medium rounded-lg border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs"
+            >
+              <option value="all">All Types</option>
+              <option value="holiday">🌴 Holidays</option>
+              <option value="meeting">📹 Meetings</option>
+              <option value="notice">📢 Notices</option>
+              <option value="event">✨ Events</option>
+              <option value="tasks">📋 Tasks</option>
+            </select>
+
+            {/* Admin intern dropdown filter */}
+            {role === "admin" && interns.length > 0 && (
+              <select
+                value={selectedIntern}
+                onChange={(e) => handleInternChange(e.target.value)}
+                className="px-2 py-1 text-xs font-medium rounded-lg border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs max-w-[150px] truncate"
+              >
+                <option value="all">All Assignees</option>
+                {interns.map((intern) => (
+                  <option key={intern._id} value={intern._id}>
+                    {intern.name} {intern.internId ? `(${intern.internId})` : ""}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {/* Status filter (for tasks) */}
+            <select
+              value={selectedStatus}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              className="px-2 py-1 text-xs font-medium rounded-lg border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs"
+            >
+              <option value="all">All Statuses</option>
+              <option value="assigned">Assigned</option>
+              <option value="in_progress">In Progress</option>
+              <option value="submitted">Submitted</option>
+              <option value="changes_requested">Changes Req.</option>
+              <option value="approved">Approved</option>
+            </select>
+
+            {/* Priority filter */}
+            <select
+              value={selectedPriority}
+              onChange={(e) => handlePriorityChange(e.target.value)}
+              className="px-2 py-1 text-xs font-medium rounded-lg border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs"
+            >
+              <option value="all">All Priorities</option>
+              <option value="urgent">Urgent</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+
+            {/* Clear filters shortcut */}
+            {activeFiltersCount > 0 && (
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="px-2 py-1 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer border border-rose-200 sm:border-transparent shrink-0"
+                title="Reset filters"
+              >
+                Reset ({activeFiltersCount})
+              </button>
+            )}
           </div>
 
-          {/* Event Type Filter */}
-          <select
-            value={selectedEventType}
-            onChange={(e) => handleEventTypeChange(e.target.value)}
-            className="flex-1 sm:flex-initial px-2.5 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs min-w-[120px]"
-          >
-            <option value="all">All Types</option>
-            <option value="holiday">🌴 Holidays & Vacations</option>
-            <option value="meeting">📹 Meetings</option>
-            <option value="notice">📢 Official Notices</option>
-            <option value="event">✨ Company Events</option>
-            <option value="tasks">📋 Tasks Only</option>
-          </select>
-
-          {/* Admin intern dropdown filter */}
-          {role === "admin" && interns.length > 0 && (
-            <select
-              value={selectedIntern}
-              onChange={(e) => handleInternChange(e.target.value)}
-              className="flex-1 sm:flex-initial px-2.5 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs min-w-[130px] max-w-full sm:max-w-[160px] truncate"
-            >
-              <option value="all">All Assignees</option>
-              {interns.map((intern) => (
-                <option key={intern._id} value={intern._id}>
-                  {intern.name} {intern.internId ? `(${intern.internId})` : ""}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {/* Status filter (for tasks) */}
-          <select
-            value={selectedStatus}
-            onChange={(e) => handleStatusChange(e.target.value)}
-            className="flex-1 sm:flex-initial px-2.5 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs min-w-[110px]"
-          >
-            <option value="all">All Statuses</option>
-            <option value="assigned">Assigned</option>
-            <option value="in_progress">In Progress</option>
-            <option value="submitted">Submitted</option>
-            <option value="changes_requested">Changes Req.</option>
-            <option value="approved">Approved</option>
-          </select>
-
-          {/* Priority filter */}
-          <select
-            value={selectedPriority}
-            onChange={(e) => handlePriorityChange(e.target.value)}
-            className="flex-1 sm:flex-initial px-2.5 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs min-w-[110px]"
-          >
-            <option value="all">All Priorities</option>
-            <option value="urgent">Urgent</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-
-          {/* Clear filters shortcut button if any active */}
-          {activeFiltersCount > 0 && (
-            <button
-              type="button"
-              onClick={clearAllFilters}
-              className="px-2.5 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer border border-rose-200 sm:border-transparent"
-              title="Reset filters"
-            >
-              Reset ({activeFiltersCount})
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* ── Category Quick Legend / Visual Aid ──────────────── */}
-      <div className="flex items-center gap-3 sm:gap-4 px-1 overflow-x-auto text-[11px] text-slate-500 py-0.5 scrollbar-none">
-        <span className="font-semibold text-slate-400 uppercase tracking-wider text-[10px] shrink-0">
-          Legend:
-        </span>
-        <div className="flex items-center gap-1 shrink-0">
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span>Holidays</span>
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <span className="w-2 h-2 rounded-full bg-sky-500" />
-          <span>Meetings</span>
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <span className="w-2 h-2 rounded-full bg-amber-500" />
-          <span>Notices</span>
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <span className="w-2 h-2 rounded-full bg-indigo-500" />
-          <span>Events</span>
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <span className="w-2 h-2 rounded-full bg-slate-700" />
-          <span>Tasks</span>
+          {/* Integrated Compact Category Legend on right side for laptop screens */}
+          <div className="flex items-center gap-2.5 text-[10.5px] text-slate-500 shrink-0">
+            <span className="font-bold text-slate-400 uppercase tracking-wider text-[9.5px]">
+              Legend:
+            </span>
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+              <span>Holidays</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0" />
+              <span>Meetings</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+              <span>Notices</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0" />
+              <span>Events</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-slate-700 shrink-0" />
+              <span>Tasks</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -642,11 +644,11 @@ export function UnifiedCalendarView({
                           setExpandedDayKey(day.dateKey);
                         }
                       }}
-                      className={`min-h-[58px] xs:min-h-[68px] sm:min-h-[130px] p-1 sm:p-2 transition-all flex flex-col justify-between group ${
+                      className={`min-h-[58px] xs:min-h-[64px] sm:min-h-[86px] lg:min-h-[92px] xl:min-h-[98px] p-1 sm:p-1.5 transition-all flex flex-col justify-between group ${
                         totalItems > 0 ? "cursor-pointer sm:cursor-default" : ""
                       } ${
                         !day.isCurrentMonth
-                          ? "bg-slate-50/60 text-slate-400"
+                          ? "bg-slate-50/50 text-slate-400"
                           : isToday
                           ? "bg-sky-50/30 ring-1 ring-inset ring-sky-300/70"
                           : "bg-white hover:bg-slate-50/80"
@@ -718,7 +720,7 @@ export function UnifiedCalendarView({
                       </div>
 
                       {/* DESKTOP / TABLET VIEW: Interactive cards/pills */}
-                      <div className="hidden sm:block space-y-1 overflow-y-auto max-h-[85px] sm:max-h-[96px] pr-0.5 scrollbar-thin mt-1">
+                      <div className="hidden sm:block space-y-0.5 overflow-y-auto max-h-[58px] lg:max-h-[64px] pr-0.5 scrollbar-thin mt-0.5">
                         {/* Admin-Managed Events (Holidays, Meetings, Notices) */}
                         {dayEvents.slice(0, 2).map((evt) => (
                           <button
@@ -728,7 +730,7 @@ export function UnifiedCalendarView({
                               e.stopPropagation();
                               setSelectedEvent(evt);
                             }}
-                            className={`w-full text-left px-1.5 py-1 rounded-md text-[11px] leading-snug border transition-all hover:scale-[1.01] hover:shadow-2xs block truncate cursor-pointer ${getEventBadgeClass(
+                            className={`w-full text-left px-1.5 py-0.5 rounded text-[10.5px] leading-snug border transition-all hover:scale-[1.01] hover:shadow-2xs block truncate cursor-pointer ${getEventBadgeClass(
                               evt
                             )}`}
                           >
@@ -757,7 +759,7 @@ export function UnifiedCalendarView({
                                 e.stopPropagation();
                                 setSelectedTask(task);
                               }}
-                              className={`w-full text-left px-1.5 py-1 rounded-md text-[11px] leading-snug border transition-all hover:scale-[1.01] hover:shadow-2xs block truncate cursor-pointer ${
+                              className={`w-full text-left px-1.5 py-0.5 rounded text-[10.5px] leading-snug border transition-all hover:scale-[1.01] hover:shadow-2xs block truncate cursor-pointer ${
                                 isUrgent
                                   ? "bg-rose-50 border-rose-200 text-rose-800 hover:bg-rose-100/70"
                                   : isHigh
@@ -767,7 +769,7 @@ export function UnifiedCalendarView({
                                   : "bg-sky-50 border-sky-200 text-sky-900 hover:bg-sky-100/70"
                               }`}
                             >
-                              <div className="flex items-center gap-1.5 font-medium truncate">
+                              <div className="flex items-center gap-1 font-medium truncate">
                                 <span
                                   className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                                     task.status === "approved"
