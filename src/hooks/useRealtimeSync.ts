@@ -24,8 +24,25 @@ export function useRealtimeSync(onEvent?: RealtimeEventCallback) {
     if (typeof window === "undefined") return;
 
     let eventSource: EventSource | null = null;
+    let pollInterval: NodeJS.Timeout | null = null;
     let reconnectTimeout: NodeJS.Timeout | null = null;
     let isDisposed = false;
+
+    function startPolling() {
+      if (pollInterval || isDisposed) return;
+      pollInterval = setInterval(() => {
+        if (typeof document !== "undefined" && document.visibilityState === "visible") {
+          window.dispatchEvent(new CustomEvent("iwms:revalidate"));
+        }
+      }, 30000);
+    }
+
+    function stopPolling() {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    }
 
     function establishConnection() {
       if (isDisposed || eventSource) return;
@@ -83,13 +100,21 @@ export function useRealtimeSync(onEvent?: RealtimeEventCallback) {
     }
 
     establishConnection();
+    if (typeof document !== "undefined" && document.visibilityState === "visible") {
+      startPolling();
+    }
 
     const handleVisibilityChange = () => {
+      if (typeof document === "undefined") return;
+
       if (document.visibilityState === "visible") {
         if (!eventSource) {
           establishConnection();
         }
+        startPolling();
         window.dispatchEvent(new CustomEvent("iwms:revalidate"));
+      } else {
+        stopPolling();
       }
     };
 
@@ -98,6 +123,7 @@ export function useRealtimeSync(onEvent?: RealtimeEventCallback) {
     return () => {
       isDisposed = true;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      stopPolling();
       if (reconnectTimeout) clearTimeout(reconnectTimeout);
       if (eventSource) {
         eventSource.close();

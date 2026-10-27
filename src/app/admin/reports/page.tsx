@@ -68,6 +68,15 @@ export default function AdminReportsPage() {
   useEffect(() => {
     fetchKpis();
     fetchInterns();
+
+    const handleRevalidate = () => {
+      fetchKpis();
+      fetchFilteredTasks();
+    };
+    window.addEventListener("iwms:revalidate", handleRevalidate);
+    return () => {
+      window.removeEventListener("iwms:revalidate", handleRevalidate);
+    };
   }, []);
 
   useEffect(() => {

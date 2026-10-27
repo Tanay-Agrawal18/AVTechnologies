@@ -17,7 +17,7 @@ export default function InternHistoryPage() {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchHistory = () => {
     fetch("/api/intern/history")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -27,6 +27,18 @@ export default function InternHistoryPage() {
         }
       })
       .finally(() => setIsLoading(false));
+  };
+
+  useEffect(() => {
+    fetchHistory();
+
+    const handleRevalidate = () => {
+      fetchHistory();
+    };
+    window.addEventListener("iwms:revalidate", handleRevalidate);
+    return () => {
+      window.removeEventListener("iwms:revalidate", handleRevalidate);
+    };
   }, []);
 
   return (

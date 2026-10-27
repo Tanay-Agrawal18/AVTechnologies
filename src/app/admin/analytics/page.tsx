@@ -87,6 +87,14 @@ export default function AdminAnalyticsPage() {
 
   useEffect(() => {
     fetchInterns();
+
+    const handleRevalidate = () => {
+      fetchAnalytics(false);
+    };
+    window.addEventListener("iwms:revalidate", handleRevalidate);
+    return () => {
+      window.removeEventListener("iwms:revalidate", handleRevalidate);
+    };
   }, []);
 
   useEffect(() => {

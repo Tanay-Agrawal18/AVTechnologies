@@ -46,6 +46,14 @@ export default function InternAnalyticsPage() {
 
   useEffect(() => {
     fetchAnalytics(true);
+
+    const handleRevalidate = () => {
+      fetchAnalytics(false);
+    };
+    window.addEventListener("iwms:revalidate", handleRevalidate);
+    return () => {
+      window.removeEventListener("iwms:revalidate", handleRevalidate);
+    };
   }, []);
 
   const statusCounts = analytics?.statusCounts;

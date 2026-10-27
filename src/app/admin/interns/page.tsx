@@ -79,6 +79,16 @@ export default function AdminInternsPage() {
     fetchInterns();
   }, [statusFilter]);
 
+  useEffect(() => {
+    const handleRevalidate = () => {
+      fetchInterns();
+    };
+    window.addEventListener("iwms:revalidate", handleRevalidate);
+    return () => {
+      window.removeEventListener("iwms:revalidate", handleRevalidate);
+    };
+  }, []);
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     fetchInterns();

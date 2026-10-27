@@ -76,6 +76,14 @@ export default function AdminInternDetailPage({
 
   useEffect(() => {
     fetchDetail();
+
+    const handleRevalidate = () => {
+      fetchDetail();
+    };
+    window.addEventListener("iwms:revalidate", handleRevalidate);
+    return () => {
+      window.removeEventListener("iwms:revalidate", handleRevalidate);
+    };
   }, [id]);
 
   const handleGenerateReset = async () => {

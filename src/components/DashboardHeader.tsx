@@ -114,10 +114,12 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
     window.addEventListener("iwms:revalidate", handleRealtimeRefresh);
     window.addEventListener("iwms:realtime", handleRealtimeRefresh);
 
-    // Periodic check every 20 seconds for notifications & auth status fallback
+    // Periodic check every 20 seconds for notifications & auth status fallback when tab is visible
     const interval = setInterval(() => {
-      checkAuth();
-      fetchNotifications();
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        checkAuth();
+        fetchNotifications();
+      }
     }, 20000);
 
     return () => {
