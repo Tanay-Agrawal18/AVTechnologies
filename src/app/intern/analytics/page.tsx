@@ -67,31 +67,31 @@ export default function InternAnalyticsPage() {
         description="Your individual deliverable throughput, completion metrics, and supervisor feedback history"
       />
 
-      <main className="p-3 sm:p-5 lg:p-8 space-y-4 sm:space-y-6">
+      <main className="p-2 sm:p-5 lg:p-8 space-y-3 sm:space-y-5 lg:space-y-6">
         {/* ── Top Bar: Intern Summary & Refresh ─────────────────── */}
-        <div className="iwms-card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" style={{ borderRadius: "14px" }}>
-          <div>
-            <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-sky-600" />
-              <h3 className="font-bold text-sm sm:text-base" style={{ color: "var(--iwms-navy)" }}>
+        <div className="iwms-card p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" style={{ borderRadius: "14px" }}>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Award className="w-4 sm:w-5 h-4 sm:h-5 text-sky-600 shrink-0" />
+              <h3 className="font-bold text-sm sm:text-base truncate" style={{ color: "var(--iwms-navy)" }}>
                 {analytics?.intern.name || "Intern"}
               </h3>
               {analytics?.intern.internId && (
-                <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-sky-50 text-sky-700">
+                <span className="text-[11px] sm:text-xs font-mono font-semibold px-2 py-0.5 rounded bg-sky-50 text-sky-700">
                   {analytics.intern.internId}
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-[11px] sm:text-xs text-slate-500 mt-1 truncate">
               Department: {analytics?.intern.department || "General"} &bull; {analytics?.intern.email}
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => fetchAnalytics(false)}
               disabled={isRefreshing}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all hover:bg-slate-50"
+              className="flex-1 sm:flex-initial justify-center inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all hover:bg-slate-50 cursor-pointer"
               style={{ borderColor: "var(--iwms-border)", color: "var(--iwms-navy)" }}
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
@@ -99,7 +99,7 @@ export default function InternAnalyticsPage() {
             </button>
             <Link
               href="/intern/tasks"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white shadow-xs transition-opacity hover:opacity-95"
+              className="flex-1 sm:flex-initial justify-center inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white shadow-xs transition-opacity hover:opacity-95 cursor-pointer"
               style={{ background: "#0284C7" }}
             >
               My Tasks <ArrowRight className="w-3.5 h-3.5" />
@@ -107,103 +107,151 @@ export default function InternAnalyticsPage() {
           </div>
         </div>
 
-        {/* ── Metric Cards Grid ─────────────────────────────────── */}
+        {/* ── Metric Cards Grid (Matching Intern Dashboard KPI style) ─ */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
           {/* Personal Completion Rate */}
-          <div className="iwms-card p-3.5 sm:p-5 flex flex-col justify-between" style={{ borderRadius: "12px" }}>
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
-                Completion Rate
+          <div
+            className="iwms-card flex flex-col items-start gap-1.5 sm:gap-2 px-3 py-3 sm:p-5 transition-transform hover:-translate-y-0.5 hover:shadow-md"
+            style={{ borderRadius: "12px" }}
+          >
+            <div className="flex items-center justify-between w-full">
+              <span
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0"
+                style={{ background: "#10b98118" }}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
               </span>
-              <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600">
-                <CheckCircle2 className="w-4 h-4" />
-              </div>
+              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                Rate
+              </span>
             </div>
-            <div className="mt-2 sm:mt-3">
-              <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600">
+            <div className="min-w-0 w-full mt-0.5">
+              <p
+                className="text-[10px] sm:text-xs font-bold uppercase tracking-wide leading-tight truncate"
+                style={{ color: "rgba(11,31,58,.55)" }}
+              >
+                Completion
+              </p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight mt-0.5 text-emerald-600">
                 {isLoading ? "—" : `${analytics?.completionRate ?? 0}%`}
               </p>
-              <p className="text-[10px] sm:text-xs text-slate-500 mt-1">
-                {statusCounts?.approved ?? 0} of {statusCounts?.total ?? 0} assigned tasks
+              <p className="text-[10px] leading-tight mt-0.5 truncate text-slate-500">
+                {statusCounts?.approved ?? 0} of {statusCounts?.total ?? 0} tasks
               </p>
             </div>
           </div>
 
           {/* Active Work In Hand */}
-          <div className="iwms-card p-3.5 sm:p-5 flex flex-col justify-between" style={{ borderRadius: "12px" }}>
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
-                Active Work
+          <div
+            className="iwms-card flex flex-col items-start gap-1.5 sm:gap-2 px-3 py-3 sm:p-5 transition-transform hover:-translate-y-0.5 hover:shadow-md"
+            style={{ borderRadius: "12px" }}
+          >
+            <div className="flex items-center justify-between w-full">
+              <span
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0"
+                style={{ background: "rgba(2,132,199,.12)" }}
+              >
+                <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-600" />
               </span>
-              <div className="p-1.5 rounded-lg bg-sky-50 text-sky-600">
-                <TrendingUp className="w-4 h-4" />
-              </div>
+              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded">
+                Current
+              </span>
             </div>
-            <div className="mt-2 sm:mt-3">
-              <p className="text-2xl sm:text-3xl font-extrabold text-sky-600">
+            <div className="min-w-0 w-full mt-0.5">
+              <p
+                className="text-[10px] sm:text-xs font-bold uppercase tracking-wide leading-tight truncate"
+                style={{ color: "rgba(11,31,58,.55)" }}
+              >
+                Active Work
+              </p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight mt-0.5 text-sky-600">
                 {isLoading ? "—" : activeTasksCount}
               </p>
-              <p className="text-[10px] sm:text-xs text-slate-500 mt-1">
-                {statusCounts?.inProgress ?? 0} in progress, {statusCounts?.assigned ?? 0} unstarted
+              <p className="text-[10px] leading-tight mt-0.5 truncate text-slate-500">
+                {statusCounts?.inProgress ?? 0} in progress, {statusCounts?.assigned ?? 0} to do
               </p>
             </div>
           </div>
 
           {/* Under Supervisor Review */}
-          <div className="iwms-card p-3.5 sm:p-5 flex flex-col justify-between" style={{ borderRadius: "12px" }}>
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
-                Under Review
+          <div
+            className="iwms-card flex flex-col items-start gap-1.5 sm:gap-2 px-3 py-3 sm:p-5 transition-transform hover:-translate-y-0.5 hover:shadow-md"
+            style={{ borderRadius: "12px" }}
+          >
+            <div className="flex items-center justify-between w-full">
+              <span
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0"
+                style={{ background: "#f59e0b18" }}
+              >
+                <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
               </span>
-              <div className="p-1.5 rounded-lg bg-amber-50 text-amber-600">
-                <Clock className="w-4 h-4" />
-              </div>
+              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
+                Review
+              </span>
             </div>
-            <div className="mt-2 sm:mt-3">
-              <p className="text-2xl sm:text-3xl font-extrabold text-amber-600">
+            <div className="min-w-0 w-full mt-0.5">
+              <p
+                className="text-[10px] sm:text-xs font-bold uppercase tracking-wide leading-tight truncate"
+                style={{ color: "rgba(11,31,58,.55)" }}
+              >
+                Under Review
+              </p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight mt-0.5 text-amber-600">
                 {isLoading ? "—" : statusCounts?.submitted ?? 0}
               </p>
-              <p className="text-[10px] sm:text-xs text-slate-500 mt-1">
+              <p className="text-[10px] leading-tight mt-0.5 truncate text-slate-500">
                 Submitted to supervisor
               </p>
             </div>
           </div>
 
           {/* Overdue Deadlines */}
-          <div className="iwms-card p-3.5 sm:p-5 flex flex-col justify-between" style={{ borderRadius: "12px" }}>
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
-                Overdue
+          <div
+            className="iwms-card flex flex-col items-start gap-1.5 sm:gap-2 px-3 py-3 sm:p-5 transition-transform hover:-translate-y-0.5 hover:shadow-md"
+            style={{ borderRadius: "12px" }}
+          >
+            <div className="flex items-center justify-between w-full">
+              <span
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0"
+                style={{ background: "#ef444418" }}
+              >
+                <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-600" />
               </span>
-              <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600">
-                <AlertTriangle className="w-4 h-4" />
-              </div>
+              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded">
+                Attention
+              </span>
             </div>
-            <div className="mt-2 sm:mt-3">
-              <p className="text-2xl sm:text-3xl font-extrabold text-rose-600">
+            <div className="min-w-0 w-full mt-0.5">
+              <p
+                className="text-[10px] sm:text-xs font-bold uppercase tracking-wide leading-tight truncate"
+                style={{ color: "rgba(11,31,58,.55)" }}
+              >
+                Overdue
+              </p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight mt-0.5 text-rose-600">
                 {isLoading ? "—" : analytics?.deadlines.overdueCount ?? 0}
               </p>
-              <p className="text-[10px] sm:text-xs text-slate-500 mt-1">
-                Tasks requiring immediate focus
+              <p className="text-[10px] leading-tight mt-0.5 truncate text-slate-500">
+                Requires immediate action
               </p>
             </div>
           </div>
         </div>
 
         {/* ── Status Lifecycle Overview ─────────────────────────── */}
-        <div className="iwms-card p-4 sm:p-6" style={{ borderRadius: "14px" }}>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-sm sm:text-base" style={{ color: "var(--iwms-navy)" }}>
+        <div className="iwms-card p-3 sm:p-5" style={{ borderRadius: "14px" }}>
+          <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1 mb-2.5">
+            <h3 className="font-bold text-xs sm:text-sm" style={{ color: "var(--iwms-navy)" }}>
               Lifecycle Status Distribution
             </h3>
-            <span className="text-xs text-slate-500">
+            <span className="text-[11px] text-slate-500">
               Personal denominator: {statusCounts?.total ?? 0} Total Tasks
             </span>
           </div>
 
           {/* Progress visual bar */}
           {statusCounts && statusCounts.total > 0 && (
-            <div className="w-full h-2.5 rounded-full overflow-hidden flex bg-slate-100 mb-4">
+            <div className="w-full h-2 sm:h-2.5 rounded-full overflow-hidden flex bg-slate-100 mb-3">
               <div
                 title={`Assigned: ${statusCounts.assigned}`}
                 style={{
@@ -242,34 +290,34 @@ export default function InternAnalyticsPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3">
-            <div className="p-3 rounded-xl border border-slate-200 bg-slate-50/70 text-center">
-              <span className="text-[10px] font-bold uppercase text-slate-500">Assigned</span>
-              <p className="text-xl font-extrabold mt-0.5 text-slate-800">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-2.5">
+            <div className="p-2 sm:p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 text-center">
+              <span className="text-[10px] font-bold uppercase text-slate-500 block">Assigned</span>
+              <p className="text-lg sm:text-xl font-extrabold text-slate-800">
                 {statusCounts?.assigned ?? 0}
               </p>
             </div>
-            <div className="p-3 rounded-xl border border-sky-100 bg-sky-50/70 text-center">
-              <span className="text-[10px] font-bold uppercase text-sky-700">In Progress</span>
-              <p className="text-xl font-extrabold mt-0.5 text-sky-700">
+            <div className="p-2 sm:p-2.5 rounded-xl border border-sky-100 bg-sky-50/70 text-center">
+              <span className="text-[10px] font-bold uppercase text-sky-700 block">In Progress</span>
+              <p className="text-lg sm:text-xl font-extrabold text-sky-700">
                 {statusCounts?.inProgress ?? 0}
               </p>
             </div>
-            <div className="p-3 rounded-xl border border-amber-100 bg-amber-50/70 text-center">
-              <span className="text-[10px] font-bold uppercase text-amber-700">Submitted</span>
-              <p className="text-xl font-extrabold mt-0.5 text-amber-700">
+            <div className="p-2 sm:p-2.5 rounded-xl border border-amber-100 bg-amber-50/70 text-center">
+              <span className="text-[10px] font-bold uppercase text-amber-700 block">Submitted</span>
+              <p className="text-lg sm:text-xl font-extrabold text-amber-700">
                 {statusCounts?.submitted ?? 0}
               </p>
             </div>
-            <div className="p-3 rounded-xl border border-rose-100 bg-rose-50/70 text-center">
-              <span className="text-[10px] font-bold uppercase text-rose-700">Changes Req.</span>
-              <p className="text-xl font-extrabold mt-0.5 text-rose-700">
+            <div className="p-2 sm:p-2.5 rounded-xl border border-rose-100 bg-rose-50/70 text-center">
+              <span className="text-[10px] font-bold uppercase text-rose-700 block">Changes Req.</span>
+              <p className="text-lg sm:text-xl font-extrabold text-rose-700">
                 {statusCounts?.changesRequested ?? 0}
               </p>
             </div>
-            <div className="col-span-2 sm:col-span-1 p-3 rounded-xl border border-emerald-100 bg-emerald-50/70 text-center">
-              <span className="text-[10px] font-bold uppercase text-emerald-700">Approved</span>
-              <p className="text-xl font-extrabold mt-0.5 text-emerald-700">
+            <div className="col-span-2 sm:col-span-1 p-2 sm:p-2.5 rounded-xl border border-emerald-100 bg-emerald-50/70 text-center">
+              <span className="text-[10px] font-bold uppercase text-emerald-700 block">Approved</span>
+              <p className="text-lg sm:text-xl font-extrabold text-emerald-700">
                 {statusCounts?.approved ?? 0}
               </p>
             </div>
