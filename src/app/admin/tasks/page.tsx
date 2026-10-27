@@ -76,6 +76,22 @@ export default function AdminTasksPage() {
     fetchTasks();
   }, [statusFilter, internFilter, priorityFilter, includeArchived]);
 
+  useEffect(() => {
+    const handleRealtime = (e: Event) => {
+      const custom = e as CustomEvent<{ type: string }>;
+      if (!custom.detail || custom.detail.type?.startsWith("task_") || custom.detail.type?.startsWith("project_")) {
+        fetchTasks();
+      }
+    };
+    window.addEventListener("iwms:realtime", handleRealtime);
+    window.addEventListener("iwms:revalidate", handleRealtime);
+
+    return () => {
+      window.removeEventListener("iwms:realtime", handleRealtime);
+      window.removeEventListener("iwms:revalidate", handleRealtime);
+    };
+  }, []);
+
   const toggleInternSelection = (id: string) => {
     setAssignedInternIds((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]

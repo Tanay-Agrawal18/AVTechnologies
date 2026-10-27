@@ -4,6 +4,7 @@ import { Task, ITaskDocument } from "@/models/Task";
 import { TaskEvent } from "@/models/TaskEvent";
 import { Submission, ISubmissionDocument } from "@/models/Submission";
 import { User } from "@/models/User";
+import { Project } from "@/models/Project";
 import { AuditLog } from "@/models/AuditLog";
 import { canTransitionStatus } from "./taskStateService";
 import { TaskPriority, TaskStatus, SessionUser } from "@/types";
@@ -17,6 +18,7 @@ import {
   CACHE_TTL,
 } from "@/lib/cache";
 import { NotificationService } from "./notificationService";
+import { realtimeBus } from "@/lib/realtime";
 
 export interface CreateTaskInput {
   title: string;
@@ -391,6 +393,11 @@ export class TaskService {
     const taskGroupId = uniqueIds.length > 1 ? new mongoose.Types.ObjectId().toString() : undefined;
     const createdTasks: ITaskDocument[] = [];
 
+    let projectDoc = null;
+    if (data.projectId) {
+      projectDoc = await Project.findById(data.projectId).select("title").lean();
+    }
+
     for (const intern of interns) {
       const task = await Task.create({
         title: data.title,
@@ -447,9 +454,25 @@ export class TaskService {
 
     // Trigger in-app notifications asynchronously without blocking core task creation
     for (const task of createdTasks) {
-      NotificationService.notifyTaskAssigned(task, actor).catch((err) => {
+      NotificationService.notifyTaskAssigned(task, actor, projectDoc?.title).catch((err) => {
         console.error(`[TaskService] Failed to notify intern for task ${task._id}:`, err);
       });
+    }
+
+    // Realtime broadcast for live UI synchronization
+    try {
+      realtimeBus.emit(
+        "task_created",
+        {
+          taskIds: createdTasks.map((t) => t._id.toString()),
+          count: createdTasks.length,
+          projectId: data.projectId,
+          assignedInternIds: createdTasks.map((t) => t.assignedInternId?.toString()).filter(Boolean),
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[TaskService] Realtime emit error on task_created:", err);
     }
 
     await invalidateKpiCache();
@@ -549,6 +572,23 @@ export class TaskService {
       await invalidateProjectsCache(task.projectId.toString());
     }
 
+    try {
+      realtimeBus.emit(
+        "task_updated",
+        {
+          taskId: task._id.toString(),
+          title: task.title,
+          assignedInternId: task.assignedInternId?.toString(),
+          projectId: task.projectId?.toString(),
+          status: task.status,
+          dueDate: task.dueDate,
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[TaskService] Realtime emit error on task_updated:", err);
+    }
+
     return task;
   }
 
@@ -595,6 +635,23 @@ export class TaskService {
     await invalidateAnalyticsCache(task.assignedInternId?.toString());
     if (task.projectId) {
       await invalidateProjectsCache(task.projectId.toString());
+    }
+
+    try {
+      realtimeBus.emit(
+        "task_status_changed",
+        {
+          taskId: task._id.toString(),
+          title: task.title,
+          previousStatus: prevStatus,
+          status: targetStatus,
+          assignedInternId: task.assignedInternId?.toString(),
+          projectId: task.projectId?.toString(),
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[TaskService] Realtime emit error on task_status_changed:", err);
     }
 
     return task;
@@ -662,6 +719,22 @@ export class TaskService {
       console.error(`[TaskService] Failed to notify admins for submission on task ${task._id}:`, err);
     });
 
+    try {
+      realtimeBus.emit(
+        "task_updated",
+        {
+          taskId: task._id.toString(),
+          title: task.title,
+          status: "submitted",
+          version: nextVersion,
+          assignedInternId: actor.id,
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[TaskService] Realtime emit error on submitWork:", err);
+    }
+
     return { task, submission };
   }
 
@@ -722,6 +795,22 @@ export class TaskService {
     NotificationService.notifySubmissionReviewed(task, submission, decision, feedback, actor).catch((err) => {
       console.error(`[TaskService] Failed to notify intern for review on task ${task._id}:`, err);
     });
+
+    try {
+      realtimeBus.emit(
+        "task_updated",
+        {
+          taskId: task._id.toString(),
+          title: task.title,
+          decision,
+          status: targetTaskStatus,
+          assignedInternId: task.assignedInternId?.toString(),
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[TaskService] Realtime emit error on reviewSubmission:", err);
+    }
 
     return { task, submission };
   }
@@ -802,6 +891,20 @@ export class TaskService {
     await invalidateReviewQueueCache();
     if (task.projectId) {
       await invalidateProjectsCache(task.projectId.toString());
+    }
+
+    try {
+      realtimeBus.emit(
+        "task_unassigned",
+        {
+          taskId: task._id.toString(),
+          title: task.title,
+          previousInternId: prevInternId?.toString(),
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[TaskService] Realtime emit error on task_unassigned:", err);
     }
 
     return task;
@@ -1005,6 +1108,22 @@ export class TaskService {
       ).catch((err) => {
         console.error(`[TaskService] Failed to notify intern for transferred task ${newTask._id}:`, err);
       });
+
+      try {
+        realtimeBus.emit(
+          "task_updated",
+          {
+            previousTaskId: previousTask._id.toString(),
+            newTaskId: newTask._id.toString(),
+            title: newTask.title,
+            newInternId: newIntern._id.toString(),
+            previousInternId: previousTask.assignedInternId?.toString(),
+          },
+          { broadcast: true }
+        );
+      } catch (err) {
+        console.error("[TaskService] Realtime emit error on transferTask:", err);
+      }
 
       return { previousTask, newTask };
     } catch (err) {

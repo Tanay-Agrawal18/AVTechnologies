@@ -191,7 +191,8 @@ export type NotificationType =
   | "task_reassigned"
   | "calendar_event_published"
   | "calendar_event_updated"
-  | "calendar_event_cancelled";
+  | "calendar_event_cancelled"
+  | "project_assigned";
 
 export type CalendarEventType = "holiday" | "meeting" | "event" | "notice";
 export type CalendarAudienceType = "all" | "individual" | "department";

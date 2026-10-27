@@ -99,6 +99,22 @@ export default function AdminCalendarPage() {
     loadAll();
   }, [filters]);
 
+  useEffect(() => {
+    const handleRealtime = (e: Event) => {
+      const custom = e as CustomEvent<{ type: string }>;
+      if (!custom.detail || custom.detail.type?.startsWith("calendar_") || custom.detail.type?.startsWith("task_")) {
+        loadAll();
+      }
+    };
+    window.addEventListener("iwms:realtime", handleRealtime);
+    window.addEventListener("iwms:revalidate", handleRealtime);
+
+    return () => {
+      window.removeEventListener("iwms:realtime", handleRealtime);
+      window.removeEventListener("iwms:revalidate", handleRealtime);
+    };
+  }, [filters]);
+
   const handleEventCreated = (newEvent: ICalendarEvent) => {
     setEvents((prev) => [newEvent, ...prev]);
   };

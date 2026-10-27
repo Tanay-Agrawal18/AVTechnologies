@@ -41,8 +41,7 @@ export default function InternProjectDetailPage({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setIsLoading(true);
+  const fetchDetails = () => {
     fetch(`/api/intern/projects/${id}`)
       .then(async (res) => {
         const json = await res.json();
@@ -55,6 +54,26 @@ export default function InternProjectDetailPage({
         setError(err instanceof Error ? err.message : "Failed to load project");
       })
       .finally(() => setIsLoading(false));
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchDetails();
+
+    const handleRealtime = (e: Event) => {
+      const custom = e as CustomEvent<{ type: string; data?: { projectId?: string } }>;
+      if (!custom.detail || custom.detail.type?.startsWith("project_") || custom.detail.type?.startsWith("task_")) {
+        fetchDetails();
+      }
+    };
+
+    window.addEventListener("iwms:realtime", handleRealtime);
+    window.addEventListener("iwms:revalidate", handleRealtime);
+
+    return () => {
+      window.removeEventListener("iwms:realtime", handleRealtime);
+      window.removeEventListener("iwms:revalidate", handleRealtime);
+    };
   }, [id]);
 
   if (isLoading) {

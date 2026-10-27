@@ -20,13 +20,31 @@ export default function AdminDashboardPage() {
   const [kpis, setKpis] = useState<KPIStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchKpis = () => {
     fetch("/api/admin/reports?kpi=true")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.kpis) setKpis(data.kpis);
       })
       .finally(() => setIsLoading(false));
+  };
+
+  useEffect(() => {
+    fetchKpis();
+
+    const handleRealtime = (e: Event) => {
+      const custom = e as CustomEvent<{ type: string }>;
+      if (!custom.detail || custom.detail.type?.startsWith("task_") || custom.detail.type?.startsWith("project_")) {
+        fetchKpis();
+      }
+    };
+    window.addEventListener("iwms:realtime", handleRealtime);
+    window.addEventListener("iwms:revalidate", handleRealtime);
+
+    return () => {
+      window.removeEventListener("iwms:realtime", handleRealtime);
+      window.removeEventListener("iwms:revalidate", handleRealtime);
+    };
   }, []);
 
   return (

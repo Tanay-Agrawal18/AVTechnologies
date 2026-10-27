@@ -38,6 +38,22 @@ export default function InternProjectsPage() {
     fetchProjects();
   }, [statusFilter]);
 
+  useEffect(() => {
+    const handleRealtime = (e: Event) => {
+      const custom = e as CustomEvent<{ type: string }>;
+      if (!custom.detail || custom.detail.type?.startsWith("project_")) {
+        fetchProjects();
+      }
+    };
+    window.addEventListener("iwms:realtime", handleRealtime);
+    window.addEventListener("iwms:revalidate", handleRealtime);
+
+    return () => {
+      window.removeEventListener("iwms:realtime", handleRealtime);
+      window.removeEventListener("iwms:revalidate", handleRealtime);
+    };
+  }, []);
+
   return (
     <>
       <DashboardHeader

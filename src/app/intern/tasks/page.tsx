@@ -13,17 +13,14 @@ export default function InternTasksPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    let isCancelled = false;
-    setIsLoading(true);
-
+  const fetchTasks = () => {
     const query = new URLSearchParams();
     if (statusFilter !== "all") query.set("status", statusFilter);
 
     fetch(`/api/intern/tasks?${query.toString()}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (!isCancelled && data?.tasks) {
+        if (data?.tasks) {
           setTasks(data.tasks);
         }
       })
@@ -31,13 +28,28 @@ export default function InternTasksPage() {
         console.error("Failed to load intern tasks:", err);
       })
       .finally(() => {
-        if (!isCancelled) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       });
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchTasks();
+  }, [statusFilter]);
+
+  useEffect(() => {
+    const handleRealtime = (e: Event) => {
+      const custom = e as CustomEvent<{ type: string }>;
+      if (!custom.detail || custom.detail.type?.startsWith("task_") || custom.detail.type?.startsWith("project_")) {
+        fetchTasks();
+      }
+    };
+    window.addEventListener("iwms:realtime", handleRealtime);
+    window.addEventListener("iwms:revalidate", handleRealtime);
 
     return () => {
-      isCancelled = true;
+      window.removeEventListener("iwms:realtime", handleRealtime);
+      window.removeEventListener("iwms:revalidate", handleRealtime);
     };
   }, [statusFilter]);
 

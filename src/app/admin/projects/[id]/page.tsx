@@ -122,6 +122,21 @@ export default function AdminProjectDetailPage({
   useEffect(() => {
     fetchProjectDetails();
     fetchActiveInterns();
+
+    const handleRealtime = (e: Event) => {
+      const custom = e as CustomEvent<{ type: string; data?: { projectId?: string } }>;
+      if (!custom.detail || custom.detail.type?.startsWith("project_") || custom.detail.type?.startsWith("task_")) {
+        fetchProjectDetails();
+      }
+    };
+
+    window.addEventListener("iwms:realtime", handleRealtime);
+    window.addEventListener("iwms:revalidate", handleRealtime);
+
+    return () => {
+      window.removeEventListener("iwms:realtime", handleRealtime);
+      window.removeEventListener("iwms:revalidate", handleRealtime);
+    };
   }, [id]);
 
   const handleCreateTask = async (e: React.FormEvent) => {

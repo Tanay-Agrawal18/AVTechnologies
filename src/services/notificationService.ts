@@ -6,6 +6,8 @@ import { ITaskDocument } from "@/models/Task";
 import { ISubmissionDocument } from "@/models/Submission";
 import { SessionUser } from "@/types";
 
+import { realtimeBus } from "@/lib/realtime";
+
 export interface CreateNotificationInput {
   recipientId: string;
   actorId?: string;
@@ -75,6 +77,30 @@ export class NotificationService {
         metadata: input.metadata || {},
         isRead: false,
       });
+
+      // Emit real-time event to the specific recipient
+      try {
+        const notifId = notification?._id ? notification._id.toString() : "";
+        const recipId = notification?.recipientId ? notification.recipientId.toString() : input.recipientId;
+        realtimeBus.emit(
+          "notification_created",
+          {
+            notification: {
+              _id: notifId,
+              recipientId: recipId,
+              title: notification?.title || input.title,
+              message: notification?.message || input.message,
+              type: notification?.type || input.type,
+              link: notification?.link || sanitizedLink,
+              isRead: notification?.isRead ?? false,
+              createdAt: notification?.createdAt || new Date(),
+            },
+          },
+          { targetUserIds: [input.recipientId] }
+        );
+      } catch (err) {
+        console.error("[NotificationService] Realtime emit error:", err);
+      }
 
       return { notification, created: true };
     } catch (err: unknown) {
@@ -157,6 +183,15 @@ export class NotificationService {
         { recipientId: userObjectId, isRead: !isRead },
         { $set: { isRead, readAt: isRead ? now : undefined } }
       );
+      try {
+        realtimeBus.emit(
+          "notification_updated",
+          { markAllAsRead: true, isRead },
+          { targetUserIds: [userId] }
+        );
+      } catch (err) {
+        console.error("[NotificationService] Realtime emit error:", err);
+      }
       return { updatedCount: res.modifiedCount };
     }
 
@@ -165,10 +200,105 @@ export class NotificationService {
         { _id: new mongoose.Types.ObjectId(options.notificationId), recipientId: userObjectId },
         { $set: { isRead, readAt: isRead ? now : undefined } }
       );
+      try {
+        realtimeBus.emit(
+          "notification_updated",
+          { notificationId: options.notificationId, isRead },
+          { targetUserIds: [userId] }
+        );
+      } catch (err) {
+        console.error("[NotificationService] Realtime emit error:", err);
+      }
       return { updatedCount: res.modifiedCount };
     }
 
     return { updatedCount: 0 };
+  }
+
+  /**
+   * Project Assigned Event
+   * Triggered when an Admin assigns an Intern to a team project.
+   */
+  static async notifyProjectAssigned(
+    project: { _id: mongoose.Types.ObjectId | string; title: string; dueDate?: Date },
+    targetInternIds: string[],
+    actor: SessionUser
+  ): Promise<void> {
+    if (!targetInternIds || targetInternIds.length === 0) return;
+    await connectDB();
+
+    const uniqueInternIds = Array.from(new Set(targetInternIds));
+    const activeInterns = await User.find({
+      _id: { $in: uniqueInternIds },
+      role: "intern",
+      status: "active",
+    })
+      .select("_id name")
+      .lean();
+
+    const projectIdStr = project._id.toString();
+
+    for (const intern of activeInterns) {
+      const internIdStr = intern._id.toString();
+      // Admin should not receive participant notification
+      if (internIdStr === actor.id) continue;
+
+      const idempotencyKey = `project_assigned:${projectIdStr}:${internIdStr}`;
+      const dueStr = project.dueDate ? ` Due by ${new Date(project.dueDate).toLocaleDateString()}.` : "";
+
+      await this.createNotification({
+        recipientId: internIdStr,
+        actorId: actor.id,
+        actorName: actor.name,
+        type: "project_assigned",
+        title: "Added to Team Project",
+        message: `You have been added to the collaborative team project "${project.title}".${dueStr}`,
+        link: `/intern/projects/${projectIdStr}`,
+        idempotencyKey,
+        metadata: {
+          projectId: projectIdStr,
+          projectTitle: project.title,
+          dueDate: project.dueDate ? new Date(project.dueDate).toISOString() : undefined,
+        },
+      });
+    }
+  }
+
+  /**
+   * Project Task Assigned Event
+   * Triggered when an Admin assigns a task within a team project.
+   */
+  static async notifyProjectTaskAssigned(
+    task: ITaskDocument,
+    projectTitle: string,
+    actor: SessionUser
+  ): Promise<void> {
+    if (!task.assignedInternId) return;
+
+    const internIdStr = task.assignedInternId.toString();
+    // Do not notify admin if admin somehow assigned themselves
+    if (internIdStr === actor.id) return;
+
+    const idempotencyKey = `project_task_assigned:${task._id}:${internIdStr}`;
+    const dueStr = task.dueDate ? ` Due by ${new Date(task.dueDate).toLocaleDateString()}.` : "";
+
+    await this.createNotification({
+      recipientId: internIdStr,
+      actorId: actor.id,
+      actorName: actor.name,
+      type: "task_assigned",
+      title: "New Team Project Task Assigned",
+      message: `You have been assigned to "${task.title}" in team project "${projectTitle}". Priority: ${task.priority.toUpperCase()}.${dueStr}`,
+      link: `/intern/tasks/${task._id}`,
+      idempotencyKey,
+      metadata: {
+        taskId: task._id.toString(),
+        taskTitle: task.title,
+        projectId: task.projectId?.toString(),
+        projectTitle,
+        dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : undefined,
+      },
+    });
   }
 
   /**
@@ -177,12 +307,16 @@ export class NotificationService {
    */
   static async notifyTaskAssigned(
     task: ITaskDocument,
-    actor: SessionUser
+    actor: SessionUser,
+    projectTitle?: string
   ): Promise<void> {
     if (!task.assignedInternId) return;
 
     const internIdStr = task.assignedInternId.toString();
+    if (internIdStr === actor.id) return;
+
     const idempotencyKey = `task_assigned:${task._id}:${internIdStr}`;
+    const projectContext = projectTitle ? ` in "${projectTitle}"` : "";
 
     await this.createNotification({
       recipientId: internIdStr,
@@ -190,12 +324,14 @@ export class NotificationService {
       actorName: actor.name,
       type: "task_assigned",
       title: "New Task Assigned",
-      message: `You have been assigned to "${task.title}". Priority: ${task.priority.toUpperCase()}. Due by ${new Date(task.dueDate).toLocaleDateString()}.`,
+      message: `You have been assigned to "${task.title}"${projectContext}. Priority: ${task.priority.toUpperCase()}. Due by ${new Date(task.dueDate).toLocaleDateString()}.`,
       link: `/intern/tasks/${task._id}`,
       idempotencyKey,
       metadata: {
         taskId: task._id.toString(),
         taskTitle: task.title,
+        projectId: task.projectId?.toString(),
+        projectTitle,
         dueDate: task.dueDate.toISOString(),
       },
     });

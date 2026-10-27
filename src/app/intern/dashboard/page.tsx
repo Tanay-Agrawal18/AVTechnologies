@@ -29,13 +29,31 @@ export default function InternDashboardPage() {
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchTasks = () => {
     fetch("/api/intern/tasks")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.tasks) setTasks(data.tasks);
       })
       .finally(() => setIsLoading(false));
+  };
+
+  useEffect(() => {
+    fetchTasks();
+
+    const handleRealtime = (e: Event) => {
+      const custom = e as CustomEvent<{ type: string }>;
+      if (!custom.detail || custom.detail.type?.startsWith("task_") || custom.detail.type?.startsWith("project_")) {
+        fetchTasks();
+      }
+    };
+    window.addEventListener("iwms:realtime", handleRealtime);
+    window.addEventListener("iwms:revalidate", handleRealtime);
+
+    return () => {
+      window.removeEventListener("iwms:realtime", handleRealtime);
+      window.removeEventListener("iwms:revalidate", handleRealtime);
+    };
   }, []);
 
   const assignedCount  = tasks.filter((t) => t.status === "assigned").length;

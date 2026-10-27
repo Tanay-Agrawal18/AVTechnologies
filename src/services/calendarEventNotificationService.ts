@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/db";
 import { CalendarEvent, ICalendarEventDocument } from "@/models/CalendarEvent";
 import { User } from "@/models/User";
 import { NotificationService } from "@/services/notificationService";
+import { realtimeBus } from "@/lib/realtime";
 import { SessionUser } from "@/types";
 
 export class CalendarEventNotificationService {
@@ -128,6 +129,21 @@ export class CalendarEventNotificationService {
       { $set: { notificationSentVersion: eventVersion } }
     );
 
+    try {
+      realtimeBus.emit(
+        "calendar_event_changed",
+        {
+          eventId: event._id.toString(),
+          action: "published",
+          title: event.title,
+          type: event.type,
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[CalendarEventNotificationService] Realtime emit error on published:", err);
+    }
+
     return { sentCount: sent };
   }
 
@@ -175,6 +191,20 @@ export class CalendarEventNotificationService {
       { $set: { notificationSentVersion: eventVersion } }
     );
 
+    try {
+      realtimeBus.emit(
+        "calendar_event_changed",
+        {
+          eventId: event._id.toString(),
+          action: "updated",
+          title: event.title,
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[CalendarEventNotificationService] Realtime emit error on updated:", err);
+    }
+
     return { sentCount: sent };
   }
 
@@ -206,7 +236,7 @@ export class CalendarEventNotificationService {
         type: "calendar_event_cancelled",
         title,
         message,
-        link: `/intern/calendar`,
+        link: "/intern/calendar",
         idempotencyKey,
         metadata: {
           eventId: event._id.toString(),
@@ -215,6 +245,21 @@ export class CalendarEventNotificationService {
         },
       });
       if (res.created) sent++;
+    }
+
+    try {
+      realtimeBus.emit(
+        "calendar_event_changed",
+        {
+          eventId: event._id.toString(),
+          action: "cancelled",
+          title: event.title,
+          reason,
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[CalendarEventNotificationService] Realtime emit error on cancelled:", err);
     }
 
     return { sentCount: sent };

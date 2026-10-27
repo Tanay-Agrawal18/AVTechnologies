@@ -10,7 +10,8 @@ export type NotificationType =
   | "task_reassigned"
   | "calendar_event_published"
   | "calendar_event_updated"
-  | "calendar_event_cancelled";
+  | "calendar_event_cancelled"
+  | "project_assigned";
 
 export interface INotificationDocument extends Document {
   recipientId: mongoose.Types.ObjectId;
@@ -26,7 +27,9 @@ export interface INotificationDocument extends Document {
   metadata?: {
     taskId?: string;
     submissionId?: string;
+    projectId?: string;
     taskTitle?: string;
+    projectTitle?: string;
     dueDate?: string;
     reviewStatus?: string;
     [key: string]: unknown;
@@ -65,6 +68,7 @@ const NotificationSchema = new Schema<INotificationDocument>(
         "calendar_event_published",
         "calendar_event_updated",
         "calendar_event_cancelled",
+        "project_assigned",
       ],
       index: true,
     },

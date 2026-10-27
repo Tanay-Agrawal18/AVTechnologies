@@ -90,6 +90,26 @@ export default function AdminProjectsPage() {
     fetchProjects();
   }, [statusFilter]);
 
+  useEffect(() => {
+    const handleRealtime = (e: Event) => {
+      const custom = e as CustomEvent<{ type: string }>;
+      if (
+        !custom.detail ||
+        custom.detail.type?.startsWith("project_") ||
+        custom.detail.type?.startsWith("task_")
+      ) {
+        fetchProjects();
+      }
+    };
+    window.addEventListener("iwms:realtime", handleRealtime);
+    window.addEventListener("iwms:revalidate", handleRealtime);
+
+    return () => {
+      window.removeEventListener("iwms:realtime", handleRealtime);
+      window.removeEventListener("iwms:revalidate", handleRealtime);
+    };
+  }, []);
+
   const toggleMemberSelection = (id: string) => {
     setSelectedMemberIds((prev) =>
       prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]

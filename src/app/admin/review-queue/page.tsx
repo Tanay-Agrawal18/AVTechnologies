@@ -117,6 +117,22 @@ export default function AdminReviewQueuePage() {
     fetchQueue();
   }, [statusFilter, internFilter, departmentFilter, page]);
 
+  useEffect(() => {
+    const handleRealtime = (e: Event) => {
+      const custom = e as CustomEvent<{ type: string }>;
+      if (!custom.detail || custom.detail.type?.startsWith("task_")) {
+        fetchQueue(true);
+      }
+    };
+    window.addEventListener("iwms:realtime", handleRealtime);
+    window.addEventListener("iwms:revalidate", handleRealtime);
+
+    return () => {
+      window.removeEventListener("iwms:realtime", handleRealtime);
+      window.removeEventListener("iwms:revalidate", handleRealtime);
+    };
+  }, [statusFilter, internFilter, departmentFilter, page]);
+
   const departments = Array.from(
     new Set(interns.map((i) => i.department).filter(Boolean) as string[])
   );

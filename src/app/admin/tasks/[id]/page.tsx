@@ -97,6 +97,20 @@ export default function AdminTaskDetailPage({
   useEffect(() => {
     fetchTaskDetail();
     fetchActiveInterns();
+
+    const handleRealtime = (e: Event) => {
+      const custom = e as CustomEvent<{ type: string }>;
+      if (!custom.detail || custom.detail.type?.startsWith("task_")) {
+        fetchTaskDetail();
+      }
+    };
+    window.addEventListener("iwms:realtime", handleRealtime);
+    window.addEventListener("iwms:revalidate", handleRealtime);
+
+    return () => {
+      window.removeEventListener("iwms:realtime", handleRealtime);
+      window.removeEventListener("iwms:revalidate", handleRealtime);
+    };
   }, [id]);
 
   const handleUnassignIntern = async (e: React.FormEvent) => {

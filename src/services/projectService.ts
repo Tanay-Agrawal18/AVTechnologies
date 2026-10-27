@@ -12,6 +12,8 @@ import {
   CACHE_KEYS,
   CACHE_TTL,
 } from "@/lib/cache";
+import { NotificationService } from "@/services/notificationService";
+import { realtimeBus } from "@/lib/realtime";
 
 export interface CreateProjectInput {
   title: string;
@@ -114,6 +116,32 @@ export class ProjectService {
     });
 
     await invalidateProjectsCache(project._id.toString());
+
+    // Dispatch in-app notifications to all newly assigned eligible team members
+    try {
+      await NotificationService.notifyProjectAssigned(
+        { _id: project._id, title: project.title, dueDate: project.dueDate },
+        uniqueMemberIds,
+        actor
+      );
+    } catch (err) {
+      console.error(`[ProjectService] Failed to notify team members for project ${project._id}:`, err);
+    }
+
+    // Real-time broadcast for live UI synchronization
+    try {
+      realtimeBus.emit(
+        "project_created",
+        {
+          projectId: project._id.toString(),
+          title: project.title,
+          teamMemberIds: uniqueMemberIds,
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[ProjectService] Realtime emit error on project_created:", err);
+    }
 
     return project;
   }
@@ -314,6 +342,20 @@ export class ProjectService {
 
     await invalidateProjectsCache(projectId);
 
+    try {
+      realtimeBus.emit(
+        "project_updated",
+        {
+          projectId: project._id.toString(),
+          title: project.title,
+          status: project.status,
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[ProjectService] Realtime emit error on project_updated:", err);
+    }
+
     return project;
   }
 
@@ -346,6 +388,19 @@ export class ProjectService {
     });
 
     await invalidateProjectsCache(projectId);
+
+    try {
+      realtimeBus.emit(
+        "project_deleted",
+        {
+          projectId,
+          title: project.title,
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[ProjectService] Realtime emit error on project_deleted:", err);
+    }
   }
 
   static async manageTeamMember(
@@ -436,6 +491,33 @@ export class ProjectService {
 
     await invalidateProjectsCache(projectId);
 
+    if (data.action === "add") {
+      try {
+        await NotificationService.notifyProjectAssigned(
+          { _id: project._id, title: project.title, dueDate: project.dueDate },
+          [targetUser._id.toString()],
+          actor
+        );
+      } catch (err) {
+        console.error(`[ProjectService] Failed to notify added intern ${targetUser._id}:`, err);
+      }
+    }
+
+    try {
+      realtimeBus.emit(
+        "project_updated",
+        {
+          projectId: project._id.toString(),
+          title: project.title,
+          action: data.action,
+          internId: targetUser._id.toString(),
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[ProjectService] Realtime emit error on project_updated:", err);
+    }
+
     return project;
   }
 
@@ -514,6 +596,30 @@ export class ProjectService {
     });
 
     await invalidateProjectsCache(projectId);
+
+    // Notify newly assigned intern of this team project task
+    try {
+      await NotificationService.notifyProjectTaskAssigned(task, project.title, actor);
+    } catch (err) {
+      console.error(`[ProjectService] Failed to notify intern ${intern._id} for task ${task._id}:`, err);
+    }
+
+    // Real-time broadcast for live UI synchronization
+    try {
+      realtimeBus.emit(
+        "task_created",
+        {
+          taskId: task._id.toString(),
+          title: task.title,
+          projectId: project._id.toString(),
+          projectTitle: project.title,
+          assignedInternId: intern._id.toString(),
+        },
+        { broadcast: true }
+      );
+    } catch (err) {
+      console.error("[ProjectService] Realtime emit error on task_created:", err);
+    }
 
     return task;
   }

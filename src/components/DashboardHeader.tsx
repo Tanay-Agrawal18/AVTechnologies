@@ -15,9 +15,11 @@ import {
   X,
   Inbox,
   Calendar,
+  FolderGit2,
 } from "lucide-react";
 import { SessionUser, INotification } from "@/types";
 import { Skeleton } from "@/components/Skeleton";
+import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 
 interface HeaderProps {
   title: string;
@@ -105,7 +107,14 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
     };
     window.addEventListener("profile-picture-updated", handleProfileUpdate);
 
-    // Periodic check every 20 seconds for notifications & auth status
+    // Immediate reaction to any real-time notification or revalidation event
+    const handleRealtimeRefresh = () => {
+      fetchNotifications();
+    };
+    window.addEventListener("iwms:revalidate", handleRealtimeRefresh);
+    window.addEventListener("iwms:realtime", handleRealtimeRefresh);
+
+    // Periodic check every 20 seconds for notifications & auth status fallback
     const interval = setInterval(() => {
       checkAuth();
       fetchNotifications();
@@ -114,9 +123,18 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
     return () => {
       isMounted = false;
       window.removeEventListener("profile-picture-updated", handleProfileUpdate);
+      window.removeEventListener("iwms:revalidate", handleRealtimeRefresh);
+      window.removeEventListener("iwms:realtime", handleRealtimeRefresh);
       clearInterval(interval);
     };
   }, []);
+
+  // Connect SSE real-time stream via hook
+  useRealtimeSync((event) => {
+    if (event.type.startsWith("notification_") || event.type.startsWith("project_") || event.type.startsWith("task_") || event.type.startsWith("calendar_")) {
+      fetchNotifications();
+    }
+  });
 
   const handleMarkAsRead = async (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -226,6 +244,12 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
         return (
           <div className="w-8 h-8 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100">
             <AlertCircle className="w-4 h-4" />
+          </div>
+        );
+      case "project_assigned":
+        return (
+          <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+            <FolderGit2 className="w-4 h-4" />
           </div>
         );
       default:
