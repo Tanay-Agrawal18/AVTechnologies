@@ -9,3 +9,4 @@ export * from "./DocumentTemplate";
 export * from "./IssuedDocument";
 export * from "./Project";
 export * from "./Notification";
+export * from "./CalendarEvent";

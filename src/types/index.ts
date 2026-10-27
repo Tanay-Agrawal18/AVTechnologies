@@ -188,7 +188,38 @@ export type NotificationType =
   | "submission_changes_requested"
   | "deadline_approaching"
   | "deadline_overdue"
-  | "task_reassigned";
+  | "task_reassigned"
+  | "calendar_event_published"
+  | "calendar_event_updated"
+  | "calendar_event_cancelled";
+
+export type CalendarEventType = "holiday" | "meeting" | "event" | "notice";
+export type CalendarAudienceType = "all" | "individual" | "department";
+export type CalendarEventStatus = "draft" | "published" | "cancelled";
+
+export interface ICalendarEvent {
+  _id: string;
+  title: string;
+  description?: string;
+  type: CalendarEventType;
+  startDate: string | Date;
+  endDate: string | Date;
+  isAllDay: boolean;
+  location?: string;
+  meetingUrl?: string;
+  audienceType: CalendarAudienceType;
+  targetInternIds?: string[];
+  targetDepartment?: string;
+  status: CalendarEventStatus;
+  publishedAt?: string | Date;
+  cancelledAt?: string | Date;
+  cancellationReason?: string;
+  createdByAdminId: string;
+  lastModifiedByAdminId: string;
+  notificationSentVersion?: number;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}
 
 export interface INotification {
   _id: string;

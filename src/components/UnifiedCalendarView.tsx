@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { ITask } from "@/types";
+import { ITask, ICalendarEvent } from "@/types";
 import { formatDate, getStatusBadgeClass, getPriorityBadgeClass } from "@/lib/utils";
 import {
   ChevronLeft,
@@ -17,37 +17,54 @@ import {
   Grid3X3,
   Columns,
   User as UserIcon,
+  Plus,
+  Palmtree,
+  Video,
+  Megaphone,
+  Sparkles,
 } from "lucide-react";
+import { CalendarEventDetailModal } from "./CalendarEventDetailModal";
 
 export type CalendarViewMode = "month" | "week" | "agenda";
 
 interface UnifiedCalendarViewProps {
   tasks: ITask[];
+  events?: ICalendarEvent[];
   isLoading: boolean;
   role: "admin" | "intern";
   onFilterChange?: (filters: {
     internId?: string;
     priority?: string;
     status?: string;
+    eventType?: string;
   }) => void;
   interns?: Array<{ _id: string; name: string; internId?: string }>;
+  onOpenCreateModal?: () => void;
+  onEventCancelled?: (updatedEvent: ICalendarEvent) => void;
+  onEventPublished?: (updatedEvent: ICalendarEvent) => void;
 }
 
 export function UnifiedCalendarView({
   tasks,
+  events = [],
   isLoading,
   role,
   onFilterChange,
   interns = [],
+  onOpenCreateModal,
+  onEventCancelled,
+  onEventPublished,
 }: UnifiedCalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [viewMode, setViewMode] = useState<CalendarViewMode>("month");
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<ICalendarEvent | null>(null);
 
   // Filter States
   const [selectedIntern, setSelectedIntern] = useState<string>("all");
   const [selectedPriority, setSelectedPriority] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [selectedEventType, setSelectedEventType] = useState<string>("all");
 
   const handleInternChange = (val: string) => {
     setSelectedIntern(val);
@@ -55,6 +72,7 @@ export function UnifiedCalendarView({
       internId: val,
       priority: selectedPriority,
       status: selectedStatus,
+      eventType: selectedEventType,
     });
   };
 
@@ -64,6 +82,7 @@ export function UnifiedCalendarView({
       internId: selectedIntern,
       priority: val,
       status: selectedStatus,
+      eventType: selectedEventType,
     });
   };
 
@@ -73,11 +92,25 @@ export function UnifiedCalendarView({
       internId: selectedIntern,
       priority: selectedPriority,
       status: val,
+      eventType: selectedEventType,
     });
   };
 
-  // Filter tasks locally (in case endpoint returns full set or when filtered client-side)
+  const handleEventTypeChange = (val: string) => {
+    setSelectedEventType(val);
+    onFilterChange?.({
+      internId: selectedIntern,
+      priority: selectedPriority,
+      status: selectedStatus,
+      eventType: val,
+    });
+  };
+
+  // Filter tasks locally
   const filteredTasks = useMemo(() => {
+    if (selectedEventType !== "all" && selectedEventType !== "tasks") {
+      return [];
+    }
     return tasks.filter((task) => {
       if (selectedPriority !== "all" && task.priority !== selectedPriority) return false;
       if (selectedStatus !== "all" && task.status !== selectedStatus) return false;
@@ -88,9 +121,18 @@ export function UnifiedCalendarView({
       }
       return true;
     });
-  }, [tasks, selectedPriority, selectedStatus, selectedIntern, role]);
+  }, [tasks, selectedPriority, selectedStatus, selectedIntern, selectedEventType, role]);
 
-  // Tasks grouped by YYYY-MM-DD
+  // Filter events locally
+  const filteredEvents = useMemo(() => {
+    if (selectedEventType === "tasks") return [];
+    return events.filter((evt) => {
+      if (selectedEventType !== "all" && evt.type !== selectedEventType) return false;
+      return true;
+    });
+  }, [events, selectedEventType]);
+
+  // Group tasks by YYYY-MM-DD
   const tasksByDate = useMemo(() => {
     const map = new Map<string, ITask[]>();
     for (const task of filteredTasks) {
@@ -100,13 +142,36 @@ export function UnifiedCalendarView({
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
         d.getDate()
       ).padStart(2, "0")}`;
-      if (!map.has(key)) {
-        map.set(key, []);
-      }
+      if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(task);
     }
     return map;
   }, [filteredTasks]);
+
+  // Group events by YYYY-MM-DD across their date spans
+  const eventsByDate = useMemo(() => {
+    const map = new Map<string, ICalendarEvent[]>();
+
+    for (const evt of filteredEvents) {
+      const start = new Date(evt.startDate);
+      const end = new Date(evt.endDate);
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) continue;
+
+      // Iterate through each date the event spans
+      const cur = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const endBoundary = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+
+      while (cur <= endBoundary) {
+        const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}-${String(
+          cur.getDate()
+        ).padStart(2, "0")}`;
+        if (!map.has(key)) map.set(key, []);
+        map.get(key)!.push(evt);
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+    return map;
+  }, [filteredEvents]);
 
   // Tasks without valid due dates
   const unscheduledTasks = useMemo(() => {
@@ -162,7 +227,6 @@ export function UnifiedCalendarView({
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0 is Sunday
 
-  // Month days array
   const monthDays = useMemo(() => {
     const days: { date: Date; isCurrentMonth: boolean; dateKey: string }[] = [];
 
@@ -234,6 +298,35 @@ export function UnifiedCalendarView({
     return intern?.name || task.assignedInternSnapshot?.name || "Unassigned";
   };
 
+  const renderEventIcon = (type: string) => {
+    switch (type) {
+      case "holiday":
+        return <Palmtree className="w-2.5 h-2.5 shrink-0 text-emerald-600" />;
+      case "meeting":
+        return <Video className="w-2.5 h-2.5 shrink-0 text-sky-600" />;
+      case "notice":
+        return <Megaphone className="w-2.5 h-2.5 shrink-0 text-amber-600" />;
+      default:
+        return <Sparkles className="w-2.5 h-2.5 shrink-0 text-indigo-600" />;
+    }
+  };
+
+  const getEventBadgeClass = (evt: ICalendarEvent) => {
+    if (evt.status === "cancelled") {
+      return "bg-rose-50 border-rose-200 text-rose-700 line-through opacity-70";
+    }
+    switch (evt.type) {
+      case "holiday":
+        return "bg-emerald-50 border-emerald-200 text-emerald-800 font-semibold";
+      case "meeting":
+        return "bg-sky-50 border-sky-200 text-sky-800 font-semibold";
+      case "notice":
+        return "bg-amber-50 border-amber-200 text-amber-900 font-semibold";
+      default:
+        return "bg-indigo-50 border-indigo-200 text-indigo-900 font-semibold";
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* ── Toolbar & Navigation ─────────────────────────────── */}
@@ -281,6 +374,18 @@ export function UnifiedCalendarView({
                 })}`
               : monthName}
           </h2>
+
+          {/* Admin "Add Entry" Quick Action */}
+          {role === "admin" && onOpenCreateModal && (
+            <button
+              type="button"
+              onClick={onOpenCreateModal}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-lg shadow-2xs transition-all active:scale-95"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Create Event</span>
+            </button>
+          )}
         </div>
 
         {/* Center: View Switcher */}
@@ -324,6 +429,20 @@ export function UnifiedCalendarView({
         <div className="flex items-center gap-2 flex-wrap">
           <Filter className="w-3.5 h-3.5 text-sky-500 shrink-0 hidden sm:inline-block" />
 
+          {/* Event Type Filter (Holidays, Meetings, Notices, Tasks) */}
+          <select
+            value={selectedEventType}
+            onChange={(e) => handleEventTypeChange(e.target.value)}
+            className="px-2.5 py-1.5 text-xs font-medium rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-sky-500"
+          >
+            <option value="all">All Calendar Types</option>
+            <option value="holiday">Holidays & Vacations</option>
+            <option value="meeting">Meetings</option>
+            <option value="notice">Official Notices</option>
+            <option value="event">Company Events</option>
+            <option value="tasks">Task Deadlines Only</option>
+          </select>
+
           {/* Admin intern dropdown filter */}
           {role === "admin" && interns.length > 0 && (
             <select
@@ -340,7 +459,7 @@ export function UnifiedCalendarView({
             </select>
           )}
 
-          {/* Status filter */}
+          {/* Status filter (for tasks) */}
           <select
             value={selectedStatus}
             onChange={(e) => handleStatusChange(e.target.value)}
@@ -402,12 +521,14 @@ export function UnifiedCalendarView({
               <div className="grid grid-cols-7 divide-x divide-y divide-slate-100">
                 {monthDays.map((day, idx) => {
                   const dayTasks = tasksByDate.get(day.dateKey) || [];
+                  const dayEvents = eventsByDate.get(day.dateKey) || [];
+                  const totalItems = dayTasks.length + dayEvents.length;
                   const isToday = day.dateKey === todayKey;
 
                   return (
                     <div
                       key={idx}
-                      className={`min-h-[96px] sm:min-h-[118px] p-1.5 sm:p-2 transition-colors flex flex-col justify-between ${
+                      className={`min-h-[105px] sm:min-h-[125px] p-1.5 sm:p-2 transition-colors flex flex-col justify-between ${
                         !day.isCurrentMonth
                           ? "bg-slate-50/50 text-slate-400"
                           : "bg-white hover:bg-sky-50/20"
@@ -426,16 +547,39 @@ export function UnifiedCalendarView({
                         >
                           {day.date.getDate()}
                         </span>
-                        {dayTasks.length > 0 && (
+                        {totalItems > 0 && (
                           <span className="text-[10px] font-medium text-slate-400">
-                            {dayTasks.length} {dayTasks.length === 1 ? "task" : "tasks"}
+                            {totalItems} item{totalItems > 1 ? "s" : ""}
                           </span>
                         )}
                       </div>
 
-                      {/* Task items list for this date */}
-                      <div className="space-y-1 overflow-y-auto max-h-[80px] sm:max-h-[94px]">
-                        {dayTasks.slice(0, 3).map((task) => {
+                      {/* Items list: Holidays/Events first, then Tasks */}
+                      <div className="space-y-1 overflow-y-auto max-h-[85px] sm:max-h-[98px]">
+                        {/* Admin-Managed Events (Holidays, Meetings, Notices) */}
+                        {dayEvents.slice(0, 2).map((evt) => (
+                          <button
+                            key={evt._id}
+                            type="button"
+                            onClick={() => setSelectedEvent(evt)}
+                            className={`w-full text-left p-1 rounded text-[11px] leading-tight border transition-transform hover:scale-[1.01] block truncate ${getEventBadgeClass(
+                              evt
+                            )}`}
+                          >
+                            <div className="flex items-center gap-1 truncate">
+                              {renderEventIcon(evt.type)}
+                              <span className="truncate">{evt.title}</span>
+                            </div>
+                            {role === "admin" && evt.status === "draft" && (
+                              <span className="text-[9px] text-slate-500 block uppercase font-bold">
+                                Draft
+                              </span>
+                            )}
+                          </button>
+                        ))}
+
+                        {/* Task items list for this date */}
+                        {dayTasks.slice(0, 3 - Math.min(dayEvents.length, 2)).map((task) => {
                           const isUrgent = task.priority === "urgent";
                           const isHigh = task.priority === "high";
 
@@ -477,16 +621,10 @@ export function UnifiedCalendarView({
                           );
                         })}
 
-                        {dayTasks.length > 3 && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedTask(dayTasks[3]);
-                            }}
-                            className="text-[10px] font-semibold text-sky-600 hover:text-sky-800 block text-center py-0.5"
-                          >
-                            +{dayTasks.length - 3} more
-                          </button>
+                        {totalItems > 3 && (
+                          <div className="text-[10px] font-semibold text-sky-600 hover:text-sky-800 block text-center py-0.5">
+                            +{totalItems - 3} more
+                          </div>
                         )}
                       </div>
                     </div>
@@ -505,6 +643,7 @@ export function UnifiedCalendarView({
               <div className="grid grid-cols-7 divide-x divide-slate-100 min-h-[380px]">
                 {weekDays.map((day, idx) => {
                   const dayTasks = tasksByDate.get(day.dateKey) || [];
+                  const dayEvents = eventsByDate.get(day.dateKey) || [];
                   const isToday = day.dateKey === todayKey;
 
                   return (
@@ -527,46 +666,67 @@ export function UnifiedCalendarView({
                         </div>
                       </div>
 
-                      {/* Day Tasks */}
+                      {/* Day Items */}
                       <div className="flex-1 space-y-2 overflow-y-auto max-h-[380px]">
-                        {dayTasks.length === 0 ? (
-                          <div className="text-center py-6 text-slate-300 text-[11px]">
-                            No deadlines
-                          </div>
-                        ) : (
-                          dayTasks.map((task) => (
-                            <div
-                              key={task._id}
-                              onClick={() => setSelectedTask(task)}
-                              className="p-2 rounded-lg border border-slate-200 hover:border-sky-300 bg-white hover:bg-sky-50/30 transition-all cursor-pointer shadow-2xs"
-                            >
-                              <div className="flex items-center justify-between gap-1 mb-1">
-                                <span
-                                  className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase ${getPriorityBadgeClass(
-                                    task.priority
-                                  )}`}
-                                >
-                                  {task.priority}
-                                </span>
-                                <span
-                                  className={`text-[9px] font-medium px-1.5 py-0.5 rounded capitalize ${getStatusBadgeClass(
-                                    task.status
-                                  )}`}
-                                >
-                                  {task.status.replace("_", " ")}
-                                </span>
-                              </div>
-                              <p className="text-xs font-bold text-slate-900 line-clamp-2">
-                                {task.title}
-                              </p>
-                              {role === "admin" && (
-                                <p className="text-[10px] text-slate-500 truncate mt-1 flex items-center gap-1">
-                                  <UserIcon className="w-2.5 h-2.5" />
-                                  {getAssigneeLabel(task)}
-                                </p>
-                              )}
+                        {dayEvents.map((evt) => (
+                          <div
+                            key={evt._id}
+                            onClick={() => setSelectedEvent(evt)}
+                            className={`p-2 rounded-lg border transition-all cursor-pointer shadow-2xs ${getEventBadgeClass(
+                              evt
+                            )}`}
+                          >
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase mb-0.5">
+                              {renderEventIcon(evt.type)}
+                              <span>{evt.type}</span>
                             </div>
-                          ))
+                            <p className="text-xs font-bold line-clamp-2">{evt.title}</p>
+                            {evt.location && (
+                              <p className="text-[10px] opacity-80 truncate mt-1">
+                                {evt.location}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+
+                        {dayTasks.map((task) => (
+                          <div
+                            key={task._id}
+                            onClick={() => setSelectedTask(task)}
+                            className="p-2 rounded-lg border border-slate-200 hover:border-sky-300 bg-white hover:bg-sky-50/30 transition-all cursor-pointer shadow-2xs"
+                          >
+                            <div className="flex items-center justify-between gap-1 mb-1">
+                              <span
+                                className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase ${getPriorityBadgeClass(
+                                  task.priority
+                                )}`}
+                              >
+                                {task.priority}
+                              </span>
+                              <span
+                                className={`text-[9px] font-medium px-1.5 py-0.5 rounded capitalize ${getStatusBadgeClass(
+                                  task.status
+                                )}`}
+                              >
+                                {task.status.replace("_", " ")}
+                              </span>
+                            </div>
+                            <p className="text-xs font-bold text-slate-900 line-clamp-2">
+                              {task.title}
+                            </p>
+                            {role === "admin" && (
+                              <p className="text-[10px] text-slate-500 truncate mt-1 flex items-center gap-1">
+                                <UserIcon className="w-2.5 h-2.5" />
+                                {getAssigneeLabel(task)}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+
+                        {dayEvents.length === 0 && dayTasks.length === 0 && (
+                          <div className="text-center py-6 text-slate-300 text-[11px]">
+                            No entries
+                          </div>
                         )}
                       </div>
                     </div>
@@ -582,79 +742,122 @@ export function UnifiedCalendarView({
               className="iwms-card divide-y divide-slate-100 shadow-2xs"
               style={{ borderRadius: "14px" }}
             >
-              {filteredTasks.length === 0 ? (
+              {filteredEvents.length === 0 && filteredTasks.length === 0 ? (
                 <div className="py-12 text-center">
                   <CalendarIcon className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                  <p className="font-semibold text-slate-700">No scheduled tasks found</p>
+                  <p className="font-semibold text-slate-700">No scheduled calendar items found</p>
                   <p className="text-xs text-slate-400 mt-1">
-                    Try adjusting your date range or filter criteria.
+                    Try adjusting your filters or date criteria.
                   </p>
                 </div>
               ) : (
-                filteredTasks.map((task) => (
-                  <div
-                    key={task._id}
-                    className="p-3 sm:p-4 hover:bg-slate-50/80 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span
-                          className={`px-2 py-0.5 text-[10px] font-semibold rounded uppercase ${getPriorityBadgeClass(
-                            task.priority
-                          )}`}
-                        >
-                          {task.priority}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 text-[10px] font-medium rounded capitalize border ${getStatusBadgeClass(
-                            task.status
-                          )}`}
-                        >
-                          {task.status.replace("_", " ")}
-                        </span>
-                        <span className="text-xs text-slate-500 flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-sky-500" />
-                          Due: <strong className="text-slate-700">{formatDate(task.dueDate)}</strong>
-                        </span>
-                      </div>
-                      <h4 className="text-sm font-bold text-slate-900">{task.title}</h4>
-                      <p className="text-xs text-slate-500 line-clamp-1">{task.description}</p>
-                      {role === "admin" && (
-                        <p className="text-xs text-slate-600 flex items-center gap-1.5 pt-1">
-                          <UserIcon className="w-3.5 h-3.5 text-slate-400" />
-                          <span>
-                            Assignee: <strong>{getAssigneeLabel(task)}</strong>
+                <>
+                  {/* Events Section */}
+                  {filteredEvents.map((evt) => (
+                    <div
+                      key={evt._id}
+                      className="p-3 sm:p-4 hover:bg-slate-50/80 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span
+                            className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase border flex items-center gap-1 ${getEventBadgeClass(
+                              evt
+                            )}`}
+                          >
+                            {renderEventIcon(evt.type)}
+                            <span>{evt.type}</span>
                           </span>
-                        </p>
-                      )}
-                    </div>
+                          <span className="text-xs text-slate-500 flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-sky-500" />
+                            {new Date(evt.startDate).toLocaleDateString()}
+                            {!evt.isAllDay && ` ${new Date(evt.startDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`}
+                            {" – "}
+                            {new Date(evt.endDate).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-bold text-slate-900">{evt.title}</h4>
+                        {evt.description && (
+                          <p className="text-xs text-slate-500 line-clamp-1">{evt.description}</p>
+                        )}
+                      </div>
 
-                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                      <button
-                        onClick={() => setSelectedTask(task)}
-                        className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
-                      >
-                        Preview
-                      </button>
-                      <Link
-                        href={getTaskLink(task)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-lg transition-colors shadow-2xs"
-                      >
-                        <span>Open Task</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </Link>
+                      <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedEvent(evt)}
+                          className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                        >
+                          View Details
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+
+                  {/* Tasks Section */}
+                  {filteredTasks.map((task) => (
+                    <div
+                      key={task._id}
+                      className="p-3 sm:p-4 hover:bg-slate-50/80 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span
+                            className={`px-2 py-0.5 text-[10px] font-semibold rounded uppercase ${getPriorityBadgeClass(
+                              task.priority
+                            )}`}
+                          >
+                            {task.priority}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 text-[10px] font-medium rounded capitalize border ${getStatusBadgeClass(
+                              task.status
+                            )}`}
+                          >
+                            {task.status.replace("_", " ")}
+                          </span>
+                          <span className="text-xs text-slate-500 flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-sky-500" />
+                            Due: <strong className="text-slate-700">{formatDate(task.dueDate)}</strong>
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-bold text-slate-900">{task.title}</h4>
+                        <p className="text-xs text-slate-500 line-clamp-1">{task.description}</p>
+                        {role === "admin" && (
+                          <p className="text-xs text-slate-600 flex items-center gap-1.5 pt-1">
+                            <UserIcon className="w-3.5 h-3.5 text-slate-400" />
+                            <span>
+                              Assignee: <strong>{getAssigneeLabel(task)}</strong>
+                            </span>
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                        <button
+                          onClick={() => setSelectedTask(task)}
+                          className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                        >
+                          Preview
+                        </button>
+                        <Link
+                          href={getTaskLink(task)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-lg transition-colors shadow-2xs"
+                        >
+                          <span>Open Task</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </>
               )}
             </div>
           )}
 
           {/* Unscheduled / Missing Due Dates Notice */}
           {unscheduledTasks.length > 0 && (
-            <div
-              className="p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 text-amber-900 text-xs flex items-center justify-between gap-3"
-            >
+            <div className="p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 text-amber-900 text-xs flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
                 <span>
@@ -765,6 +968,15 @@ export function UnifiedCalendarView({
           </div>
         </div>
       )}
+
+      {/* ── Calendar Event Detail Modal ──────────────────────── */}
+      <CalendarEventDetailModal
+        event={selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+        role={role}
+        onEventCancelled={onEventCancelled}
+        onEventPublished={onEventPublished}
+      />
     </div>
   );
 }

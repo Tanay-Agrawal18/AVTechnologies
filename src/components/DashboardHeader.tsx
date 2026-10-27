@@ -14,6 +14,7 @@ import {
   RefreshCw,
   X,
   Inbox,
+  Calendar,
 } from "lucide-react";
 import { SessionUser, INotification } from "@/types";
 import { Skeleton } from "@/components/Skeleton";
@@ -207,6 +208,24 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
         return (
           <div className="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 border border-purple-100">
             <RotateCcw className="w-4 h-4" />
+          </div>
+        );
+      case "calendar_event_published":
+        return (
+          <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+            <Calendar className="w-4 h-4" />
+          </div>
+        );
+      case "calendar_event_updated":
+        return (
+          <div className="w-8 h-8 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 border border-sky-100">
+            <RefreshCw className="w-4 h-4" />
+          </div>
+        );
+      case "calendar_event_cancelled":
+        return (
+          <div className="w-8 h-8 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100">
+            <AlertCircle className="w-4 h-4" />
           </div>
         );
       default:

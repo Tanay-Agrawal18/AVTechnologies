@@ -240,3 +240,103 @@ export const AnalyticsFilterSchema = z
     }
   );
 
+export const SafeUrlSchema = z
+  .string()
+  .trim()
+  .max(500)
+  .refine(
+    (val) => {
+      if (!val) return true;
+      try {
+        const parsed = new URL(val);
+        return parsed.protocol === "http:" || parsed.protocol === "https:";
+      } catch {
+        return false;
+      }
+    },
+    { message: "Meeting URL must be a valid http or https URL" }
+  );
+
+export const CreateCalendarEventSchema = z
+  .object({
+    title: z.string().trim().min(2, "Title must be at least 2 characters").max(200),
+    description: z.string().trim().max(2000).optional(),
+    type: z.enum(["holiday", "meeting", "event", "notice"]),
+    startDate: z.string().trim().refine((val) => !isNaN(Date.parse(val)), "Invalid startDate format"),
+    endDate: z.string().trim().refine((val) => !isNaN(Date.parse(val)), "Invalid endDate format"),
+    isAllDay: z.boolean().optional().default(false),
+    location: z.string().trim().max(200).optional(),
+    meetingUrl: SafeUrlSchema.optional(),
+    audienceType: z.enum(["all", "individual", "department"]).default("all"),
+    targetInternIds: z.array(z.string().trim()).optional().default([]),
+    targetDepartment: z.string().trim().max(100).optional(),
+    status: z.enum(["draft", "published"]).default("draft"),
+  })
+  .refine(
+    (data) => {
+      const start = new Date(data.startDate).getTime();
+      const end = new Date(data.endDate).getTime();
+      return end >= start;
+    },
+    {
+      message: "End date/time cannot precede start date/time",
+      path: ["endDate"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.audienceType === "individual" && (!data.targetInternIds || data.targetInternIds.length === 0)) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "At least one intern must be selected for individual audience",
+      path: ["targetInternIds"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.audienceType === "department" && !data.targetDepartment) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Target department is required when audience is department",
+      path: ["targetDepartment"],
+    }
+  );
+
+export const UpdateCalendarEventSchema = z
+  .object({
+    title: z.string().trim().min(2, "Title must be at least 2 characters").max(200).optional(),
+    description: z.string().trim().max(2000).optional(),
+    type: z.enum(["holiday", "meeting", "event", "notice"]).optional(),
+    startDate: z.string().trim().refine((val) => !isNaN(Date.parse(val)), "Invalid startDate format").optional(),
+    endDate: z.string().trim().refine((val) => !isNaN(Date.parse(val)), "Invalid endDate format").optional(),
+    isAllDay: z.boolean().optional(),
+    location: z.string().trim().max(200).optional(),
+    meetingUrl: SafeUrlSchema.optional().nullable(),
+    audienceType: z.enum(["all", "individual", "department"]).optional(),
+    targetInternIds: z.array(z.string().trim()).optional(),
+    targetDepartment: z.string().trim().max(100).optional().nullable(),
+    status: z.enum(["draft", "published"]).optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.startDate && data.endDate) {
+        return new Date(data.endDate).getTime() >= new Date(data.startDate).getTime();
+      }
+      return true;
+    },
+    {
+      message: "End date/time cannot precede start date/time",
+      path: ["endDate"],
+    }
+  );
+
+export const CancelCalendarEventSchema = z.object({
+  cancellationReason: z.string().trim().max(500).optional(),
+});
+
