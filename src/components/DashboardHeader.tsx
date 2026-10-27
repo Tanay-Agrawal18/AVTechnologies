@@ -524,52 +524,92 @@ export function DashboardHeader({ title, description, action }: HeaderProps) {
           </div>
 
           {/* User profile button / chip */}
-          <div className="flex items-center gap-2 pl-1 sm:pl-2">
-            {currentUser?.profilePicture ? (
-              <img
-                src={currentUser.profilePicture}
-                alt={currentUser.name || "User"}
-                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover shrink-0 ring-2 ring-sky-200/70 shadow-xs"
-              />
-            ) : (
-              <div
-                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ring-2 ring-sky-200/70 shadow-xs"
-                style={{
-                  background: "linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%)",
-                  color: "#0369A1",
-                }}
-                title={currentUser?.name || "User"}
-              >
-                {initials}
-              </div>
-            )}
-
-            <div className="hidden md:block text-left max-w-[130px] lg:max-w-[180px]">
-              {currentUser ? (
-                <>
-                  <p
-                    className="font-semibold text-xs lg:text-sm leading-tight truncate"
-                    style={{ color: "var(--iwms-black)" }}
-                  >
-                    {currentUser.name}
-                  </p>
-                  <p
-                    className="text-[10px] lg:text-[11px] leading-tight truncate mt-0.5"
-                    style={{ color: "rgba(11,31,58,.50)" }}
-                  >
-                    {currentUser.role === "intern"
-                      ? `Intern • ${currentUser.internId || ""}`
-                      : "Administrator"}
-                  </p>
-                </>
+          {currentUser?.role === "intern" ? (
+            <Link
+              href="/intern/profile"
+              className="group flex items-center gap-2 pl-1 sm:pl-2 rounded-xl p-1 -m-1 hover:bg-slate-100/80 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-sky-500/20 active:scale-98"
+              title="View Profile"
+            >
+              {currentUser?.profilePicture ? (
+                <img
+                  src={currentUser.profilePicture}
+                  alt={currentUser.name || "User"}
+                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover shrink-0 ring-2 ring-sky-200/70 group-hover:ring-sky-400 group-hover:scale-105 transition-all shadow-xs"
+                />
               ) : (
-                <div className="space-y-1">
-                  <Skeleton className="h-3.5 w-24" />
-                  <Skeleton className="h-2.5 w-16" />
+                <div
+                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ring-2 ring-sky-200/70 group-hover:ring-sky-400 group-hover:scale-105 transition-all shadow-xs"
+                  style={{
+                    background: "linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%)",
+                    color: "#0369A1",
+                  }}
+                  title={currentUser?.name || "User"}
+                >
+                  {initials}
                 </div>
               )}
+
+              <div className="hidden md:block text-left max-w-[130px] lg:max-w-[180px]">
+                <p
+                  className="font-semibold text-xs lg:text-sm leading-tight truncate group-hover:text-sky-600 transition-colors"
+                  style={{ color: "var(--iwms-black)" }}
+                >
+                  {currentUser.name}
+                </p>
+                <p
+                  className="text-[10px] lg:text-[11px] leading-tight truncate mt-0.5"
+                  style={{ color: "rgba(11,31,58,.50)" }}
+                >
+                  {`Intern • ${currentUser.internId || ""}`}
+                </p>
+              </div>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2 pl-1 sm:pl-2">
+              {currentUser?.profilePicture ? (
+                <img
+                  src={currentUser.profilePicture}
+                  alt={currentUser.name || "User"}
+                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover shrink-0 ring-2 ring-sky-200/70 shadow-xs"
+                />
+              ) : (
+                <div
+                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ring-2 ring-sky-200/70 shadow-xs"
+                  style={{
+                    background: "linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%)",
+                    color: "#0369A1",
+                  }}
+                  title={currentUser?.name || "User"}
+                >
+                  {initials}
+                </div>
+              )}
+
+              <div className="hidden md:block text-left max-w-[130px] lg:max-w-[180px]">
+                {currentUser ? (
+                  <>
+                    <p
+                      className="font-semibold text-xs lg:text-sm leading-tight truncate"
+                      style={{ color: "var(--iwms-black)" }}
+                    >
+                      {currentUser.name}
+                    </p>
+                    <p
+                      className="text-[10px] lg:text-[11px] leading-tight truncate mt-0.5"
+                      style={{ color: "rgba(11,31,58,.50)" }}
+                    >
+                      Administrator
+                    </p>
+                  </>
+                ) : (
+                  <div className="space-y-1">
+                    <Skeleton className="h-3.5 w-24" />
+                    <Skeleton className="h-2.5 w-16" />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
