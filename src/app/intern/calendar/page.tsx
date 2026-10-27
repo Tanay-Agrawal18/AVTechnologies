@@ -86,7 +86,7 @@ export default function InternCalendarPage() {
         description="Track your personal deadlines, official company announcements, meetings, and holiday schedules"
       />
 
-      <main className="p-3 sm:p-5 lg:p-8 space-y-4">
+      <main className="p-2 sm:p-5 lg:p-8 space-y-4">
         <UnifiedCalendarView
           tasks={tasks}
           events={events}

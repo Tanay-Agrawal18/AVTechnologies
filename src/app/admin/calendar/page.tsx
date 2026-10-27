@@ -137,7 +137,7 @@ export default function AdminCalendarPage() {
         description="Unified visual view of team deadlines, official notices, meetings, and company holidays"
       />
 
-      <main className="p-3 sm:p-5 lg:p-8 space-y-4">
+      <main className="p-2 sm:p-5 lg:p-8 space-y-4">
         <UnifiedCalendarView
           tasks={tasks}
           events={events}

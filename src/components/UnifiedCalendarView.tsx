@@ -352,43 +352,46 @@ export function UnifiedCalendarView({
     });
   };
 
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
   return (
     <div className="space-y-4">
       {/* ── Toolbar & Navigation ─────────────────────────────── */}
       <div
-        className="iwms-card p-3 sm:p-4 bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 transition-all"
+        className="iwms-card p-2.5 sm:p-4 bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-xs flex flex-col gap-3 transition-all"
         style={{ borderRadius: "16px" }}
       >
-        {/* Left: Navigation & Period Title */}
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="inline-flex items-center p-0.5 bg-slate-100/90 border border-slate-200/80 rounded-xl shadow-2xs">
-            <button
-              onClick={handlePrevious}
-              aria-label="Previous Period"
-              className="p-1.5 sm:p-2 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg transition-all active:scale-95 cursor-pointer"
-              title="Previous"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleToday}
-              className="px-2.5 sm:px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-sky-700 hover:bg-white rounded-lg transition-all active:scale-95 cursor-pointer"
-            >
-              Today
-            </button>
-            <button
-              onClick={handleNext}
-              aria-label="Next Period"
-              className="p-1.5 sm:p-2 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg transition-all active:scale-95 cursor-pointer"
-              title="Next"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+        {/* Row 1: Navigation & Title & Action */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          {/* Left: Nav Buttons & Period Title */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <div className="inline-flex items-center p-0.5 bg-slate-100/90 border border-slate-200/80 rounded-xl shadow-2xs">
+              <button
+                onClick={handlePrevious}
+                aria-label="Previous Period"
+                className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg transition-all active:scale-95 cursor-pointer"
+                title="Previous"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={handleToday}
+                className="px-2 sm:px-3 py-1 text-xs font-bold text-slate-700 hover:text-sky-700 hover:bg-white rounded-lg transition-all active:scale-95 cursor-pointer"
+              >
+                Today
+              </button>
+              <button
+                onClick={handleNext}
+                aria-label="Next Period"
+                className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg transition-all active:scale-95 cursor-pointer"
+                title="Next"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
 
-          <div className="flex items-center gap-2">
             <h2
-              className="text-base sm:text-lg lg:text-xl font-bold tracking-tight"
+              className="text-sm sm:text-lg lg:text-xl font-bold tracking-tight truncate max-w-[200px] sm:max-w-none"
               style={{ color: "var(--iwms-navy)" }}
             >
               {viewMode === "week"
@@ -404,175 +407,203 @@ export function UnifiedCalendarView({
             </h2>
 
             {/* Total items badge */}
-            <span className="hidden sm:inline-flex items-center px-2 py-0.5 text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-100 rounded-full">
+            <span className="hidden md:inline-flex items-center px-2 py-0.5 text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-100 rounded-full">
               {filteredEvents.length + filteredTasks.length} Scheduled
             </span>
           </div>
 
-          {/* Admin "Create Event" Quick Action */}
-          {role === "admin" && onOpenCreateModal && (
-            <button
-              type="button"
-              onClick={onOpenCreateModal}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-700 hover:to-sky-600 rounded-xl shadow-xs hover:shadow transition-all active:scale-95 cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Create Event</span>
-            </button>
-          )}
-        </div>
-
-        {/* Center/Right: View Switcher & Filters */}
-        <div className="flex items-center gap-2.5 flex-wrap justify-between lg:justify-end">
-          {/* View Switcher Segmented Control */}
-          <div className="inline-flex items-center p-1 bg-slate-100/90 border border-slate-200/80 rounded-xl shadow-2xs">
-            <button
-              onClick={() => setViewMode("month")}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                viewMode === "month"
-                  ? "bg-white text-sky-700 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <Grid3X3 className="w-3.5 h-3.5" />
-              <span>Month</span>
-            </button>
-            <button
-              onClick={() => setViewMode("week")}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                viewMode === "week"
-                  ? "bg-white text-sky-700 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <Columns className="w-3.5 h-3.5" />
-              <span>Week</span>
-            </button>
-            <button
-              onClick={() => setViewMode("agenda")}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                viewMode === "agenda"
-                  ? "bg-white text-sky-700 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <List className="w-3.5 h-3.5" />
-              <span>Agenda</span>
-            </button>
-          </div>
-
-          {/* Filter Dropdowns with refined styles */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <div className="flex items-center gap-1 text-slate-400 pl-1">
-              <Filter className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+          {/* Right on mobile / Desktop controls */}
+          <div className="flex items-center gap-2 justify-between sm:justify-end">
+            {/* View Switcher Segmented Control */}
+            <div className="inline-flex items-center p-0.5 bg-slate-100/90 border border-slate-200/80 rounded-xl shadow-2xs shrink-0">
+              <button
+                onClick={() => setViewMode("month")}
+                className={`inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  viewMode === "month"
+                    ? "bg-white text-sky-700 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+                title="Month View"
+              >
+                <Grid3X3 className="w-3.5 h-3.5" />
+                <span>Month</span>
+              </button>
+              <button
+                onClick={() => setViewMode("week")}
+                className={`inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  viewMode === "week"
+                    ? "bg-white text-sky-700 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+                title="Week View"
+              >
+                <Columns className="w-3.5 h-3.5" />
+                <span>Week</span>
+              </button>
+              <button
+                onClick={() => setViewMode("agenda")}
+                className={`inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  viewMode === "agenda"
+                    ? "bg-white text-sky-700 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+                title="Agenda View"
+              >
+                <List className="w-3.5 h-3.5" />
+                <span>Agenda</span>
+              </button>
             </div>
 
-            {/* Event Type Filter */}
-            <select
-              value={selectedEventType}
-              onChange={(e) => handleEventTypeChange(e.target.value)}
-              className="px-2.5 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs"
+            {/* Mobile Filter Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setMobileFiltersOpen((prev) => !prev)}
+              className={`sm:hidden inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                mobileFiltersOpen || activeFiltersCount > 0
+                  ? "bg-sky-50 border-sky-300 text-sky-700"
+                  : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+              }`}
             >
-              <option value="all">All Types</option>
-              <option value="holiday">🌴 Holidays & Vacations</option>
-              <option value="meeting">📹 Meetings</option>
-              <option value="notice">📢 Official Notices</option>
-              <option value="event">✨ Company Events</option>
-              <option value="tasks">📋 Tasks Only</option>
-            </select>
+              <Filter className="w-3.5 h-3.5" />
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-sky-600 text-white text-[10px] inline-flex items-center justify-center font-bold">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
 
-            {/* Admin intern dropdown filter */}
-            {role === "admin" && interns.length > 0 && (
-              <select
-                value={selectedIntern}
-                onChange={(e) => handleInternChange(e.target.value)}
-                className="px-2.5 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs max-w-[150px] truncate"
-              >
-                <option value="all">All Assignees</option>
-                {interns.map((intern) => (
-                  <option key={intern._id} value={intern._id}>
-                    {intern.name} {intern.internId ? `(${intern.internId})` : ""}
-                  </option>
-                ))}
-              </select>
-            )}
-
-            {/* Status filter (for tasks) */}
-            <select
-              value={selectedStatus}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              className="px-2.5 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs"
-            >
-              <option value="all">All Statuses</option>
-              <option value="assigned">Assigned</option>
-              <option value="in_progress">In Progress</option>
-              <option value="submitted">Submitted</option>
-              <option value="changes_requested">Changes Req.</option>
-              <option value="approved">Approved</option>
-            </select>
-
-            {/* Priority filter */}
-            <select
-              value={selectedPriority}
-              onChange={(e) => handlePriorityChange(e.target.value)}
-              className="px-2.5 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs"
-            >
-              <option value="all">All Priorities</option>
-              <option value="urgent">Urgent</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
-
-            {/* Clear filters shortcut button if any active */}
-            {activeFiltersCount > 0 && (
+            {/* Admin "Create Event" Quick Action */}
+            {role === "admin" && onOpenCreateModal && (
               <button
                 type="button"
-                onClick={clearAllFilters}
-                className="px-2 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                title="Reset filters"
+                onClick={onOpenCreateModal}
+                className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-700 hover:to-sky-600 rounded-xl shadow-xs hover:shadow transition-all active:scale-95 cursor-pointer shrink-0"
               >
-                Reset
+                <Plus className="w-3.5 h-3.5" />
+                <span className="hidden xs:inline">Create Event</span>
+                <span className="xs:hidden">Create</span>
               </button>
             )}
           </div>
         </div>
+
+        {/* Row 2: Filter Dropdowns (collapsible on mobile, inline on sm+) */}
+        <div
+          className={`${
+            mobileFiltersOpen ? "flex" : "hidden sm:flex"
+          } flex-wrap items-center gap-2 pt-2 border-t border-slate-100 sm:border-0 sm:pt-0`}
+        >
+          <div className="hidden sm:flex items-center gap-1 text-slate-400 pl-0.5">
+            <Filter className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+            <span className="text-[11px] font-semibold text-slate-500">Filter:</span>
+          </div>
+
+          {/* Event Type Filter */}
+          <select
+            value={selectedEventType}
+            onChange={(e) => handleEventTypeChange(e.target.value)}
+            className="flex-1 sm:flex-initial px-2.5 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs min-w-[120px]"
+          >
+            <option value="all">All Types</option>
+            <option value="holiday">🌴 Holidays & Vacations</option>
+            <option value="meeting">📹 Meetings</option>
+            <option value="notice">📢 Official Notices</option>
+            <option value="event">✨ Company Events</option>
+            <option value="tasks">📋 Tasks Only</option>
+          </select>
+
+          {/* Admin intern dropdown filter */}
+          {role === "admin" && interns.length > 0 && (
+            <select
+              value={selectedIntern}
+              onChange={(e) => handleInternChange(e.target.value)}
+              className="flex-1 sm:flex-initial px-2.5 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs min-w-[130px] max-w-full sm:max-w-[160px] truncate"
+            >
+              <option value="all">All Assignees</option>
+              {interns.map((intern) => (
+                <option key={intern._id} value={intern._id}>
+                  {intern.name} {intern.internId ? `(${intern.internId})` : ""}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Status filter (for tasks) */}
+          <select
+            value={selectedStatus}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            className="flex-1 sm:flex-initial px-2.5 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs min-w-[110px]"
+          >
+            <option value="all">All Statuses</option>
+            <option value="assigned">Assigned</option>
+            <option value="in_progress">In Progress</option>
+            <option value="submitted">Submitted</option>
+            <option value="changes_requested">Changes Req.</option>
+            <option value="approved">Approved</option>
+          </select>
+
+          {/* Priority filter */}
+          <select
+            value={selectedPriority}
+            onChange={(e) => handlePriorityChange(e.target.value)}
+            className="flex-1 sm:flex-initial px-2.5 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all cursor-pointer shadow-2xs min-w-[110px]"
+          >
+            <option value="all">All Priorities</option>
+            <option value="urgent">Urgent</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+
+          {/* Clear filters shortcut button if any active */}
+          {activeFiltersCount > 0 && (
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="px-2.5 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer border border-rose-200 sm:border-transparent"
+              title="Reset filters"
+            >
+              Reset ({activeFiltersCount})
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ── Category Quick Legend / Visual Aid ──────────────── */}
-      <div className="flex items-center gap-3 sm:gap-4 px-2 overflow-x-auto text-[11px] text-slate-500 py-1 scrollbar-none">
+      <div className="flex items-center gap-3 sm:gap-4 px-1 overflow-x-auto text-[11px] text-slate-500 py-0.5 scrollbar-none">
         <span className="font-semibold text-slate-400 uppercase tracking-wider text-[10px] shrink-0">
           Legend:
         </span>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           <span className="w-2 h-2 rounded-full bg-emerald-500" />
           <span>Holidays</span>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           <span className="w-2 h-2 rounded-full bg-sky-500" />
           <span>Meetings</span>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           <span className="w-2 h-2 rounded-full bg-amber-500" />
           <span>Notices</span>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           <span className="w-2 h-2 rounded-full bg-indigo-500" />
-          <span>Company Events</span>
+          <span>Events</span>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           <span className="w-2 h-2 rounded-full bg-slate-700" />
-          <span>Tasks & Deadlines</span>
+          <span>Tasks</span>
         </div>
       </div>
 
       {/* ── Loading Skeleton / Content ──────────────────────── */}
       {isLoading ? (
-        <div className="iwms-card p-6 space-y-4 bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-xs" style={{ borderRadius: "16px" }}>
+        <div className="iwms-card p-4 sm:p-6 space-y-4 bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-xs" style={{ borderRadius: "16px" }}>
           <div className="h-6 w-48 bg-slate-200/70 animate-pulse rounded-lg" />
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2">
             {Array.from({ length: 35 }).map((_, i) => (
-              <div key={i} className="h-28 bg-slate-100/70 rounded-xl animate-pulse" />
+              <div key={i} className="h-16 sm:h-28 bg-slate-100/70 rounded-xl animate-pulse" />
             ))}
           </div>
         </div>
@@ -585,14 +616,14 @@ export function UnifiedCalendarView({
               style={{ borderRadius: "16px" }}
             >
               {/* Day headers */}
-              <div className="grid grid-cols-7 border-b border-slate-200/80 bg-slate-50/90 text-center py-2.5 text-xs font-bold text-slate-600 uppercase tracking-wider">
-                <div className="text-rose-500">Sun</div>
-                <div>Mon</div>
-                <div>Tue</div>
-                <div>Wed</div>
-                <div>Thu</div>
-                <div>Fri</div>
-                <div className="text-rose-500">Sat</div>
+              <div className="grid grid-cols-7 border-b border-slate-200/80 bg-slate-50/90 text-center py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-wider">
+                <div className="text-rose-500"><span className="sm:hidden">S</span><span className="hidden sm:inline">Sun</span></div>
+                <div><span className="sm:hidden">M</span><span className="hidden sm:inline">Mon</span></div>
+                <div><span className="sm:hidden">T</span><span className="hidden sm:inline">Tue</span></div>
+                <div><span className="sm:hidden">W</span><span className="hidden sm:inline">Wed</span></div>
+                <div><span className="sm:hidden">T</span><span className="hidden sm:inline">Thu</span></div>
+                <div><span className="sm:hidden">F</span><span className="hidden sm:inline">Fri</span></div>
+                <div className="text-rose-500"><span className="sm:hidden">S</span><span className="hidden sm:inline">Sat</span></div>
               </div>
 
               {/* Day grid */}
@@ -606,18 +637,25 @@ export function UnifiedCalendarView({
                   return (
                     <div
                       key={idx}
-                      className={`min-h-[110px] sm:min-h-[135px] p-1.5 sm:p-2 transition-all flex flex-col justify-between group ${
+                      onClick={() => {
+                        if (totalItems > 0) {
+                          setExpandedDayKey(day.dateKey);
+                        }
+                      }}
+                      className={`min-h-[58px] xs:min-h-[68px] sm:min-h-[130px] p-1 sm:p-2 transition-all flex flex-col justify-between group ${
+                        totalItems > 0 ? "cursor-pointer sm:cursor-default" : ""
+                      } ${
                         !day.isCurrentMonth
                           ? "bg-slate-50/60 text-slate-400"
                           : isToday
-                          ? "bg-sky-50/25 ring-1 ring-inset ring-sky-300/60"
+                          ? "bg-sky-50/30 ring-1 ring-inset ring-sky-300/70"
                           : "bg-white hover:bg-slate-50/80"
                       }`}
                     >
                       {/* Date header */}
-                      <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center justify-between">
                         <span
-                          className={`text-xs font-bold px-2 py-0.5 rounded-full inline-flex items-center justify-center min-w-[24px] leading-tight transition-transform ${
+                          className={`text-[11px] sm:text-xs font-bold px-1 sm:px-2 py-0.5 rounded-full inline-flex items-center justify-center min-w-[20px] sm:min-w-[24px] leading-tight transition-transform ${
                             isToday
                               ? "bg-gradient-to-r from-sky-600 to-sky-500 text-white font-extrabold shadow-xs scale-105"
                               : day.isCurrentMonth
@@ -630,8 +668,11 @@ export function UnifiedCalendarView({
 
                         {totalItems > 0 && (
                           <span
-                            onClick={() => setExpandedDayKey(expandedDayKey === day.dateKey ? null : day.dateKey)}
-                            className="text-[10px] font-semibold text-slate-400 hover:text-sky-600 px-1.5 py-0.5 rounded cursor-pointer transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setExpandedDayKey(expandedDayKey === day.dateKey ? null : day.dateKey);
+                            }}
+                            className="hidden sm:inline text-[10px] font-semibold text-slate-400 hover:text-sky-600 px-1 py-0.5 rounded cursor-pointer transition-colors"
                             title="Click to view all items for this day"
                           >
                             {totalItems} {totalItems === 1 ? "item" : "items"}
@@ -639,14 +680,54 @@ export function UnifiedCalendarView({
                         )}
                       </div>
 
-                      {/* Items list: Holidays/Events first, then Tasks */}
-                      <div className="space-y-1 overflow-y-auto max-h-[85px] sm:max-h-[96px] pr-0.5 scrollbar-thin">
+                      {/* MOBILE VIEW: Compact color-coded dots / count indicator */}
+                      <div className="sm:hidden flex items-center justify-center gap-0.5 flex-wrap pt-1">
+                        {dayEvents.slice(0, 3).map((evt) => (
+                          <span
+                            key={evt._id}
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              evt.type === "holiday"
+                                ? "bg-emerald-500"
+                                : evt.type === "meeting"
+                                ? "bg-sky-500"
+                                : evt.type === "notice"
+                                ? "bg-amber-500"
+                                : "bg-indigo-500"
+                            }`}
+                          />
+                        ))}
+                        {dayTasks.slice(0, Math.max(0, 3 - dayEvents.length)).map((t) => (
+                          <span
+                            key={t._id}
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              t.priority === "urgent"
+                                ? "bg-rose-500"
+                                : t.priority === "high"
+                                ? "bg-amber-500"
+                                : t.status === "approved"
+                                ? "bg-emerald-500"
+                                : "bg-sky-500"
+                            }`}
+                          />
+                        ))}
+                        {totalItems > 3 && (
+                          <span className="text-[9px] font-bold text-sky-600 leading-none">
+                            +{totalItems - 3}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* DESKTOP / TABLET VIEW: Interactive cards/pills */}
+                      <div className="hidden sm:block space-y-1 overflow-y-auto max-h-[85px] sm:max-h-[96px] pr-0.5 scrollbar-thin mt-1">
                         {/* Admin-Managed Events (Holidays, Meetings, Notices) */}
                         {dayEvents.slice(0, 2).map((evt) => (
                           <button
                             key={evt._id}
                             type="button"
-                            onClick={() => setSelectedEvent(evt)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedEvent(evt);
+                            }}
                             className={`w-full text-left px-1.5 py-1 rounded-md text-[11px] leading-snug border transition-all hover:scale-[1.01] hover:shadow-2xs block truncate cursor-pointer ${getEventBadgeClass(
                               evt
                             )}`}
@@ -672,7 +753,10 @@ export function UnifiedCalendarView({
                             <button
                               key={task._id}
                               type="button"
-                              onClick={() => setSelectedTask(task)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedTask(task);
+                              }}
                               className={`w-full text-left px-1.5 py-1 rounded-md text-[11px] leading-snug border transition-all hover:scale-[1.01] hover:shadow-2xs block truncate cursor-pointer ${
                                 isUrgent
                                   ? "bg-rose-50 border-rose-200 text-rose-800 hover:bg-rose-100/70"
@@ -710,7 +794,10 @@ export function UnifiedCalendarView({
                         {totalItems > 3 && (
                           <button
                             type="button"
-                            onClick={() => setExpandedDayKey(day.dateKey)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setExpandedDayKey(day.dateKey);
+                            }}
                             className="text-[10px] font-bold text-sky-600 hover:text-sky-800 hover:bg-sky-50 rounded w-full text-center py-0.5 transition-colors cursor-pointer"
                           >
                             +{totalItems - 3} more
@@ -730,112 +817,114 @@ export function UnifiedCalendarView({
               className="iwms-card overflow-hidden bg-white border border-slate-200/80 shadow-sm"
               style={{ borderRadius: "16px" }}
             >
-              <div className="grid grid-cols-7 divide-x divide-slate-100 min-h-[420px]">
-                {weekDays.map((day, idx) => {
-                  const dayTasks = tasksByDate.get(day.dateKey) || [];
-                  const dayEvents = eventsByDate.get(day.dateKey) || [];
-                  const isToday = day.dateKey === todayKey;
+              <div className="overflow-x-auto scrollbar-thin">
+                <div className="grid grid-cols-7 divide-x divide-slate-100 min-h-[380px] sm:min-h-[420px] min-w-[650px] sm:min-w-0">
+                  {weekDays.map((day, idx) => {
+                    const dayTasks = tasksByDate.get(day.dateKey) || [];
+                    const dayEvents = eventsByDate.get(day.dateKey) || [];
+                    const isToday = day.dateKey === todayKey;
 
-                  return (
-                    <div
-                      key={idx}
-                      className={`p-2 sm:p-3 flex flex-col transition-colors ${
-                        isToday ? "bg-sky-50/20" : "bg-white"
-                      }`}
-                    >
-                      {/* Day column header */}
+                    return (
                       <div
-                        className={`text-center pb-2.5 mb-2.5 border-b border-slate-100 ${
-                          isToday ? "bg-sky-50/80 rounded-xl pt-1.5 shadow-2xs" : ""
+                        key={idx}
+                        className={`p-2 sm:p-3 flex flex-col transition-colors ${
+                          isToday ? "bg-sky-50/20" : "bg-white"
                         }`}
                       >
+                        {/* Day column header */}
                         <div
-                          className={`text-[11px] font-bold uppercase tracking-wider ${
-                            day.date.getDay() === 0 || day.date.getDay() === 6
-                              ? "text-rose-500"
-                              : "text-slate-500"
+                          className={`text-center pb-2.5 mb-2.5 border-b border-slate-100 ${
+                            isToday ? "bg-sky-50/80 rounded-xl pt-1.5 shadow-2xs" : ""
                           }`}
                         >
-                          {day.date.toLocaleDateString("default", { weekday: "short" })}
+                          <div
+                            className={`text-[11px] font-bold uppercase tracking-wider ${
+                              day.date.getDay() === 0 || day.date.getDay() === 6
+                                ? "text-rose-500"
+                                : "text-slate-500"
+                            }`}
+                          >
+                            {day.date.toLocaleDateString("default", { weekday: "short" })}
+                          </div>
+                          <div
+                            className={`text-base font-extrabold inline-block px-2.5 py-0.5 rounded-full mt-0.5 ${
+                              isToday
+                                ? "bg-gradient-to-r from-sky-600 to-sky-500 text-white shadow-xs"
+                                : "text-slate-800"
+                            }`}
+                          >
+                            {day.date.getDate()}
+                          </div>
                         </div>
-                        <div
-                          className={`text-base font-extrabold inline-block px-2.5 py-0.5 rounded-full mt-0.5 ${
-                            isToday
-                              ? "bg-gradient-to-r from-sky-600 to-sky-500 text-white shadow-xs"
-                              : "text-slate-800"
-                          }`}
-                        >
-                          {day.date.getDate()}
+
+                        {/* Day Items */}
+                        <div className="flex-1 space-y-2 overflow-y-auto max-h-[420px] pr-0.5 scrollbar-thin">
+                          {dayEvents.map((evt) => (
+                            <div
+                              key={evt._id}
+                              onClick={() => setSelectedEvent(evt)}
+                              className={`p-2.5 rounded-xl border transition-all hover:shadow-xs cursor-pointer ${getEventBadgeClass(
+                                evt
+                              )}`}
+                            >
+                              <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider mb-1">
+                                {renderEventIcon(evt.type)}
+                                <span>{evt.type}</span>
+                              </div>
+                              <p className="text-xs font-bold line-clamp-2 leading-snug">{evt.title}</p>
+                              {evt.location && (
+                                <p className="text-[10px] opacity-80 truncate mt-1.5 flex items-center gap-1">
+                                  <span>📍</span>
+                                  <span>{evt.location}</span>
+                                </p>
+                              )}
+                            </div>
+                          ))}
+
+                          {dayTasks.map((task) => (
+                            <div
+                              key={task._id}
+                              onClick={() => setSelectedTask(task)}
+                              className="p-2.5 rounded-xl border border-slate-200/90 hover:border-sky-300 bg-white hover:bg-sky-50/30 transition-all cursor-pointer shadow-2xs hover:shadow-xs"
+                            >
+                              <div className="flex items-center justify-between gap-1 mb-1">
+                                <span
+                                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${getPriorityBadgeClass(
+                                    task.priority
+                                  )}`}
+                                >
+                                  {task.priority}
+                                </span>
+                                <span
+                                  className={`text-[9px] font-medium px-1.5 py-0.5 rounded capitalize ${getStatusBadgeClass(
+                                    task.status
+                                  )}`}
+                                >
+                                  {task.status.replace("_", " ")}
+                                </span>
+                              </div>
+                              <p className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug">
+                                {task.title}
+                              </p>
+                              {role === "admin" && (
+                                <p className="text-[10px] text-slate-500 truncate mt-1.5 flex items-center gap-1">
+                                  <UserIcon className="w-3 h-3 text-slate-400" />
+                                  <span>{getAssigneeLabel(task)}</span>
+                                </p>
+                              )}
+                            </div>
+                          ))}
+
+                          {dayEvents.length === 0 && dayTasks.length === 0 && (
+                            <div className="text-center py-10 text-slate-300 text-xs font-medium">
+                              No scheduled items
+                            </div>
+                          )}
                         </div>
                       </div>
-
-                      {/* Day Items */}
-                      <div className="flex-1 space-y-2 overflow-y-auto max-h-[420px] pr-0.5 scrollbar-thin">
-                        {dayEvents.map((evt) => (
-                          <div
-                            key={evt._id}
-                            onClick={() => setSelectedEvent(evt)}
-                            className={`p-2.5 rounded-xl border transition-all hover:shadow-xs cursor-pointer ${getEventBadgeClass(
-                              evt
-                            )}`}
-                          >
-                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider mb-1">
-                              {renderEventIcon(evt.type)}
-                              <span>{evt.type}</span>
-                            </div>
-                            <p className="text-xs font-bold line-clamp-2 leading-snug">{evt.title}</p>
-                            {evt.location && (
-                              <p className="text-[10px] opacity-80 truncate mt-1.5 flex items-center gap-1">
-                                <span>📍</span>
-                                <span>{evt.location}</span>
-                              </p>
-                            )}
-                          </div>
-                        ))}
-
-                        {dayTasks.map((task) => (
-                          <div
-                            key={task._id}
-                            onClick={() => setSelectedTask(task)}
-                            className="p-2.5 rounded-xl border border-slate-200/90 hover:border-sky-300 bg-white hover:bg-sky-50/30 transition-all cursor-pointer shadow-2xs hover:shadow-xs"
-                          >
-                            <div className="flex items-center justify-between gap-1 mb-1">
-                              <span
-                                className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${getPriorityBadgeClass(
-                                  task.priority
-                                )}`}
-                              >
-                                {task.priority}
-                              </span>
-                              <span
-                                className={`text-[9px] font-medium px-1.5 py-0.5 rounded capitalize ${getStatusBadgeClass(
-                                  task.status
-                                )}`}
-                              >
-                                {task.status.replace("_", " ")}
-                              </span>
-                            </div>
-                            <p className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug">
-                              {task.title}
-                            </p>
-                            {role === "admin" && (
-                              <p className="text-[10px] text-slate-500 truncate mt-1.5 flex items-center gap-1">
-                                <UserIcon className="w-3 h-3 text-slate-400" />
-                                <span>{getAssigneeLabel(task)}</span>
-                              </p>
-                            )}
-                          </div>
-                        ))}
-
-                        {dayEvents.length === 0 && dayTasks.length === 0 && (
-                          <div className="text-center py-10 text-slate-300 text-xs font-medium">
-                            No scheduled items
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
