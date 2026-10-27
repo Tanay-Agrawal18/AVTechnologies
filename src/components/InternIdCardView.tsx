@@ -105,18 +105,19 @@ export function InternIdCardView({
           }),
         });
 
+        // Use direct, concise verification URL for maximum QR scannability
+        // The /verify/[token] route supports both token and direct internId
         let targetUrl = "";
         if (res.ok) {
           const json = await res.json();
           if (json.token) {
-            // Guarantee target URL uses the exact active hostname / origin of the user
             targetUrl = `${clientOrigin}/verify/${encodeURIComponent(json.token)}`;
           } else if (json.verificationUrl) {
             targetUrl = json.verificationUrl;
           }
         }
 
-        // Direct fallback: verify with formatted intern ID
+        // Direct clean fallback: verify with internId
         if (!targetUrl) {
           targetUrl = `${clientOrigin}/verify/${encodeURIComponent(formattedInternId)}`;
         }
@@ -124,15 +125,18 @@ export function InternIdCardView({
         if (!isMounted) return;
         setVerificationUrl(targetUrl);
 
-        // Generate large high-resolution Back QR code
+        // Generate QR code optimized for camera scanners:
+        // - Error correction 'M' (15%) or 'Q' (25%) gives cleaner, larger modules than 'H'
+        // - margin: 2 ensures required quiet-zone so phone cameras detect the finder patterns instantly
+        // - pure '#000000' contrast on '#FFFFFF'
         const backUrl = await QRCode.toDataURL(targetUrl, {
-          width: 480,
-          margin: 1,
+          width: 512,
+          margin: 2,
           color: {
-            dark: "#0B1F3A",
+            dark: "#000000",
             light: "#FFFFFF",
           },
-          errorCorrectionLevel: "H",
+          errorCorrectionLevel: "M",
         });
 
         if (isMounted) {
@@ -147,19 +151,19 @@ export function InternIdCardView({
         const fallbackTarget = `${fallbackOrigin}/verify/${encodeURIComponent(formattedInternId)}`;
         try {
           const fallbackQr = await QRCode.toDataURL(fallbackTarget, {
-            width: 480,
-            margin: 1,
-            color: { dark: "#0B1F3A", light: "#FFFFFF" },
-            errorCorrectionLevel: "H",
+            width: 512,
+            margin: 2,
+            color: { dark: "#000000", light: "#FFFFFF" },
+            errorCorrectionLevel: "M",
           });
           if (isMounted) {
             setBackQrDataUrl(fallbackQr);
             setVerificationUrl(fallbackTarget);
           }
         } catch {
-          const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
+          const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(
             fallbackTarget
-          )}&color=0b1f3a&bgcolor=ffffff&margin=1`;
+          )}&color=000000&bgcolor=ffffff&margin=2`;
           if (isMounted) {
             setBackQrDataUrl(fallbackUrl);
             setVerificationUrl(fallbackTarget);
@@ -559,13 +563,13 @@ export function InternIdCardView({
               {/* ── BACK CENTER: Large Scannable QR Code ── */}
               <div className="relative z-10 my-auto py-1 flex flex-col items-center text-center">
                 {/* Large QR Frame with Gradient Ring & Soft Shadow */}
-                <div className="p-1 rounded-2xl bg-gradient-to-b from-sky-400 via-sky-300 to-sky-500 shadow-lg shadow-sky-500/15">
-                  <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-[14px] bg-white p-2.5 flex items-center justify-center border border-white">
+                <div className="p-1 rounded-2xl bg-gradient-to-b from-sky-400 via-sky-300 to-sky-500 shadow-md shadow-sky-500/15">
+                  <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-[14px] bg-white p-2 flex items-center justify-center border border-white">
                     {backQrDataUrl ? (
                       <img
                         src={backQrDataUrl}
                         alt="Scan To Verify ID QR Code"
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-contain [image-rendering:pixelated]"
                       />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-1.5">
