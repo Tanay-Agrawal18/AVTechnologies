@@ -363,9 +363,9 @@ export function UnifiedCalendarView({
       >
         {/* Row 1: Navigation & Title & Action */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          {/* Left: Nav Buttons & Period Title */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <div className="inline-flex items-center p-0.5 bg-slate-100/90 border border-slate-200/80 rounded-xl shadow-2xs">
+          {/* Top on mobile: Nav buttons & Title */}
+          <div className="flex items-center justify-between sm:justify-start gap-2 flex-wrap">
+            <div className="inline-flex items-center p-0.5 bg-slate-100/90 border border-slate-200/80 rounded-xl shadow-2xs shrink-0">
               <button
                 onClick={handlePrevious}
                 aria-label="Previous Period"
@@ -391,7 +391,7 @@ export function UnifiedCalendarView({
             </div>
 
             <h2
-              className="text-sm sm:text-lg lg:text-xl font-bold tracking-tight truncate max-w-[200px] sm:max-w-none"
+              className="text-sm sm:text-lg lg:text-xl font-bold tracking-tight truncate flex-1 min-w-[120px] text-right sm:text-left"
               style={{ color: "var(--iwms-navy)" }}
             >
               {viewMode === "week"
@@ -412,45 +412,45 @@ export function UnifiedCalendarView({
             </span>
           </div>
 
-          {/* Right on mobile / Desktop controls */}
-          <div className="flex items-center gap-2 justify-between sm:justify-end">
+          {/* Controls: Segmented View Switcher + Filter + Create */}
+          <div className="flex items-center gap-1.5 justify-between sm:justify-end flex-wrap xs:flex-nowrap">
             {/* View Switcher Segmented Control */}
-            <div className="inline-flex items-center p-0.5 bg-slate-100/90 border border-slate-200/80 rounded-xl shadow-2xs shrink-0">
+            <div className="inline-flex items-center p-0.5 bg-slate-100/90 border border-slate-200/80 rounded-xl shadow-2xs shrink-0 flex-1 xs:flex-initial justify-between xs:justify-start">
               <button
                 onClick={() => setViewMode("month")}
-                className={`inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`flex-1 xs:flex-initial inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   viewMode === "month"
                     ? "bg-white text-sky-700 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
                 title="Month View"
               >
-                <Grid3X3 className="w-3.5 h-3.5" />
-                <span>Month</span>
+                <Grid3X3 className="w-3.5 h-3.5 shrink-0" />
+                <span className="text-[11px] sm:text-xs">Month</span>
               </button>
               <button
                 onClick={() => setViewMode("week")}
-                className={`inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`flex-1 xs:flex-initial inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   viewMode === "week"
                     ? "bg-white text-sky-700 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
                 title="Week View"
               >
-                <Columns className="w-3.5 h-3.5" />
-                <span>Week</span>
+                <Columns className="w-3.5 h-3.5 shrink-0" />
+                <span className="text-[11px] sm:text-xs">Week</span>
               </button>
               <button
                 onClick={() => setViewMode("agenda")}
-                className={`inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`flex-1 xs:flex-initial inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   viewMode === "agenda"
                     ? "bg-white text-sky-700 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
                 title="Agenda View"
               >
-                <List className="w-3.5 h-3.5" />
-                <span>Agenda</span>
+                <List className="w-3.5 h-3.5 shrink-0" />
+                <span className="text-[11px] sm:text-xs">Agenda</span>
               </button>
             </div>
 
@@ -458,14 +458,14 @@ export function UnifiedCalendarView({
             <button
               type="button"
               onClick={() => setMobileFiltersOpen((prev) => !prev)}
-              className={`sm:hidden inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+              className={`sm:hidden inline-flex items-center gap-1 px-2 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer shrink-0 ${
                 mobileFiltersOpen || activeFiltersCount > 0
                   ? "bg-sky-50 border-sky-300 text-sky-700"
                   : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
               }`}
             >
-              <Filter className="w-3.5 h-3.5" />
-              <span>Filters</span>
+              <Filter className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden xxs:inline text-[11px]">Filter</span>
               {activeFiltersCount > 0 && (
                 <span className="w-4 h-4 rounded-full bg-sky-600 text-white text-[10px] inline-flex items-center justify-center font-bold">
                   {activeFiltersCount}
@@ -817,8 +817,171 @@ export function UnifiedCalendarView({
               className="iwms-card overflow-hidden bg-white border border-slate-200/80 shadow-sm"
               style={{ borderRadius: "16px" }}
             >
-              <div className="overflow-x-auto scrollbar-thin">
-                <div className="grid grid-cols-7 divide-x divide-slate-100 min-h-[380px] sm:min-h-[420px] min-w-[650px] sm:min-w-0">
+              {/* MOBILE WEEK VIEW (Screen < sm): 7-Day Quick Strip + Active Day Content Card */}
+              <div className="sm:hidden flex flex-col">
+                {/* 7-Day Day Selector Strip */}
+                <div className="grid grid-cols-7 border-b border-slate-200/80 bg-slate-50/90 text-center py-2 px-1">
+                  {weekDays.map((day) => {
+                    const isSelected =
+                      day.date.getFullYear() === currentDate.getFullYear() &&
+                      day.date.getMonth() === currentDate.getMonth() &&
+                      day.date.getDate() === currentDate.getDate();
+                    const isToday = day.dateKey === todayKey;
+                    const dayTasks = tasksByDate.get(day.dateKey) || [];
+                    const dayEvents = eventsByDate.get(day.dateKey) || [];
+                    const totalItems = dayTasks.length + dayEvents.length;
+
+                    return (
+                      <button
+                        key={day.dateKey}
+                        type="button"
+                        onClick={() => setCurrentDate(new Date(day.date))}
+                        className={`flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition-all cursor-pointer ${
+                          isSelected
+                            ? "bg-sky-600 text-white font-extrabold shadow-xs"
+                            : isToday
+                            ? "bg-sky-100 text-sky-800 font-bold"
+                            : "text-slate-600 hover:bg-slate-200/60"
+                        }`}
+                      >
+                        <span
+                          className={`text-[10px] uppercase font-bold ${
+                            isSelected
+                              ? "text-sky-100"
+                              : day.date.getDay() === 0 || day.date.getDay() === 6
+                              ? "text-rose-500"
+                              : "text-slate-400"
+                          }`}
+                        >
+                          {day.date.toLocaleDateString("default", { weekday: "narrow" })}
+                        </span>
+                        <span className="text-sm font-bold leading-tight mt-0.5">
+                          {day.date.getDate()}
+                        </span>
+
+                        {/* Dot indicator if items exist */}
+                        <div className="flex items-center gap-0.5 mt-1 h-1.5">
+                          {totalItems > 0 && (
+                            <span
+                              className={`w-1 h-1 rounded-full ${
+                                isSelected ? "bg-white" : "bg-sky-500"
+                              }`}
+                            />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Selected Day Agenda/Items on Mobile */}
+                {(() => {
+                  const activeDateKey = `${currentDate.getFullYear()}-${String(
+                    currentDate.getMonth() + 1
+                  ).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
+                  const activeDayTasks = tasksByDate.get(activeDateKey) || [];
+                  const activeDayEvents = eventsByDate.get(activeDateKey) || [];
+                  const activeIsToday = activeDateKey === todayKey;
+
+                  return (
+                    <div className="p-3.5 space-y-3 bg-white min-h-[220px]">
+                      {/* Active Day Header */}
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <h3 className="text-sm font-bold text-slate-900">
+                              {currentDate.toLocaleDateString("default", {
+                                weekday: "long",
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </h3>
+                            {activeIsToday && (
+                              <span className="text-[10px] font-extrabold bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded-full">
+                                Today
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-400">
+                            {activeDayEvents.length + activeDayTasks.length} scheduled item
+                            {activeDayEvents.length + activeDayTasks.length === 1 ? "" : "s"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Items */}
+                      <div className="space-y-2">
+                        {activeDayEvents.map((evt) => (
+                          <div
+                            key={evt._id}
+                            onClick={() => setSelectedEvent(evt)}
+                            className={`p-3 rounded-xl border transition-all cursor-pointer ${getEventBadgeClass(
+                              evt
+                            )}`}
+                          >
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider mb-1">
+                              {renderEventIcon(evt.type)}
+                              <span>{evt.type}</span>
+                            </div>
+                            <h4 className="text-xs font-bold leading-snug">{evt.title}</h4>
+                            {evt.location && (
+                              <p className="text-[10px] opacity-80 truncate mt-1 flex items-center gap-1">
+                                <span>📍</span>
+                                <span>{evt.location}</span>
+                              </p>
+                            )}
+                          </div>
+                        ))}
+
+                        {activeDayTasks.map((task) => (
+                          <div
+                            key={task._id}
+                            onClick={() => setSelectedTask(task)}
+                            className="p-3 rounded-xl border border-slate-200/90 bg-white hover:bg-sky-50/30 transition-all cursor-pointer shadow-2xs"
+                          >
+                            <div className="flex items-center justify-between gap-1 mb-1">
+                              <span
+                                className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${getPriorityBadgeClass(
+                                  task.priority
+                                )}`}
+                              >
+                                {task.priority}
+                              </span>
+                              <span
+                                className={`text-[9px] font-medium px-1.5 py-0.5 rounded capitalize ${getStatusBadgeClass(
+                                  task.status
+                                )}`}
+                              >
+                                {task.status.replace("_", " ")}
+                              </span>
+                            </div>
+                            <p className="text-xs font-bold text-slate-900 leading-snug">
+                              {task.title}
+                            </p>
+                            {role === "admin" && (
+                              <p className="text-[10px] text-slate-500 truncate mt-1 flex items-center gap-1">
+                                <UserIcon className="w-3 h-3 text-slate-400" />
+                                <span>{getAssigneeLabel(task)}</span>
+                              </p>
+                            )}
+                          </div>
+                        ))}
+
+                        {activeDayEvents.length === 0 && activeDayTasks.length === 0 && (
+                          <div className="text-center py-10 text-slate-400 text-xs font-medium space-y-1">
+                            <CalendarIcon className="w-6 h-6 mx-auto text-slate-300" />
+                            <p>No items scheduled for this day</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* DESKTOP / TABLET WEEK VIEW (Screen >= sm) */}
+              <div className="hidden sm:block overflow-x-auto scrollbar-thin">
+                <div className="grid grid-cols-7 divide-x divide-slate-100 min-h-[420px]">
                   {weekDays.map((day, idx) => {
                     const dayTasks = tasksByDate.get(day.dateKey) || [];
                     const dayEvents = eventsByDate.get(day.dateKey) || [];
