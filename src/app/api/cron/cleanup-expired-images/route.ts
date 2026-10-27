@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import { DailyProgressImage } from "@/models/DailyProgressImage";
 import { deleteFromCloudinary, isCloudinaryConfigured } from "@/lib/cloudinary";
 
-export async function POST(req: NextRequest) {
+async function executeCleanup(req: NextRequest) {
   // Enforce CRON_SECRET authorization
   const authHeader = req.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET || process.env.CLEANUP_JOB_SECRET;
@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
       // Cloudinary returns result: "ok" or "not found"
       if (res.result === "ok" || res.result === "not found") {
         image.isDeleted = true;
+        image.status = "deleted";
         image.deletedAt = new Date();
         await image.save();
 
@@ -67,6 +68,7 @@ export async function POST(req: NextRequest) {
         });
       } else {
         image.cleanupRetryCount += 1;
+        image.status = "delete_failed";
         image.lastCleanupError = `Unexpected Cloudinary response: ${JSON.stringify(res)}`;
         await image.save();
 
@@ -81,6 +83,7 @@ export async function POST(req: NextRequest) {
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : "Deletion failed";
       image.cleanupRetryCount += 1;
+      image.status = "delete_failed";
       image.lastCleanupError = errorMsg;
       await image.save();
 
@@ -99,4 +102,12 @@ export async function POST(req: NextRequest) {
     timestamp: new Date().toISOString(),
     results,
   });
+}
+
+export async function POST(req: NextRequest) {
+  return executeCleanup(req);
+}
+
+export async function GET(req: NextRequest) {
+  return executeCleanup(req);
 }

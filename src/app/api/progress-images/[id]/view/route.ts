@@ -22,7 +22,8 @@ export async function GET(
 
   // Check 24-hour expiry strictly
   const now = new Date();
-  if (image.isDeleted || image.expiresAt <= now) {
+  const effectiveExpiry = image.expiresAt || (image.uploadedAt ? new Date(image.uploadedAt.getTime() + 24 * 60 * 60 * 1000) : null);
+  if (image.isDeleted || !effectiveExpiry || effectiveExpiry <= now) {
     return NextResponse.json(
       { error: "Image access expired. Progress images are strictly retained for 24 hours only." },
       { status: 410 } // 410 Gone
@@ -39,8 +40,22 @@ export async function GET(
 
   // Generate private signed URL valid only until the image's exact expiry time
   try {
+    const isDownload = req.nextUrl.searchParams.get("download") === "true";
     const client = getCloudinaryClient();
-    const expiryTimestamp = Math.floor(image.expiresAt.getTime() / 1000);
+    const expiryTimestamp = Math.floor(effectiveExpiry.getTime() / 1000);
+
+    // If download is requested, Cloudinary attachment flag (fl_attachment:filename) or streaming response can be used
+    if (isDownload) {
+      const safeFilename = (image.originalFileName || "progress-image").replace(/[^a-zA-Z0-9._-]/g, "_");
+      const signedDownloadUrl = client.url(image.cloudinaryPublicId, {
+        sign_url: true,
+        secure: true,
+        expires_at: expiryTimestamp,
+        flags: `attachment:${safeFilename}`,
+      });
+
+      return NextResponse.redirect(signedDownloadUrl);
+    }
 
     const signedUrl = client.url(image.cloudinaryPublicId, {
       sign_url: true,

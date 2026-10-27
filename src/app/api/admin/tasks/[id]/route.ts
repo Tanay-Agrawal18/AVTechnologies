@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/db";
 import { Task } from "@/models/Task";
 import { TaskEvent } from "@/models/TaskEvent";
 import { Submission } from "@/models/Submission";
+import { DailyProgressImage } from "@/models/DailyProgressImage";
 import { TaskService } from "@/services/taskService";
 import { UpdateTaskSchema } from "@/validators";
 
@@ -25,12 +26,46 @@ export async function GET(
     return NextResponse.json({ error: "Task not found" }, { status: 404 });
   }
 
-  const [submissions, events] = await Promise.all([
+  const now = new Date();
+
+  const [submissions, events, images] = await Promise.all([
     Submission.find({ taskId: id }).sort({ version: -1 }).lean(),
     TaskEvent.find({ taskId: id }).sort({ timestamp: -1 }).lean(),
+    DailyProgressImage.find({
+      taskId: id,
+      isDeleted: false,
+      expiresAt: { $gt: now },
+    })
+      .populate("internId", "name email internId department")
+      .sort({ uploadedAt: -1 })
+      .lean(),
   ]);
 
-  return NextResponse.json({ task, submissions, events });
+  const formattedImages = images.map((img) => {
+    const remainingMs = Math.max(0, new Date(img.expiresAt).getTime() - now.getTime());
+    const internDoc = img.internId as unknown as { name?: string; email?: string; internId?: string } | null;
+    return {
+      _id: img._id,
+      originalFileName: img.originalFileName,
+      caption: img.caption,
+      uploadedAt: img.uploadedAt,
+      expiresAt: img.expiresAt,
+      remainingMinutes: Math.floor(remainingMs / (1000 * 60)),
+      status: img.status || "active",
+      uploaderName: internDoc?.name || "Intern",
+      uploaderEmail: internDoc?.email || "",
+      uploaderInternId: internDoc?.internId || "",
+      viewUrl: `/api/progress-images/${img._id}/view`,
+      downloadUrl: `/api/progress-images/${img._id}/view?download=true`,
+    };
+  });
+
+  return NextResponse.json({
+    task,
+    submissions,
+    events,
+    progressImages: formattedImages,
+  });
 }
 
 export async function PATCH(

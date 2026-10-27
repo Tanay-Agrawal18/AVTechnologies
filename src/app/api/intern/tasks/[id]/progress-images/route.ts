@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/apiAuth";
 import { connectDB } from "@/lib/db";
 import { Task } from "@/models/Task";
 import { DailyProgressImage } from "@/models/DailyProgressImage";
-import { uploadToCloudinary, isCloudinaryConfigured } from "@/lib/cloudinary";
+import { uploadToCloudinary, deleteFromCloudinary, isCloudinaryConfigured } from "@/lib/cloudinary";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -48,6 +48,7 @@ export async function GET(
       uploadedAt: img.uploadedAt,
       expiresAt: img.expiresAt,
       remainingMinutes: Math.floor(remainingMs / (1000 * 60)),
+      status: img.status || "active",
       viewUrl: `/api/progress-images/${img._id}/view`,
     };
   });
@@ -117,18 +118,30 @@ export async function POST(
     const uploadedAt = new Date();
     const expiresAt = new Date(uploadedAt.getTime() + 24 * 60 * 60 * 1000);
 
-    const progressImage = await DailyProgressImage.create({
-      taskId: task._id,
-      internId: auth.user.id,
-      cloudinaryPublicId: uploadResult.public_id,
-      originalFileName: file.name,
-      fileSize: file.size,
-      mimeType: file.type,
-      caption: caption.trim() ? caption.trim().slice(0, 300) : undefined,
-      uploadedAt,
-      expiresAt,
-      isDeleted: false,
-    });
+    let progressImage;
+    try {
+      progressImage = await DailyProgressImage.create({
+        taskId: task._id,
+        internId: auth.user.id,
+        cloudinaryPublicId: uploadResult.public_id,
+        originalFileName: file.name,
+        fileSize: file.size,
+        mimeType: file.type,
+        caption: caption.trim() ? caption.trim().slice(0, 300) : undefined,
+        uploadedAt,
+        expiresAt,
+        status: "active",
+        isDeleted: false,
+      });
+    } catch (dbErr) {
+      // Compensatory cleanup: if database save fails, remove orphaned asset from Cloudinary
+      try {
+        await deleteFromCloudinary(uploadResult.public_id);
+      } catch (cleanupErr) {
+        console.error("Failed compensatory deletion of Cloudinary asset:", cleanupErr);
+      }
+      throw dbErr;
+    }
 
     return NextResponse.json(
       {
@@ -140,6 +153,7 @@ export async function POST(
           uploadedAt: progressImage.uploadedAt,
           expiresAt: progressImage.expiresAt,
           remainingMinutes: 24 * 60,
+          status: progressImage.status,
           viewUrl: `/api/progress-images/${progressImage._id}/view`,
         },
       },

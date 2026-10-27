@@ -25,6 +25,10 @@ import {
   Paperclip,
   UserX,
   ArrowRightLeft,
+  Camera,
+  Download,
+  Eye,
+  Image as ImageIcon,
 } from "lucide-react";
 import { IUser } from "@/types";
 
@@ -62,6 +66,33 @@ export default function AdminTaskDetailPage({
   const [isTransferring, setIsTransferring] = useState(false);
   const [transferError, setTransferError] = useState<string | null>(null);
 
+  // Daily Progress Images State
+  const [progressImages, setProgressImages] = useState<
+    Array<{
+      _id: string;
+      originalFileName: string;
+      caption?: string;
+      uploadedAt: string;
+      expiresAt: string;
+      remainingMinutes: number;
+      status: string;
+      uploaderName: string;
+      uploaderEmail: string;
+      uploaderInternId: string;
+      viewUrl: string;
+      downloadUrl: string;
+    }>
+  >([]);
+  const [activePreviewImage, setActivePreviewImage] = useState<{
+    _id: string;
+    originalFileName: string;
+    caption?: string;
+    uploaderName: string;
+    remainingMinutes: number;
+    viewUrl: string;
+    downloadUrl: string;
+  } | null>(null);
+
   const fetchTaskDetail = async () => {
     setIsLoading(true);
     try {
@@ -71,6 +102,7 @@ export default function AdminTaskDetailPage({
         setTask(data.task);
         setSubmissions(data.submissions || []);
         setEvents(data.events || []);
+        setProgressImages(data.progressImages || []);
 
         // Default review selection to latest pending or last submission
         if (data.submissions && data.submissions.length > 0) {
@@ -376,6 +408,95 @@ export default function AdminTaskDetailPage({
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Daily Progress Photos with 24-Hour Expiry */}
+        <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div>
+              <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                <Camera className="w-5 h-5 text-sky-600" /> Progress Photos ({progressImages.length})
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Real-time photos uploaded by the intern during task execution. Automatically deleted 24 hours after upload.
+              </p>
+            </div>
+            <span className="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-amber-600" /> 24h Cloudinary Expiry
+            </span>
+          </div>
+
+          {progressImages.length === 0 ? (
+            <div className="p-6 text-center text-slate-400 bg-slate-50/60 rounded-xl border border-dashed border-slate-200">
+              <ImageIcon className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+              <p className="text-xs font-medium text-slate-600">No active progress photos uploaded yet</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                When the intern captures daily progress snapshots, they will appear here immediately for preview and download.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-1">
+              {progressImages.map((img) => (
+                <div
+                  key={img._id}
+                  className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs space-y-2.5 flex flex-col justify-between hover:border-slate-300 transition-colors"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate font-semibold text-slate-800 text-xs" title={img.originalFileName}>
+                        {img.originalFileName}
+                      </span>
+                      <span className="text-[10px] font-mono text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 shrink-0">
+                        {img.remainingMinutes > 60
+                          ? `${Math.floor(img.remainingMinutes / 60)}h left`
+                          : `${img.remainingMinutes}m left`}
+                      </span>
+                    </div>
+
+                    <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                      <span>By: <strong className="text-slate-700">{img.uploaderName}</strong></span>
+                      {img.uploaderInternId && (
+                        <span className="font-mono text-[10px] bg-slate-100 px-1 py-0.2 rounded text-slate-600">
+                          {img.uploaderInternId}
+                        </span>
+                      )}
+                    </div>
+
+                    {img.caption && (
+                      <p className="text-xs text-slate-600 italic bg-slate-50 p-2 rounded-lg border border-slate-150">
+                        &ldquo;{img.caption}&rdquo;
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <span className="text-[10px] text-slate-400">
+                      {new Date(img.uploadedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setActivePreviewImage(img)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition-colors"
+                      >
+                        <Eye className="w-3.5 h-3.5" /> Preview
+                      </button>
+
+                      <a
+                        href={img.downloadUrl}
+                        download={img.originalFileName}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
+                        title="Download photo to local device"
+                      >
+                        <Download className="w-3.5 h-3.5" /> Download
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Submissions & Reviews Section */}
@@ -819,6 +940,73 @@ export default function AdminTaskDetailPage({
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Photo Preview Modal */}
+        {activePreviewImage && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200">
+              <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="min-w-0 pr-3">
+                  <h4 className="font-bold text-sm text-slate-900 truncate">
+                    {activePreviewImage.originalFileName}
+                  </h4>
+                  <p className="text-[11px] text-slate-500">
+                    Uploaded by {activePreviewImage.uploaderName} &bull;{" "}
+                    <span className="font-mono text-amber-700 font-semibold">
+                      {activePreviewImage.remainingMinutes > 60
+                        ? `${Math.floor(activePreviewImage.remainingMinutes / 60)}h remaining`
+                        : `${activePreviewImage.remainingMinutes}m remaining`}
+                    </span>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActivePreviewImage(null)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 text-lg leading-none"
+                >
+                  &times;
+                </button>
+              </div>
+
+              <div className="p-4 bg-slate-900/5 flex items-center justify-center min-h-[300px] max-h-[60vh] overflow-auto">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={activePreviewImage.viewUrl}
+                  alt={activePreviewImage.originalFileName}
+                  className="max-h-[55vh] max-w-full rounded-lg object-contain shadow-sm"
+                />
+              </div>
+
+              {activePreviewImage.caption && (
+                <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 text-xs text-slate-600 italic">
+                  &ldquo;{activePreviewImage.caption}&rdquo;
+                </div>
+              )}
+
+              <div className="p-3 border-t border-slate-100 flex items-center justify-between bg-white">
+                <span className="text-[10px] text-slate-400">
+                  Cloudinary 24h temporary delivery URL
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActivePreviewImage(null)}
+                    className="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    Close
+                  </button>
+                  <a
+                    href={activePreviewImage.downloadUrl}
+                    download={activePreviewImage.originalFileName}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" /> Download Photo
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         )}

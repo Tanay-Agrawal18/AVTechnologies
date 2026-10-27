@@ -57,8 +57,10 @@ export async function uploadToCloudinary(
       {
         folder,
         resource_type: "image",
-        // Force private delivery if authenticated type is desired,
-        // or standard upload with server-side proxy
+        transformation: [
+          { width: 1920, height: 1080, crop: "limit" },
+          { quality: "auto:good" },
+        ],
       },
       (error: unknown, result: { public_id: string; secure_url: string; bytes: number; format: string } | undefined) => {
         if (error || !result) {

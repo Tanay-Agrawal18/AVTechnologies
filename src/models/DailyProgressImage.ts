@@ -1,5 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
+export type DailyProgressImageStatus = "active" | "expired" | "deleted" | "delete_failed";
+
 export interface IDailyProgressImageDocument extends Document {
   taskId: mongoose.Types.ObjectId;
   internId: mongoose.Types.ObjectId;
@@ -10,6 +12,7 @@ export interface IDailyProgressImageDocument extends Document {
   caption?: string;
   uploadedAt: Date;
   expiresAt: Date; // Exactly 24 hours after uploadedAt
+  status: DailyProgressImageStatus;
   isDeleted: boolean; // Set to true after verified deletion from Cloudinary
   deletedAt?: Date;
   cleanupRetryCount: number;
@@ -65,6 +68,12 @@ const DailyProgressImageSchema = new Schema<IDailyProgressImageDocument>(
       required: true,
       index: true,
     },
+    status: {
+      type: String,
+      enum: ["active", "expired", "deleted", "delete_failed"],
+      default: "active",
+      index: true,
+    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -89,7 +98,9 @@ const DailyProgressImageSchema = new Schema<IDailyProgressImageDocument>(
 // Compound indexes for active image lookup and cleanup queries
 DailyProgressImageSchema.index({ taskId: 1, isDeleted: 1, expiresAt: 1 });
 DailyProgressImageSchema.index({ isDeleted: 1, expiresAt: 1 });
+DailyProgressImageSchema.index({ status: 1, expiresAt: 1 });
 
 export const DailyProgressImage: Model<IDailyProgressImageDocument> =
   mongoose.models.DailyProgressImage ||
   mongoose.model<IDailyProgressImageDocument>("DailyProgressImage", DailyProgressImageSchema);
+

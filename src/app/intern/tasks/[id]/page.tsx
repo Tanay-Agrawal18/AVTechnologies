@@ -63,6 +63,7 @@ export default function InternTaskDetailPage({
   const [isUploadingProgressImage, setIsUploadingProgressImage] = useState(false);
   const [progressCaption, setProgressCaption] = useState("");
   const [progressError, setProgressError] = useState<string | null>(null);
+  const [progressSuccess, setProgressSuccess] = useState<string | null>(null);
 
   const fetchProgressImages = async () => {
     try {
@@ -166,6 +167,10 @@ export default function InternTaskDetailPage({
         throw new Error(data.error || "Failed to upload progress image");
       }
 
+      const expiryStr = data.image?.expiresAt
+        ? new Date(data.image.expiresAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        : "in 24 hours";
+      setProgressSuccess(`Photo uploaded successfully! Visible to admins immediately. Automatic deletion at ${expiryStr}.`);
       setProgressCaption("");
       fetchProgressImages();
     } catch (err: unknown) {
@@ -344,6 +349,13 @@ export default function InternTaskDetailPage({
               <Clock className="w-3 h-3" /> 24h Expiry
             </span>
           </div>
+
+          {progressSuccess && (
+            <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+              <span>{progressSuccess}</span>
+            </div>
+          )}
 
           {progressError && (
             <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
