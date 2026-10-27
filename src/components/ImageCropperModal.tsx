@@ -31,16 +31,28 @@ export function ImageCropperModal({
     offsetRef.current = offset;
   }, [offset]);
 
-  // Crop preview circle size
-  const CROP_SIZE = 260; // 260px square/circular crop window
+  // Crop preview circle size: responsive for small mobile screens
+  const [cropSize, setCropSize] = useState(240);
+
+  useEffect(() => {
+    const updateCropSize = () => {
+      if (typeof window !== "undefined") {
+        const available = Math.min(window.innerWidth - 48, 260);
+        setCropSize(Math.max(180, Math.min(260, available)));
+      }
+    };
+    updateCropSize();
+    window.addEventListener("resize", updateCropSize);
+    return () => window.removeEventListener("resize", updateCropSize);
+  }, []);
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
     imgRef.current = img;
 
-    // Calculate minimum zoom so image covers the CROP_SIZE circle in both dimensions
-    const scaleX = CROP_SIZE / img.naturalWidth;
-    const scaleY = CROP_SIZE / img.naturalHeight;
+    // Calculate minimum zoom so image covers the crop circle in both dimensions
+    const scaleX = cropSize / img.naturalWidth;
+    const scaleY = cropSize / img.naturalHeight;
     const baseScale = Math.max(scaleX, scaleY);
 
     setMinZoom(baseScale);
@@ -56,15 +68,15 @@ export function ImageCropperModal({
       const currentWidth = imgRef.current.naturalWidth * currentZoom;
       const currentHeight = imgRef.current.naturalHeight * currentZoom;
 
-      const maxX = Math.max(0, (currentWidth - CROP_SIZE) / 2);
-      const maxY = Math.max(0, (currentHeight - CROP_SIZE) / 2);
+      const maxX = Math.max(0, (currentWidth - cropSize) / 2);
+      const maxY = Math.max(0, (currentHeight - cropSize) / 2);
 
       return {
         x: Math.max(-maxX, Math.min(maxX, newX)),
         y: Math.max(-maxY, Math.min(maxY, newY)),
       };
     },
-    [CROP_SIZE]
+    [cropSize]
   );
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -159,18 +171,14 @@ export function ImageCropperModal({
 
       // In the DOM, the image center relative to container center is (offset.x, offset.y).
       // The crop window is centered at (0, 0) relative to container center.
-      // Therefore, the center of the crop window relative to the image top-left:
-      // imageLeft in container coords = - (naturalWidth * zoom)/2 + offset.x
-      // cropCenter in container coords = 0
-      // distance from imageLeft to cropCenter = 0 - imageLeft = (naturalWidth * zoom)/2 - offset.x
       // cropWindow Top-Left in rendered image coordinates:
-      const cropLeftInRendered = (img.naturalWidth * zoom) / 2 - offset.x - CROP_SIZE / 2;
-      const cropTopInRendered = (img.naturalHeight * zoom) / 2 - offset.y - CROP_SIZE / 2;
+      const cropLeftInRendered = (img.naturalWidth * zoom) / 2 - offset.x - cropSize / 2;
+      const cropTopInRendered = (img.naturalHeight * zoom) / 2 - offset.y - cropSize / 2;
 
       // Convert rendered coords to natural image coords:
       const sourceX = cropLeftInRendered / zoom;
       const sourceY = cropTopInRendered / zoom;
-      const sourceSize = CROP_SIZE / zoom;
+      const sourceSize = cropSize / zoom;
 
       // High quality smoothing
       ctx.imageSmoothingEnabled = true;
@@ -209,18 +217,18 @@ export function ImageCropperModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div
         className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col text-slate-100 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-900/90">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-slate-800 bg-slate-900/90">
           <div>
-            <h3 className="font-semibold text-base text-white flex items-center gap-2">
+            <h3 className="font-semibold text-sm sm:text-base text-white flex items-center gap-2">
               Crop & Position Photo
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
               Drag to reposition, use slider to zoom in or out
             </p>
           </div>
@@ -239,7 +247,7 @@ export function ImageCropperModal({
           ref={containerRef}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
-          className="relative w-full h-80 sm:h-96 bg-black flex items-center justify-center overflow-hidden select-none cursor-grab active:cursor-grabbing"
+          className="relative w-full h-72 sm:h-96 bg-black flex items-center justify-center overflow-hidden select-none cursor-grab active:cursor-grabbing"
           style={{ touchAction: "none" }}
         >
           {/* Rendered image to position and preview */}
@@ -276,8 +284,8 @@ export function ImageCropperModal({
               <div
                 className="rounded-full ring-[9999px] ring-black/70 border-2 border-sky-400 shadow-[0_0_0_1px_rgba(255,255,255,0.2)]"
                 style={{
-                  width: `${CROP_SIZE}px`,
-                  height: `${CROP_SIZE}px`,
+                  width: `${cropSize}px`,
+                  height: `${cropSize}px`,
                 }}
               >
                 {/* Crosshair guidelines inside crop area */}
@@ -291,16 +299,16 @@ export function ImageCropperModal({
 
           {/* Quick drag helper tag */}
           {imageLoaded && (
-            <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] text-slate-300 pointer-events-none flex items-center gap-1.5 border border-white/10">
-              <Move className="w-3 h-3 text-sky-400" /> Drag photo to move
+            <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] text-slate-300 pointer-events-none flex items-center gap-1.5 border border-white/10">
+              <Move className="w-3 h-3 text-sky-400" /> Drag to move
             </div>
           )}
         </div>
 
         {/* Controls Footer */}
-        <div className="p-4 sm:p-5 bg-slate-900 border-t border-slate-800 space-y-4">
+        <div className="p-3.5 sm:p-5 bg-slate-900 border-t border-slate-800 space-y-3 sm:space-y-4">
           {/* Zoom Slider */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => handleZoomChange(zoom - minZoom * 0.2)}
@@ -332,7 +340,7 @@ export function ImageCropperModal({
             <button
               type="button"
               onClick={handleReset}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors ml-1"
+              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors ml-0.5 sm:ml-1"
               title="Reset Position & Zoom"
             >
               <RotateCcw className="w-4 h-4" />
@@ -340,16 +348,16 @@ export function ImageCropperModal({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between pt-1">
-            <span className="text-[11px] text-slate-400">
-              Photo will be cropped to a clean square / circular avatar.
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-1">
+            <span className="text-[10px] sm:text-[11px] text-slate-400 text-center sm:text-left">
+              Photo will be cropped to a clean circular avatar.
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={onCancel}
                 disabled={isProcessing}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors border border-slate-700"
+                className="flex-1 sm:flex-none px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors border border-slate-700"
               >
                 Cancel
               </button>
@@ -357,7 +365,7 @@ export function ImageCropperModal({
                 type="button"
                 onClick={handleConfirmCrop}
                 disabled={!imageLoaded || isProcessing}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-white shadow-sm transition-all disabled:opacity-50"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-white shadow-sm transition-all disabled:opacity-50"
               >
                 {isProcessing ? (
                   <>
