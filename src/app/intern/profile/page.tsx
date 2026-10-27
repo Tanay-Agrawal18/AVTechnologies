@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/Skeleton";
+import { ImageCropperModal } from "@/components/ImageCropperModal";
 
 export default function InternProfilePage() {
   const router = useRouter();
@@ -36,6 +37,7 @@ export default function InternProfilePage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form states for editable personal details
@@ -82,15 +84,44 @@ export default function InternProfilePage() {
     fetchUser();
   }, [router]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files[0]) return;
     const file = e.target.files[0];
 
+    // Validate size (max 8MB before crop)
+    if (file.size > 8 * 1024 * 1024) {
+      setUploadError("Image is too large. Please select a photo under 8MB.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
     setUploadError(null);
     setUploadSuccess(null);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setImageToCrop(reader.result);
+      }
+    };
+    reader.onerror = () => {
+      setUploadError("Failed to read the selected image file.");
+    };
+    reader.readAsDataURL(file);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const uploadCroppedImage = async (croppedBlob: Blob) => {
+    setImageToCrop(null);
     setIsUploading(true);
+    setUploadError(null);
+    setUploadSuccess(null);
 
     const formData = new FormData();
+    const file = new File([croppedBlob], "profile.jpg", { type: "image/jpeg" });
     formData.append("file", file);
 
     try {
@@ -104,7 +135,7 @@ export default function InternProfilePage() {
         throw new Error(data.error || "Failed to upload profile picture");
       }
 
-      setUploadSuccess("Profile picture updated successfully!");
+      setUploadSuccess("Profile picture cropped and updated successfully!");
       fetchUser();
       // Inform header to refresh if needed
       window.dispatchEvent(new Event("profile-picture-updated"));
@@ -112,9 +143,6 @@ export default function InternProfilePage() {
       setUploadError(err instanceof Error ? err.message : "Error uploading picture");
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
     }
   };
 
@@ -661,6 +689,15 @@ export default function InternProfilePage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Image Cropper Modal */}
+      {imageToCrop && (
+        <ImageCropperModal
+          imageSrc={imageToCrop}
+          onCropComplete={uploadCroppedImage}
+          onCancel={() => setImageToCrop(null)}
+        />
       )}
     </>
   );
